@@ -1,3 +1,7 @@
 {
-    "terminal.integrated.shellArgs.windows": ["/K", "C:\\Users\\victo\\anaconda3\\Scripts\\activate.bat C:\\Users\\victo\\anaconda3 & conda activate thesis"]
+    "terminal.integrated.shellArgs.windows": [
+        "/K",
+        "C:\\Users\\victo\\anaconda3\\Scripts\\activate.bat C:\\Users\\victo\\anaconda3 & conda activate thesis"
+    ],
+    "python.pythonPath": "C:\\Users\\victo\\anaconda3\\envs\\thesis\\python.exe"
 }

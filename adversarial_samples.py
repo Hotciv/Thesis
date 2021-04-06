@@ -16,7 +16,6 @@ def generating_adversarial_samples(x, selFeatures, df):
     '''
     L = pd.DataFrame()
     L_unique = []
-    # L_pr = []
     genSamples = []
 
     # Gets the selected features from the dataset
@@ -38,7 +37,7 @@ def generating_adversarial_samples(x, selFeatures, df):
 
     # print(list(product(*test)))
     
-    # L_pr.append([2, 4, 6])  # for testing purposes
+    # L_pr = list(product(*test))
     L_pr = list(product(*L_unique))
 
     # Generates new samples from the combinations
@@ -56,6 +55,7 @@ def generating_adversarial_samples(x, selFeatures, df):
 
 
 # print(ds1.head())
+print(generating_adversarial_samples(ds1.iloc[0, :], [0,2,4], ds1))
 print(len(generating_adversarial_samples(ds1.iloc[0, :], [0,2,4], ds1)))
 # generating_adversarial_samples(ds1.iloc[0, :], [0,2,4], ds1)
 # print(ds1.iloc[0, :])

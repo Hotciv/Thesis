@@ -4,44 +4,47 @@
 # Modified for use by Victor Barboza
 # License: BSD 3 clause
 
-import numpy as np
-import matplotlib.pyplot as plt
-from matplotlib.colors import ListedColormap
+from sklearn.datasets import make_moons, make_circles, make_classification
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
-from sklearn.datasets import make_moons, make_circles, make_classification
-from sklearn.neural_network import MLPClassifier
+from matplotlib.colors import ListedColormap
+import matplotlib.pyplot as plt
+import numpy as np
+
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
-from sklearn.gaussian_process import GaussianProcessClassifier
 from sklearn.gaussian_process.kernels import RBF
+# from sklearn.gaussian_process import GaussianProcessClassifier
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
+from sklearn.ensemble import RandomForestClassifier  # , AdaBoostClassifier
+# from sklearn.neural_network import MLPClassifier
 from sklearn.naive_bayes import GaussianNB
-from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
+# from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
 from sklearn.ensemble import GradientBoostingClassifier
 
 # TODO:
-# Check which classifiers are actually used
 # Make them work with my datasets
 
 h = .02  # step size in the mesh
 
-names = ["Nearest Neighbors", "Linear SVM", "RBF SVM", "Gaussian Process",
-         "Decision Tree", "Random Forest", "Neural Net", "AdaBoost",
-         "Naive Bayes", "QDA", "Gradient Boost"]
+# names = ["Nearest Neighbors", "Linear SVM", "RBF SVM", "Gaussian Process",
+#          "Decision Tree", "Random Forest", "Neural Net", "AdaBoost",
+#          "Naive Bayes", "QDA", "Gradient Boost"]
+names = ["Nearest Neighbors", "Linear SVM", "RBF SVM",
+         "Decision Tree", "Random Forest", 
+         "Naive Bayes", "Gradient Boost"]
 
 classifiers = [
     KNeighborsClassifier(3),
     SVC(kernel="linear", C=0.025),
     SVC(gamma=2, C=1),
-    GaussianProcessClassifier(1.0 * RBF(1.0)),
+    # GaussianProcessClassifier(1.0 * RBF(1.0)),
     DecisionTreeClassifier(max_depth=5),
     RandomForestClassifier(max_depth=5, n_estimators=10, max_features=1),
-    MLPClassifier(alpha=1, max_iter=1000),
-    AdaBoostClassifier(),
+    # MLPClassifier(alpha=1, max_iter=1000),
+    # AdaBoostClassifier(),
     GaussianNB(),
-    QuadraticDiscriminantAnalysis(),
+    # QuadraticDiscriminantAnalysis(),
     GradientBoostingClassifier()]
 
 X, y = make_classification(n_features=2, n_redundant=0, n_informative=2,

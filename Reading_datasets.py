@@ -6,11 +6,13 @@ import numpy as np
     All classes will be relabeled as follows:
     +1 -> phishing instances
     -1 -> legitimate instances
+
+    When generating adversarial samples, 200 phishing instances were reserved from each dataset
 '''
 
 # ds1 = pd.read_csv('Datasets/72ptz43s9v-1/dataset_full.csv')
-# ds1_sub = pd.read_csv('Datasets/72ptz43s9v-1/dataset_small.csv')
-# ds1["Result"].replace({0: 1}, inplace=True)  # test column name
+ds1_sub = pd.read_csv('Datasets/72ptz43s9v-1/dataset_small.csv')
+ds1_sub["phishing"].replace({0: -1}, inplace=True)  # test column name
 '''
     Some attributes are > 1, some are between 0 and 1, inclusive
     phishing: 0 - legitimate

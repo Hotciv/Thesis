@@ -6,7 +6,7 @@ def LinearKernel(X: pd.DataFrame):
         returns: X' * X
                 An NxN matrix, where N is the number of features
     '''
-    return X.dot(X.T)
+    return X.T.dot(X)
 
 def GaussianKernel1(X):
     '''

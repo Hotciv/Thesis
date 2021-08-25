@@ -1,22 +1,25 @@
 from itertools import product
 from reading_datasets import *
-import pandas as pd
+# import pandas as pd
 
 
-def generating_adversarial_samples(x, selFeatures, df):
+def generating_adversarial_samples(x, selFeatures, df, y=1):
     '''Generates new samples based on previous ones and selected features
     An important note is that it should be able to deal with samples that got successfully classified as phishing
-    (maybe TODO: change this to work with tf.Dataset instead of pd.Dataframe
 
 
     Keyword arguments:
     x -- an instance (a row)
     selFeatures -- a list of indexes of the selected features
     df -- a dataframe that contains the dataset
+    y -- which samples should be used (+1/legitimate or -1/phishing)
     '''
     L = pd.DataFrame()
     L_unique = []
     genSamples = []
+
+    # Gets only the legitimate or phishing samples
+    df = df[df.iloc[:, -1] == y]
 
     # Gets the selected features from the dataset
     for featurePos in selFeatures:
@@ -55,8 +58,8 @@ def generating_adversarial_samples(x, selFeatures, df):
 
 
 # print(ds1.head())
-print(generating_adversarial_samples(ds1.iloc[0, :], [0,2,4], ds1))
-print(len(generating_adversarial_samples(ds1.iloc[0, :], [0,2,4], ds1)))
+# print(generating_adversarial_samples(ds1.iloc[0, :], [0,2,4], ds1))
+# print(len(generating_adversarial_samples(ds1.iloc[0, :], [0,2,4], ds1)))
 # generating_adversarial_samples(ds1.iloc[0, :], [0,2,4], ds1)
 # print(ds1.iloc[0, :])
 # print(df.dtypes)

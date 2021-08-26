@@ -57,6 +57,13 @@ def generating_adversarial_samples(x, selFeatures, df, y=1):
     return genSamples
 
 
+def cost(a, b):
+    '''
+    Euclidean distance between two pandas.Series
+    '''
+
+    return (np.linalg.norm(a-b))
+
 # print(ds1.head())
 # print(generating_adversarial_samples(ds1.iloc[0, :], [0,2,4], ds1))
 # print(len(generating_adversarial_samples(ds1.iloc[0, :], [0,2,4], ds1)))

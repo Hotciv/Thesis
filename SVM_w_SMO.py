@@ -209,7 +209,7 @@ class SMOModel:
         else:
             b_new = (b1 + b2) * 0.5
 
-        # Update model object with new alphas & threshold
+        # Update model object with new alphas
         self.alphas[i1] = a1
         self.alphas[i2] = a2
         

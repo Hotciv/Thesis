@@ -10,8 +10,8 @@ class AAOSVM(SMOModel):
     '''
         Reproduction of the Adversary-Aware Online SVM
     '''
-    def __init__(self, X, y, alphas, errors, C=100, m=100, Gp=250, Em=1, Er=1, Ym=1, Yr=1, s=0.6, kernel='linear'):
-        SMOModel.__init__(self, X, y, C, alphas, 0, errors, kernel)
+    def __init__(self, X, y, C, alphas, b, errors, m=100, Gp=250, Em=1, Er=1, Ym=1, Yr=1, s=0.6, kernel='linear'):
+        SMOModel.__init__(self, X, y, C, alphas, b, errors, kernel)
         self.mem = m                            # memory parameter
         self.Gp = Gp                            # period to approximate sequential equilibrium strategies
         self.Em = Em                            # reward for classifying malicious correctly

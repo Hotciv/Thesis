@@ -201,9 +201,9 @@ class SMOModel:
         
         # Set new threshold based on if a1 or a2 is bound by L and/or H
         # TODO: understand this part?
-        if 0 < a1 and a1 < C:
+        if 0 < a1 and a1 < self.C:
             b_new = b1
-        elif 0 < a2 and a2 < C:
+        elif 0 < a2 and a2 < self.C:
             b_new = b2
         # Average thresholds if both are bound
         else:
@@ -300,82 +300,82 @@ class SMOModel:
             
         return self
 
-################################################################
-############## Using the linear kernel; example ################
-################################################################
+# ################################################################
+# ############## Using the linear kernel; example ################
+# ################################################################
 
-X_train, y = make_blobs(n_samples=1000, centers=2,
-                        n_features=2, random_state=1)
+# X_train, y = make_blobs(n_samples=1000, centers=2,
+#                         n_features=2, random_state=1)
 
-scaler = StandardScaler()
-X_train_scaled = scaler.fit_transform(X_train, y)
+# scaler = StandardScaler()
+# X_train_scaled = scaler.fit_transform(X_train, y)
 
-y[y == 0] = -1
+# y[y == 0] = -1
 
-# Set model parameters and initial values
-C = 1000.0
-m = len(X_train_scaled)
-initial_alphas = np.zeros(m)
-initial_b = 0.0
+# # Set model parameters and initial values
+# C = 1000.0
+# m = len(X_train_scaled)
+# initial_alphas = np.zeros(m)
+# initial_b = 0.0
 
-# Instantiate model
-model = SMOModel(X_train_scaled, y, C,
-                 initial_alphas, initial_b, np.zeros(m))
+# # Instantiate model
+# model = SMOModel(X_train_scaled, y, C,
+#                  initial_alphas, initial_b, np.zeros(m))
 
-# Initialize error cache
-initial_error = model.decision_function(model.X) - model.y
-model.errors = initial_error
+# # Initialize error cache
+# initial_error = model.decision_function(model.X) - model.y
+# model.errors = initial_error
 
-np.random.seed(0)
-model.train()
+# np.random.seed(0)
+# model.train()
 
-fig, ax = plt.subplots()
-grid, ax = model.plot_decision_boundary(ax)
+# fig, ax = plt.subplots()
+# grid, ax = model.plot_decision_boundary(ax)
 
-print(np.count_nonzero(model.alphas.nonzero()))
-print(model.alphas.sum())
+# print(np.count_nonzero(model.alphas.nonzero()))
+# print(model.alphas.sum())
 
-# Add an outlier
-X_outlier = np.append(X_train_scaled, [0.1, 0.1])
-X_outlier = X_outlier.reshape(X_train.shape[0]+1, X_train.shape[1])
-y_outlier = np.append(y, 1)
+# # Add an outlier
+# X_outlier = np.append(X_train_scaled, [0.1, 0.1])
+# X_outlier = X_outlier.reshape(X_train.shape[0]+1, X_train.shape[1])
+# y_outlier = np.append(y, 1)
 
-# Set model parameters and initial values
-C = 1000.0
-m = len(X_outlier)
-initial_alphas = np.zeros(m)
-initial_b = 0.0
+# # Set model parameters and initial values
+# C = 1000.0
+# m = len(X_outlier)
+# initial_alphas = np.zeros(m)
+# initial_b = 0.0
 
-# Instantiate model
-model = SMOModel(X_outlier, y_outlier, C,
-                 initial_alphas, initial_b, np.zeros(m))
+# # Instantiate model
+# model = SMOModel(X_outlier, y_outlier, C,
+#                  initial_alphas, initial_b, np.zeros(m))
 
-# Initialize error cache
-initial_error = model.decision_function(model.X) - model.y
-model.errors = initial_error
+# # Initialize error cache
+# initial_error = model.decision_function(model.X) - model.y
+# model.errors = initial_error
 
-model.train()
-fig, ax = plt.subplots()
-grid, ax = model.plot_decision_boundary(ax)
+# model.train()
+# fig, ax = plt.subplots()
+# grid, ax = model.plot_decision_boundary(ax)
 
-# Set model parameters and initial values
-C = 1.0
+# # Set model parameters and initial values
+# C = 1.0
 
-initial_alphas = np.zeros(m)
-initial_b = 0.0
+# initial_alphas = np.zeros(m)
+# initial_b = 0.0
 
-# Instantiate model
-model = SMOModel(X_outlier, y_outlier, C,
-                 initial_alphas, initial_b, np.zeros(m))
+# # Instantiate model
+# model = SMOModel(X_outlier, y_outlier, C,
+#                  initial_alphas, initial_b, np.zeros(m))
 
-# Initialize error cache
-initial_error = model.decision_function(model.X) - model.y
-model.errors = initial_error
+# # Initialize error cache
+# initial_error = model.decision_function(model.X) - model.y
+# model.errors = initial_error
 
-model.train()
-fig, ax = plt.subplots()
-grid, ax = model.plot_decision_boundary(ax)
+# model.train()
+# fig, ax = plt.subplots()
+# grid, ax = model.plot_decision_boundary(ax)
 
-print(np.count_nonzero(model.alphas.nonzero()))
-print(np.array_equal(initial_alphas, model.alphas))
+# print(np.count_nonzero(model.alphas.nonzero()))
+# print(np.array_equal(initial_alphas, model.alphas))
 

@@ -10,17 +10,38 @@ class AAOSVM(SMOModel):
     '''
         Reproduction of the Adversary-Aware Online SVM
     '''
-    def __init__(self, X, y, C, alphas, b, errors, m=100, Gp=250, Em=1, Er=1, Ym=1, Yr=1, s=0.6, kernel='linear'):
-        SMOModel.__init__(self, X, y, C, alphas, b, errors, kernel)
-        self.mem = m                            # memory parameter
-        self.Gp = Gp                            # period to approximate sequential equilibrium strategies
-        self.Em = Em                            # reward for classifying malicious correctly
-        self.Er = Er                            # reward for classifying regular correctly
-        self.Ym = Ym                            # punishment for misclassifying malicious
-        self.Yr = Yr                            # punishment for misclassifying regular
-        self.w = np.zeros((len(X[0]),))         # weight vector
-        # self.slack = np.ones((len(X[0]),)) * s  # slack vector
-        self.slack = s
+    def __init__(self, X, y, C, alphas, b, errors, m=100, Gp=250, Em=1, Er=1, Ym=1, Yr=1, s=0.6, kernel_type='linear'):
+        # Variables related to SVM with SMO
+        self.X = X                                      # training data matrix
+        self.y = y                                      # class label vector (-1 or 1) for the data
+        self.C = C                                      # regularization parameter
+        self.kernels = {                                # kernel types
+            'linear' : self.linear_kernel,
+            'gaussian' : self.gaussian_kernel
+        }
+        self.kernel = self.kernels[kernel_type]         # kernel function
+        self.alphas = alphas                            # lagrange multiplier vector
+        self.b = b                                      # scalar bias term
+        self.errors = errors                            # error cache
+        self._obj = []                                  # record of objective function value
+        # self.m = len(self.X)                            # store size of training set
+        self.w = np.zeros((len(X[0]),))                 # weight vector
+        
+        # Variable(s) related to "relaxing" the SVM
+        # self.slack = np.ones((len(X[0]),)) * s        # slack vector
+        self.slack = s                                  # slack variable
+        
+        # Set tolerances
+        self.tol = tol                                  # error tolerance
+        self.eps = eps                                  # alpha tolerance
+        
+        # Game theory variables
+        self.mem = m                                    # memory parameter
+        self.Gp = Gp                                    # period to approximate sequential equilibrium strategies
+        self.Em = Em                                    # reward for classifying malicious correctly
+        self.Er = Er                                    # reward for classifying regular correctly
+        self.Ym = Ym                                    # punishment for misclassifying malicious
+        self.Yr = Yr                                    # punishment for misclassifying regular
 
 
     def psi(self, x):
@@ -41,8 +62,6 @@ class AAOSVM(SMOModel):
         '''
         Update the value of a couple of weights?
         '''
-        # TODO: try this
-        # return (y * Psi(x)) * a @ x.T
         # TODO: change the vector multiplication to instances?
         self.w = self.w + self.y[i1] * (a1 - self.a[i1]) * self.X[i1] + self.y[i2] * (a2 - self.a[i2]) * self.X[i2]
 

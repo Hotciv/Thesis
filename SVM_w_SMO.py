@@ -98,13 +98,13 @@ class SMOModel:
         ax.contour(xrange, yrange, grid, levels=levels, linewidths=(1, 1, 1),
                    linestyles=('--', '-', '--'), colors=colors)
         ax.scatter(self.X[:,0], self.X[:,1],
-                   c=self.y, cmap=plt.cm.viridis, lw=0, alpha=0.25)
+                   c=self.y, cmap=plt.cm.winter, lw=0, alpha=0.25)
         
         # Plot support vectors (non-zero alphas)
         # as circled points (linewidth > 0)
         mask = np.round(self.alphas, decimals=2) != 0.0
         ax.scatter(self.X[mask,0], self.X[mask,1],
-                   c=self.y[mask], cmap=plt.cm.viridis, lw=1, edgecolors='k')
+                   c=self.y[mask], cmap=plt.cm.winter, lw=1, edgecolors='k')
         
         plt.show()
 

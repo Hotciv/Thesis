@@ -75,12 +75,6 @@ class AAOSVM(SMOModel):
     # Decision function (AKA constraint(s))
     def decision_function(self, x_test):
         """Applies the SVM decision function to the input feature vectors in `x_test`."""
-        # print((self.alphas * self.y).shape)
-        # print(self.kernel(self.X, x_test))
-        # kernel = self.kernel(self.X, x_test)
-        # if np.isscalar(kernel):
-        #     return (self.alphas * self.y) * kernel  - self.b
-        # else:
-        #     return (self.alphas * self.y) @ kernel  - self.b
+        
         return (self.alphas * self.y) @ self.kernel(self.X, x_test)  - self.b
 

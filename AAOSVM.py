@@ -5,6 +5,7 @@
     and maybe alphas and errors
 """
 from SVM_w_SMO import *
+from sklearn.cluster import KMeans
 
 
 class AAOSVM(SMOModel):
@@ -47,13 +48,41 @@ class AAOSVM(SMOModel):
         self.Er = Er  # reward for classifying regular correctly
         self.Ym = Ym  # punishment for misclassifying malicious
         self.Yr = Yr  # punishment for misclassifying regular
+
+        # Helper variables
         self.Psi = 0  # last Psi value
+        self.muM = 0  # probability distribution of the malicious websites
+        self.muR = 0  # probability distribution of the regular websites
+        self.clusters = None  # clusters of websites
+
+    def get_clusters(self, k):
+        '''
+        Gets clusters in X using an clustering algorithm
+        '''
+        self.clusters = KMeans(n_clusters=k, random_state=0).fit(self.X)  # TODO: remove random state
+        if not ((self.clusters.labels_ == 1) == (self.y == 1)).all():
+            input('Yay!')
+
+    
+    def calculate_p(self, cluster):
+        '''
+        Calculates the probability of a type
+        '''
+        pass
+    
+    def mu(self, t, x):
+        '''
+        A belief, a probability distribution.
+        Represents the probability that given a message, we are dealing with a certain type of message
+        '''
+        pass
 
     def psi(self, x):
         """
         Helper function from Psi(x)
         """
-        pass
+        aux = 1  # TODO: change to sum of mus
+        return aux*(self.Em + self.Ym)/(self.Er + self.Yr)
 
     def Psi(self, x):
         """

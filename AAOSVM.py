@@ -4,8 +4,9 @@
     Assuming every slide of the window will update X, y, b, w, slack, 
     and maybe alphas and errors
 """
-from SVM_w_SMO import *
 from sklearn.cluster import KMeans
+from SVM_w_SMO import *
+from time import time
 
 
 class AAOSVM(SMOModel):
@@ -288,33 +289,45 @@ class AAOSVM(SMOModel):
 
     #     return self
 
-    # def train(self):
+    def partial_fit(self, Sx, Sy, x, y, i):
 
-    #     numChanged = 0
-    #     examineAll = 1
+        # Update parameters before anything else
+        self.X = Sx
+        self.y = Sy
 
-    #     while (numChanged > 0) or (examineAll):
-    #         numChanged = 0
-    #         if examineAll:
-    #             # loop over all training examples
-    #             for i in range(self.alphas.shape[0]):
-    #                 if self.y[i] * (self.w @ self.X[i] + self.b) < self.slack:
-    #                     examine_result, self = self.examine_example(i)
-    #                     numChanged += examine_result
-    #                     if examine_result:
-    #                         obj_result = self.objective_function(self.alphas)
-    #                         self._obj.append(obj_result)
-    #         else:
-    #             # loop over examples where alphas are not already at their limits
-    #             for i in np.where((self.alphas != 0) & (self.alphas != self.C))[0]:
-    #                 examine_result, self = self.examine_example(i)
-    #                 numChanged += examine_result
-    #                 if examine_result:
-    #                     obj_result = self.objective_function(self.alphas)
-    #                     self._obj.append(obj_result)
-    #         if examineAll == 1:
-    #             examineAll = 0
-    #         elif numChanged == 0:
-    #             examineAll = 1
+        # if the instance is considered phishing
+        # if y * (initial_w @ x + initial_b) * initial_Psi < model.slack:
 
-    #     return self
+        if y * (self.w @ x + self.b) < self.slack:
+
+            # Initialize error cache
+            self.errors = self.decision_function(self.X) - self.y
+
+            # Track time to train
+            tic = time()
+            # Train model
+            self.train()
+            toc = time()
+            
+        # Increasing the size of the parameters of the model
+        if self.mem > self.m:
+            self.m += 1
+            self.alphas = np.append(self.alphas, [0], 0)
+            self.errors = np.append(self.errors, [0], 0)
+            # print(len(Sx), len(Sy), len(self.alphas), len(self.errors))
+
+        # if reached the limit of the window
+        # i.e. window is full and now will move
+        if Sy.shape[0] >= self.mem:
+            Sx = Sx[1:]
+            Sy = Sy[1:]
+
+        if i % self.Gp == 0:
+            self.get_clusters(2)  # should be 2, 3, or 4...
+        
+        # Adding instance to the window
+        Sx = np.append(Sx, [x], 0)
+        Sy = np.append(Sy, [y], 0)
+
+        return Sx, Sy
+        

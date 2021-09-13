@@ -7,16 +7,17 @@
 
 # from pyspark.sql import SparkSession # instantiate spark session
 from skdist.distribute.search import DistGridSearchCV
-from sklearn.model_selection import train_test_split
-from sklearn.model_selection import cross_val_score
+
+# from sklearn.model_selection import cross_val_score
 from sklearn.preprocessing import StandardScaler
-from sklearn import metrics
-from sklearn.utils import shuffle
+from adversarial_samples import cost, generating_adversarial_samples
+# from sklearn.utils import shuffle
 from reading_datasets import *
+from aux_functions import *
+from sklearn import metrics
 from csv import writer
 from time import time
 import numpy as np
-from sklearn.model_selection import KFold
 
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC, LinearSVC
@@ -63,60 +64,12 @@ dataframes = [ds2, ds3, ds4]
 datasets = []
 
 for ds in dataframes:
-    # TODO: reserve 200 phishing for generating adversarial samples
     y = ds.pop(ds.columns.tolist()[-1])
     # y = y.values.tolist()
     y = y.to_numpy()
     # X = ds.values.tolist()
     X = ds.to_numpy()
     datasets.append((X, y))
-
-
-def dataset_split(X:np.ndarray, y:np.ndarray, split, random_state=42):
-    """
-    Split the dataset in training and testing according to
-    a number of samples, or a percentage of dataset to be reserved for testing
-    """
-
-    if isinstance(split, list):
-        # Split into training, validation and testing
-        pass
-    elif isinstance(split, float):
-        X_train, X_test, y_train, y_test = train_test_split(
-            X, y, test_size=split, random_state=random_state
-        )
-    elif isinstance(split, int):
-        X_train, X_test, y_train, y_test = train_test_split(
-            X, y, test_size=split, random_state=random_state
-        )
-        # j = 0
-        # for i in choice(range(0, len(y), 1)):
-        #     j += 1
-        #     print(i)
-        #     if j == split:
-        #         return
-    return X_train, X_test, y_train, y_test
-
-
-def cross_validate(clf, X, y, cv=5, scoring="accuracy", random_state=42):
-    scores = np.zeros(cv)
-    j = 0
-
-    # kf = KFold(n_splits=cv, random_state=random_state, shuffle=True)
-    kf = KFold(n_splits=cv)
-
-    for train_index, test_index in kf.split(X, y):
-        X_partial, X_hold = X[train_index], X[test_index]
-        y_partial, y_hold = y[train_index], y[test_index]
-
-        for i in range(cv):
-            if scoring == "accuracy":
-                clf.fit(X_partial, y_partial)
-                scores[j] = clf.score(X_hold, y_hold)
-        
-        j +=1
-
-    return scores
 
 # saving the results on a csv file
 f = open("standard_classifiers_results.csv", "w", newline="")
@@ -139,7 +92,7 @@ for k in range(10):
         # X = StandardScaler().fit_transform(X)
 
         # dataset_split(X, y, [])
-        X_train, X_test, y_train, y_test = dataset_split(X, y, 200)
+        X_train, X_test, y_train, _ = dataset_split(X, y, 200)
         # dataset_split(X, y, 0.1)
         # print(len(y_train), len(y_test))
         # input()
@@ -149,14 +102,30 @@ for k in range(10):
 
         # iterate over classifiers
         for name, clf in zip(names, classifiers):
+            foolers = []
+            y = 1  # 1 or -1
             start_time = time()
             
             score = cross_validate(clf, X_train, y_train)
-            ACCs = cross_val_score(clf, X_train, y_train, cv=5, scoring='accuracy')
-            print(score, ACCs)
-            input()
-            clf.fit(X_train, y_train)
-            score = clf.score(X_test, y_test)
+            # ACCs = cross_val_score(clf, X_train, y_train, cv=5, scoring='accuracy')
+            finish = time() - start_time
+
+            selFeatures = feature_selection(X_test[0], 4)
+            # print(selFeatures)
+            # input()
+            X = pd.DataFrame(X)
+            
+            for instance in X_test:
+                samples = generating_adversarial_samples(instance, selFeatures, X, y)
+                pred = clf.predict(samples)
+                if ((pred + y) == 0).any():
+                    foolers.append(pred)
+
+            print(len(foolers)/200)
+            # print(score, ACCs)
+            # input()
+            # clf.fit(X_train, y_train)
+            # score = clf.score(X_test, y_test)
             # print(str(start_time - time()) + " score " + str(score))
 
             # f1s = cross_val_score(clf, X_train, y_train, cv = 5, scoring = 'f1')
@@ -171,6 +140,6 @@ for k in range(10):
 
             # header = ['Dataset', 'Classifier', 'ACC', 'TPR', 'f1', 'Time to execute']
             # wrt.writerow([ds_cnt, name, ACCs.mean(), TPRs.mean(), f1s.mean(), time() - start_time])
-            wrt.writerow([ds_cnt, name, score, time() - start_time])
+            wrt.writerow([ds_cnt, name, score.mean(), finish])
 
 f.close()

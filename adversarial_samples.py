@@ -54,7 +54,7 @@ def generating_adversarial_samples(x, selFeatures, df, y=1):
         
         genSamples.append(temp)
 
-    return genSamples
+    return np.array(genSamples)
 
 
 def cost(a, b):

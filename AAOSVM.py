@@ -55,27 +55,33 @@ class AAOSVM(SMOModel):
         self.muM = 0  # probability distribution of the malicious websites
         self.muR = 0  # probability distribution of the regular websites
         self.clusters = None  # clusters of websites
+        self.p = None  # vector of probabilities of types
 
     def get_clusters(self, k):
-        '''
+        """
         Gets clusters in X using an clustering algorithm
-        '''
-        self.clusters = KMeans(n_clusters=k, random_state=0).fit(self.X)  # TODO: remove random state
-        if not ((self.clusters.labels_ == 1) == (self.y == 1)).all():
-            input('Yay!')
+        """
+        self.clusters = KMeans(n_clusters=k, random_state=0).fit(
+            self.X
+        )  # TODO: remove random state
+        # if not ((self.clusters.labels_ == 1) == (self.y == 1)).all():
+        #     input('Yay!')
 
-    
-    def calculate_p(self, cluster):
-        '''
+    def update_probabilities(
+        self, k, datasetSize=100
+    ):  # datasetSize should be the size of the dataset
+        """
         Calculates the probability of a type
-        '''
-        pass
-    
+        """
+        self.p = np.zeros(k)
+        for i in range(k):
+            self.p[i] = sum(self.clusters.labels_ == i) / datasetSize
+
     def mu(self, t, x):
-        '''
+        """
         A belief, a probability distribution.
         Represents the probability that given a message, we are dealing with a certain type of message
-        '''
+        """
         pass
 
     def psi(self, x):
@@ -83,13 +89,15 @@ class AAOSVM(SMOModel):
         Helper function from Psi(x)
         """
         aux = 1  # TODO: change to sum of mus
-        return aux*(self.Em + self.Ym)/(self.Er + self.Yr)
+        return aux * (self.Em + self.Ym) / (self.Er + self.Yr)
 
     def Psi(self, x):
         """
         Function that incorporates prior knowledge into the SVM
         """
-        self.Psi = (1 + psi(x)) / (self.w.T * np.ones((len(self.X[0]),)) + 2 * self.b)
+        self.Psi = (1 + self.psi(x)) / (
+            self.w.T * np.ones((len(self.X[0]),)) + 2 * self.b
+        )
 
     def update_weights(self, i1, i2, a1, a2):
         """
@@ -308,7 +316,7 @@ class AAOSVM(SMOModel):
             # Train model
             self.train()
             toc = time()
-            
+
         # Increasing the size of the parameters of the model
         if self.mem > self.m:
             self.m += 1
@@ -323,11 +331,15 @@ class AAOSVM(SMOModel):
             Sy = Sy[1:]
 
         if i % self.Gp == 0:
-            self.get_clusters(2)  # should be 2, 3, or 4...
-        
+            k = 2  # should be 2, 3, or 4...
+            self.get_clusters(k)
+            self.update_probabilities(k)
+            # print(self.p)
+            # input()
+
         # Adding instance to the window
         Sx = np.append(Sx, [x], 0)
         Sy = np.append(Sy, [y], 0)
 
         return Sx, Sy
-        
+

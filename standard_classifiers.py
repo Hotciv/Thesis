@@ -11,6 +11,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.model_selection import cross_val_score
 from sklearn.preprocessing import StandardScaler
 from sklearn import metrics
+from sklearn.utils import shuffle
 from reading_datasets import *
 from csv import writer
 from time import time
@@ -24,6 +25,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.naive_bayes import GaussianNB
 from sklearn.ensemble import GradientBoostingClassifier
 
+# # For DistGridSearchCV to work
 # spark = (
 #     SparkSession
 #     .builder
@@ -66,6 +68,32 @@ for ds in dataframes:
     X = ds.values.tolist()
     datasets.append((X, y))
 
+
+def dataset_split(X:np.ndarray, y:np.ndarray, split, random_state=42):
+    """
+    Split the dataset in training and testing according to
+    a number of samples, or a percentage of dataset to be reserved for testing
+    """
+
+    if isinstance(split, list):
+        # Split into training, validation and testing
+        pass
+    elif isinstance(split, float):
+        X_train, X_test, y_train, y_test = train_test_split(
+            X, y, test_size=split, random_state=random_state
+        )
+    elif isinstance(split, int):
+        X_train, X_test, y_train, y_test = train_test_split(
+            X, y, test_size=split, random_state=random_state
+        )
+        # j = 0
+        # for i in choice(range(0, len(y), 1)):
+        #     j += 1
+        #     print(i)
+        #     if j == split:
+        #         return
+    return X_train, X_test, y_train, y_test
+
 # saving the results on a csv file
 f = open("standard_classifiers_results.csv", "w", newline="")
 wrt = writer(f)
@@ -86,10 +114,11 @@ for k in range(10):
         # no scalling for now
         # X = StandardScaler().fit_transform(X)
 
-        # TODO: is this really used?
-        X_train, X_test, y_train, y_test = train_test_split(
-            X, y, test_size=0.96, random_state=42
-        )
+        # dataset_split(X, y, [])
+        X_train, X_test, y_train, y_test = dataset_split(X, y, 200)
+        # dataset_split(X, y, 0.1)
+        print(len(y_train), len(y_test))
+        input()
         # X_train, y_train= (X, y)
 
         print("\n\nGoing through DS" + str(ds_cnt + 1) + " " + str(k + 1) + " time")

@@ -59,7 +59,7 @@ def generating_adversarial_samples(x, selFeatures, df, y=1):
 
 def cost(a, b):
     '''
-    Euclidean distance between two pandas.Series
+    Euclidean distance between two pandas.Series or np.arrays
     '''
 
     return (np.linalg.norm(a-b))

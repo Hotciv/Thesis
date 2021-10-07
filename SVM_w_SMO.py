@@ -43,12 +43,17 @@ class SMOModel:
         self.tol = tol  # error tolerance
         self.eps = eps  # alpha tolerance
 
-    def linear_kernel(self, x, y):
+    def linear_kernel(self, x, y, b=1):
         """Returns the linear combination of arrays `x` and `y` with
         the optional bias term `b` (set to 1 by default)."""
 
-        # return x @ y.T + self.b  # Note the @ operator for matrix multiplication
-        return x @ y.T + 1  # Note the @ operator for matrix multiplication
+        # Note the @ operator for matrix multiplication
+        if b == 1:
+            return x @ y.T + 1
+        elif b == 0:
+            return x @ y.T
+        else:
+            return x @ y.T + self.b
 
     def gaussian_kernel(self, x, y, sigma=1):
         """Returns the gaussian similarity of arrays `x` and `y` with

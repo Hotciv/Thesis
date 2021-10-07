@@ -4,6 +4,8 @@
     Assuming every slide of the window will update X, y, b, w, slack, 
     and maybe alphas and errors
 """
+from matplotlib.pyplot import contour
+from numpy.core.defchararray import count
 from sklearn.cluster import KMeans
 from SVM_w_SMO import *
 from time import time
@@ -30,6 +32,7 @@ class AAOSVM(SMOModel):
         Yr=1,
         s=0.6,
         kernel_type="linear",
+        k=3,  # should be 2, 3, or 4...
     ):
         # Variables related to SVM with SMO
         super().__init__(X, y, C, alphas, b, errors, kernel_type)
@@ -55,34 +58,147 @@ class AAOSVM(SMOModel):
         self.muM = 0  # probability distribution of the malicious websites
         self.muR = 0  # probability distribution of the regular websites
         self.clusters = None  # clusters of websites
-        self.p = None  # vector of probabilities of types
+        self.p = np.array([1 / k for i in range(k)])  # vector of probabilities of types
+        self.k = k
 
-    def get_clusters(self, k):
+    def get_clusters(self):
         """
         Gets clusters in X using an clustering algorithm
         """
-        self.clusters = KMeans(n_clusters=k, random_state=0).fit(
+        self.clusters = KMeans(n_clusters=self.k, random_state=42).fit(
             self.X
         )  # TODO: remove random state
+
+        self.clusters.R = sum(self.y == -1)
+        self.clusters.M = sum(self.y == 1)
+        
+        # number of instances in a cluster
+        self.clusters.Z = np.zeros(self.k)
+        for i in range(self.k):
+            self.clusters.Z[i] = sum(self.clusters.labels_ == i)
+        
+        # for i, l in enumerate(self.clusters.labels_):
+        #         # number of instances in a cluster that have label y
+        #         if self.y[i] == y:
+        #             count += 1
+        #     # number of instances that have label 'M'
+        #     if self.y[i] == 1:
+        #         self.clusters.M += 1
+        #     # number of instances that have label 'R'
+        #     if self.y[i] == -1:
+        #         self.clusters.R += 1
         # if not ((self.clusters.labels_ == 1) == (self.y == 1)).all():
         #     input('Yay!')
 
+    def distance(self, a, b):
+        """
+        Euclidean distance between two np.arrays
+        """
+        return np.linalg.norm(a - b)
+
+    def get_type(self, x):
+        types = [self.distance(x, c) for c in self.clusters.cluster_centers_]
+        return np.argmin(types)
+
+    def utility(self, y, x, h, binary=True):
+        """
+        Classifier Utility
+        Uc(y, x, C(x))
+        """
+        # Original formulas
+        if binary:
+            # t = R
+            if y == -1:
+                # incorrect classification
+                if h == 1:
+                    return -self.Yr * self.decision_function(np.ones(len(x)) - x)
+
+                # correct classification
+                else:
+                    return self.Er * self.decision_function(np.ones(len(x)) - x)
+
+        # Generalized formulas
+        else:
+            # t = R
+            if y == -1:
+                aux = np.where(x == 0, np.nan, np.where(x != 0, 0, x))
+                aux = np.where(aux == np.nan, 1, aux)
+
+                # incorrect classification
+                if h == 1:
+                    return -self.Yr * self.decision_function(aux)
+
+                # correct classification
+                else:
+                    return self.Er * self.decision_function(aux)
+
+        # t = M
+        if y == 1:
+            # incorrect classification
+            if h == -1:
+                return -self.Ym * self.decision_function(x)
+            
+            # correct classification
+            else:
+                return self.Em * self.decision_function(x)
+
     def update_probabilities(
-        self, k, datasetSize=100
-    ):  # datasetSize should be the size of the dataset
+        self, X
+    ):
         """
         Calculates the probability of a type
         """
-        self.p = np.zeros(k)
-        for i in range(k):
-            self.p[i] = sum(self.clusters.labels_ == i) / datasetSize
+        self.p = np.zeros(self.k)
 
-    def mu(self, t, x):
+        predicted = self.clusters.predict(X)
+        for i in range(self.k):
+            self.p[i] = sum(predicted == i)
+
+        size_dataset = len(X)
+        for i in range(self.k):
+            self.p[i] /= size_dataset
+
+    def phi(self, y, z):
+        """
+        Probability that an instance is from a cluster and has type y
+        phi(x|(y, z))
+        """
+        count = 0
+        # print(self.clusters.predict(np.reshape(x, (1, -1))))
+        for i, l in enumerate(self.clusters.labels_):
+            # number of instances in a cluster that have label y
+            if l == z and self.y[i] == y:
+                count += 1
+
+        # print(count, y)
+        # print(count/self.clusters.Z[z])
+        return count/self.clusters.Z[z]
+
+    def mu(self, y, z, x):
         """
         A belief, a probability distribution.
+        u((y, z)|x)
         Represents the probability that given a message, we are dealing with a certain type of message
         """
-        pass
+        count_R = 0
+        count_M = 0
+        for i, c in enumerate(self.clusters.labels_):
+            if c == z and self.y[i] == 1:
+                count_M += 1
+            elif c == z and self.y[i] == -1:
+                count_R += 1
+        # t = (M,xi)
+        if y == 1:
+            return self.phi(1, z)*self.p[z]/(count_R/(count_R+count_M)+count_M/(count_R+count_M)*self.phi(1,z))
+
+        # t = (R,xj)
+        elif self.clusters.predict(np.reshape(x, (1, -1))) == z:
+            return self.p[z]
+
+        # t = (R,xj), j != i
+        else:
+            return 0
+
 
     def psi(self, x):
         """
@@ -297,7 +413,7 @@ class AAOSVM(SMOModel):
 
     #     return self
 
-    def partial_fit(self, Sx, Sy, x, y, i):
+    def partial_fit(self, X, Sx, Sy, x, y, i):
 
         # Update parameters before anything else
         self.X = Sx
@@ -331,11 +447,18 @@ class AAOSVM(SMOModel):
             Sy = Sy[1:]
 
         if i % self.Gp == 0:
-            k = 2  # should be 2, 3, or 4...
-            self.get_clusters(k)
-            self.update_probabilities(k)
+            # k = 3  # should be 2, 3, or 4...
+            # self.update_probabilities(k)
             # print(self.p)
             # input()
+            self.get_clusters()
+            self.update_probabilities(X)
+            # self.phi(-1, 0)
+            # self.phi(-1, 1)
+            # self.phi(1, 1)
+            # self.phi(-1, 2)
+            print(self.p)
+            input()
 
         # Adding instance to the window
         Sx = np.append(Sx, [x], 0)

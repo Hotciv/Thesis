@@ -363,6 +363,8 @@ class SMOModel:
 
 # print(np.count_nonzero(model.alphas.nonzero()))
 # print(model.alphas.sum())
+# plt.plot(model.decision_function(model.X))
+# plt.show()
 
 # # Add an outlier
 # X_outlier = np.append(X_train_scaled, [0.1, 0.1])

@@ -307,15 +307,16 @@ class AAOSVM(SMOModel):
         k11 = self.kernel(self.X[i1], self.X[i1])
         k12 = self.kernel(self.X[i1], self.X[i2])
         k22 = self.kernel(self.X[i2], self.X[i2])
-        eta = 2 * k12 - k11 - k22
-        # eta = k11 + k22 - 2 * k12
+        # eta = 2 * k12 - k11 - k22
+        eta = k11 + k22 - 2 * k12
 
-        # Compute new alpha 2 (a2) if eta is negative
-        if eta < 0:
-            a2 = alph2 - y2 * (E1 - E2) / eta
-            # # Compute new alpha 2 (a2) if eta is positive
-            # if (eta > 0):
-            #     a2 = alph2 + y2 * (E1 - E2) / eta
+        # # Compute new alpha 2 (a2) if eta is negative
+        # if eta < 0:
+        #     a2 = alph2 - y2 * (E1 - E2) / eta
+        # Compute new alpha 2 (a2) if eta is positive
+        if (eta > 0):
+            a2 = alph2 + y2 * (E1 - E2) / eta
+            
             # Clip a2 based on bounds L & H
             if L < a2 < H:
                 a2 = a2
@@ -328,8 +329,8 @@ class AAOSVM(SMOModel):
             # elif (a2 > H):
             #     a2 = H
 
-        # If eta is non-negative, move new a2 to bound with greater objective function value
-        # # If eta is non-positive, move new a2 to bound with greater objective function value
+        # # If eta is non-negative, move new a2 to bound with greater objective function value
+        # If eta is non-positive, move new a2 to bound with greater objective function value
         else:
             alphas_adj = self.alphas.copy()
             alphas_adj[i2] = L
@@ -338,14 +339,14 @@ class AAOSVM(SMOModel):
             alphas_adj[i2] = H
             # objective function output with a2 = H
             Hobj = self.objective_function(alphas_adj)
-            if Lobj > (Hobj + self.eps):
-                a2 = L
-            elif Lobj < (Hobj - self.eps):
-                a2 = H
-            # if Lobj < (Hobj - self.eps):
+            # if Lobj > (Hobj + self.eps):
             #     a2 = L
-            # elif Lobj > (Hobj + self.eps):
+            # elif Lobj < (Hobj - self.eps):
             #     a2 = H
+            if Lobj < (Hobj - self.eps):
+                a2 = L
+            elif Lobj > (Hobj + self.eps):
+                a2 = H
             else:
                 a2 = alph2
 

@@ -61,6 +61,33 @@ class AAOSVM(SMOModel):
         self.p = np.array([1 / k for i in range(k)])  # vector of probabilities of types
         self.k = k
 
+    def reset(self, X, y):
+        # Set model parameters and initial values
+        C = 100.0
+        # C = 1000.0  # for SVM_w_SMO comparison
+        # C = 1.0  # for SVM_w_SMO comparison
+        # m = len(ds[1])  # for SVM_w_SMO comparison
+        
+        m = 2
+        initial_alphas = np.zeros(m)
+        initial_b = 0.0
+
+        # Slidding window
+        Sx = X[0]
+        Sy = y[0]
+        Sx = np.append([Sx], [X[1]], 0)
+        Sy = np.append([Sy], [y[1]], 0)
+
+        # Initialize model
+        model = AAOSVM(Sx, Sy, C, initial_alphas, initial_b, np.zeros(m))
+        
+        # Initialize error cache
+        self.errors = self.decision_function(self.X) - self.y
+        
+        model.w = np.zeros(len(X[0]))
+
+        return self
+
     def get_clusters(self):
         """
         Gets clusters in X using an clustering algorithm
@@ -147,6 +174,7 @@ class AAOSVM(SMOModel):
     ):
         """
         Calculates the probability of a type
+        The only part of game theory that uses the whole 
         """
         self.p = np.zeros(self.k)
 
@@ -193,7 +221,7 @@ class AAOSVM(SMOModel):
 
         # t = (R,xj)
         elif self.clusters.predict(np.reshape(x, (1, -1))) == z:
-            return self.p[z]
+            return self.p[z]/(count_R/(count_R+count_M)+count_M/(count_R+count_M)*self.phi(1,z))
 
         # t = (R,xj), j != i
         else:
@@ -204,15 +232,17 @@ class AAOSVM(SMOModel):
         """
         Helper function from Psi(x)
         """
-        aux = 1  # TODO: change to sum of mus
+        mu_M = sum([self.mu(1,i,x) for i in range(self.k)])
+        mu_R = sum([self.mu(-1,i,x) for i in range(self.k)])
+        aux = mu_M/mu_R
         return aux * (self.Em + self.Ym) / (self.Er + self.Yr)
 
-    def Psi(self, x):
+    def update_psi(self, x):
         """
         Function that incorporates prior knowledge into the SVM
         """
         self.Psi = (1 + self.psi(x)) / (
-            self.w.T * np.ones((len(self.X[0]),)) + 2 * self.b
+            sum(self.w) + 2 * self.b
         )
 
     def update_weights(self, i1, i2, a1, a2):
@@ -243,7 +273,10 @@ class AAOSVM(SMOModel):
     # Decision function (AKA constraint(s))
     def decision_function(self, x_test):
         """Applies the SVM decision function to the input feature vectors in `x_test`."""
-
+        # print('alphas', self.alphas)
+        # print('y', self.y)
+        # print('b', self.b)
+        # print('kernel', self.kernel(self.X, x_test))
         return (self.alphas * self.y) @ self.kernel(self.X, x_test) - self.b
 
     def take_step(self, i1, i2):
@@ -420,9 +453,8 @@ class AAOSVM(SMOModel):
         self.y = Sy
 
         # if the instance is considered phishing
-        # if y * (initial_w @ x + initial_b) * initial_Psi < model.slack:
-
-        if y * (self.w @ x + self.b) < self.slack:
+        # if y * (self.w @ x + self.b) < self.slack:
+        if y * (self.w @ x + self.b) * self.Psi < self.slack:
 
             # Initialize error cache
             self.errors = self.decision_function(self.X) - self.y
@@ -457,8 +489,12 @@ class AAOSVM(SMOModel):
             # self.phi(-1, 1)
             # self.phi(1, 1)
             # self.phi(-1, 2)
-            print(self.p)
-            input()
+            # print(self.psi(x))
+            # print(self.Psi)
+            self.update_psi(x)
+            # print(self.Psi)
+            # print(self.p)
+            # input()
 
         # Adding instance to the window
         Sx = np.append(Sx, [x], 0)

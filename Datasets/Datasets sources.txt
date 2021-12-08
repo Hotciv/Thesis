@@ -1,21 +1,26 @@
+DS1
 Phishing Websites Dataset
 https://data.mendeley.com/datasets/72ptz43s9v/1
 Data in Brief.pdf
 verified citations (1 in unknown language)
 
+DS4
 Phishing Dataset for Machine Learning: Feature Evaluation
 https://data.mendeley.com/datasets/h3cgnj8hft/1
 Identifying the Most Effective Feature Category in Machine Learning-based Phishing Website Detection.pdf
 verified citations
 
+DS3
 Website Phishing Data Set
 https://archive.ics.uci.edu/ml/datasets/Website+Phishing#
 Phishing detection based Associative Classification data mining.pdf
-verified citations
+<verify citations>
 
+DS2
 Phishing Websites Data Set
 https://archive.ics.uci.edu/ml/datasets/Phishing+Websites#
+An Assessment of Features Related to Phishing Websites using an Automated Technique.pdf
 Phishing Websites Features.docx
-<verify citations?>
-<author's after works>
+<verify citations>
+verified author's after works
 

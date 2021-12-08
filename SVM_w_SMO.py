@@ -95,7 +95,7 @@ class SMOModel:
 
     # TODO: probably going to change this or remove it
     def plot_decision_boundary(
-        self, ax, resolution=100, colors=("b", "k", "r"), levels=(-1, 0, 1)
+        self, ax, xlabel='Feature 1', ylabel='Feature 2', resolution=100, colors=("b", "k", "r"), levels=(-1, 0, 1)
     ):
         """Plots the model's decision boundary on the input axes object.
         Range of decision boundary grid is determined by the training data.
@@ -110,6 +110,8 @@ class SMOModel:
             for yr in yrange
         ]
         grid = np.array(grid).reshape(len(xrange), len(yrange))
+
+        # ax.margins(2, 2)
 
         # Plot decision contours using grid and
         # make a scatter plot of training data
@@ -137,6 +139,9 @@ class SMOModel:
             lw=1,
             edgecolors="k",
         )
+
+        ax.set_xlabel(xlabel)
+        ax.set_ylabel(ylabel)
 
         plt.show()
 
@@ -364,12 +369,13 @@ class SMOModel:
 # model.train()
 
 # fig, ax = plt.subplots()
+# ax.margins(x=2, y=2)
 # grid, ax = model.plot_decision_boundary(ax)
 
 # print(np.count_nonzero(model.alphas.nonzero()))
 # print(model.alphas.sum())
-# plt.plot(model.decision_function(model.X))
-# plt.show()
+# # plt.plot(model.decision_function(model.X))
+# # plt.show()
 
 # # Add an outlier
 # X_outlier = np.append(X_train_scaled, [0.1, 0.1])

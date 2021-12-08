@@ -1,12 +1,14 @@
 import pandas as pd
+import numpy as np
 import cvxpy as cp
 
-def LinearKernel(X: pd.DataFrame):
+def LinearKernel(X: np.array):
     '''
         returns: X' * X
                 An NxN matrix, where N is the number of features
     '''
-    return X.T.dot(X)
+    # return X.T.dot(X)
+    return cp.trace(X.T*X)
 
 def GaussianKernel1(X):
     '''

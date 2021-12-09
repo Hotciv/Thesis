@@ -80,6 +80,7 @@ ds3["Result"].replace({1: -1, -1: 1}, inplace=True)
 data = arff.loadarff('Datasets\h3cgnj8hft-1\Phishing_Legitimate_full.arff')
 ds4 = pd.DataFrame(data[0], dtype=np.int8)
 ds4["CLASS_LABEL"].replace({0: 1, 1: -1}, inplace=True)
+ds4 = ds4.sample(frac=1, random_state=42).reset_index(drop=True)
 '''
     Some attributes are > 1, some are between 0 and 1, inclusive
     CLASS_LABEL not clear, will adopt this convention: 

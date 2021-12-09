@@ -6,22 +6,22 @@
 # License: BSD 3 clause
 
 # from pyspark.sql import SparkSession # instantiate spark session
-from skdist.distribute.search import DistGridSearchCV
+# from skdist.distribute.search import DistGridSearchCV
 
 # from sklearn.model_selection import cross_val_score
-from sklearn.preprocessing import StandardScaler
-from adversarial_samples import cost, generating_adversarial_samples
+# from sklearn.preprocessing import StandardScaler
+# from adversarial_samples import cost, generating_adversarial_samples
 # from sklearn.utils import shuffle
 from reading_datasets import *
 from aux_functions import *
-from sklearn import metrics
+# from sklearn import metrics
 from csv import writer
 from time import time
-import numpy as np
+# import numpy as np
 
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.svm import SVC, LinearSVC
-from sklearn.gaussian_process.kernels import RBF
+from sklearn.svm import SVC  # , LinearSVC
+# from sklearn.gaussian_process.kernels import RBF
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.naive_bayes import GaussianNB
@@ -45,10 +45,11 @@ names = [
     "Gradient Boost",
 ]
 
+# TODO: check parameters
 classifiers = [
     KNeighborsClassifier(3),
-    SVC(kernel="linear", C=0.025),
-    SVC(gamma=2, C=1),
+    SVC(kernel="linear", C=100, max_iter=10000),
+    SVC(gamma=2, C=100, max_iter=10000),
     DecisionTreeClassifier(max_depth=5),
     RandomForestClassifier(max_depth=5, n_estimators=10, max_features=1),
     GaussianNB(),
@@ -59,23 +60,20 @@ classifiers = [
 # X - list of list of features
 # y - list of classes
 # dataframes = [ds1_sub, ds2, ds3, ds4]
-dataframes = [ds2, ds3, ds4]
-# dataframes = [ds1_sub]
+# dataframes = [ds2, ds3, ds4]
+dataframes = [ds3]
 datasets = []
 
 for ds in dataframes:
     y = ds.pop(ds.columns.tolist()[-1])
-    # y = y.values.tolist()
     y = y.to_numpy()
-    # X = ds.values.tolist()
     X = ds.to_numpy()
     datasets.append((X, y))
 
 # saving the results on a csv file
-f = open("standard_classifiers_results.csv", "w", newline="")
+f = open("standard_classifiers_results - 1_4, random, new.csv", "w", newline="")
 wrt = writer(f)
-# header = ["Dataset", "Classifier", "ACC", "TPR", "f1", "Time to execute"]
-header = ["Dataset", "Classifier", "ACC", "Time to execute"]
+header = ["Dataset", "Classifier", "ACC", "TPR", "F1", "Time to execute"]
 wrt.writerow(header)
 
 # TODO: average results and get standard deviations from files
@@ -85,18 +83,10 @@ for k in range(10):
     # iterate over datasets
     for ds_cnt, ds in enumerate(datasets):
 
-        # TODO: preprocess dataset, split into training and test part?
         X, y = ds
 
-        # no scalling for now
-        # X = StandardScaler().fit_transform(X)
-
-        # dataset_split(X, y, [])
-        X_train, X_test, y_train, _ = dataset_split(X, y, 200)
-        # dataset_split(X, y, 0.1)
-        # print(len(y_train), len(y_test))
-        # input()
-        # X_train, y_train= (X, y)
+        X_train, X_test, y_train, _, _ = dataset_split(X, y, 200, 1, k)
+        # X_train, y_train = X, y
 
         print("\n\nGoing through DS" + str(ds_cnt + 1) + " " + str(k + 1) + " time")
 
@@ -104,32 +94,40 @@ for k in range(10):
         for name, clf in zip(names, classifiers):
             foolers = []
             y = 1  # 1 or -1
-            start_time = time()
+
+            print(name)
             
-            score = cross_validate(clf, X_train, y_train)
+            start_time = time()
+            # ACCs, TPRs, F1s, _ = cross_validate(clf, X_train, y_train, 'std', 
+            #         random_state=k)
+            ACCs, TPRs, F1s, _ = cross_validate(clf, X_train, y_train, 'std', name, 
+                    random_state=int(format(k, 'b') + format(ds_cnt, 'b'), 2))
             # ACCs = cross_val_score(clf, X_train, y_train, cv=5, scoring='accuracy')
+            # f1s = cross_val_score(clf, X_train, y_train, cv = 5, scoring = 'f1')
+            # TPRs = cross_val_score(clf, X_train, y_train, cv = 5, scoring = 'recall')
             finish = time() - start_time
 
-            selFeatures = feature_selection(X_test[0], 4)
-            # print(selFeatures)
-            # input()
-            X = pd.DataFrame(X)
+            print('finished', finish)
+            # feature selection and etc
+            # selFeatures = feature_selection(X_test[0], 4)
+            # # print(selFeatures)
+            # # input()
+            # X = pd.DataFrame(X)
             
-            for instance in X_test:
-                samples = generating_adversarial_samples(instance, selFeatures, X, y)
-                pred = clf.predict(samples)
-                if ((pred + y) == 0).any():
-                    foolers.append(pred)
+            # for instance in X_test:
+            #     samples = generating_adversarial_samples(instance, selFeatures, X, y)
+            #     pred = clf.predict(samples)
+            #     if ((pred + y) == 0).any():
+            #         foolers.append(pred)
 
-            print(len(foolers)/200)
+            # print(len(foolers)/200)
+
             # print(score, ACCs)
             # input()
             # clf.fit(X_train, y_train)
             # score = clf.score(X_test, y_test)
             # print(str(start_time - time()) + " score " + str(score))
 
-            # f1s = cross_val_score(clf, X_train, y_train, cv = 5, scoring = 'f1')
-            # TPRs = cross_val_score(clf, X_train, y_train, cv = 5, scoring = 'recall')
 
             # param_grid = {}
             # ACCs = DistGridSearchCV(
@@ -139,7 +137,8 @@ for k in range(10):
             #             )
 
             # header = ['Dataset', 'Classifier', 'ACC', 'TPR', 'f1', 'Time to execute']
-            # wrt.writerow([ds_cnt, name, ACCs.mean(), TPRs.mean(), f1s.mean(), time() - start_time])
-            wrt.writerow([ds_cnt, name, score.mean(), finish])
+            wrt.writerow([ds_cnt, name, ACCs.mean(), TPRs.mean(), F1s.mean(), finish])
+            print('wrote')
+            # wrt.writerow([ds_cnt, name, score.mean(), finish])
 
 f.close()

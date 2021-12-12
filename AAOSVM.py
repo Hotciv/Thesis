@@ -264,11 +264,11 @@ class AAOSVM(SMOModel):
         `kernel`: kernel function
         `X_train`: training data for model."""
 
-        return np.sum(alphas) - 0.5 * np.sum(
+        return 0.5 * np.sum(
             (self.y[:, None] * self.y[None, :])
             * self.kernel(self.X, self.X)
             * (alphas[:, None] * alphas[None, :])
-        )
+        ) - np.sum(alphas)
 
     # Decision function (AKA constraint(s))
     def decision_function(self, x_test):

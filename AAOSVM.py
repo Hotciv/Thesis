@@ -266,7 +266,7 @@ class AAOSVM(SMOModel):
 
         return 0.5 * np.sum(
             (self.y[:, None] * self.y[None, :])
-            * self.kernel(self.X, self.X)
+            * (self.X @ self.X.T)
             * (alphas[:, None] * alphas[None, :])
         ) - np.sum(alphas)
 
@@ -276,8 +276,8 @@ class AAOSVM(SMOModel):
         # print('alphas', self.alphas)
         # print('y', self.y)
         # print('b', self.b)
-        # print('kernel', self.kernel(self.X, x_test))
-        return (self.alphas * self.y) @ self.kernel(self.X, x_test) - self.b
+        # print('kernel', self.X @ x_test.T)
+        return (self.alphas * self.y) @ (self.X @ x_test.T) - self.b
 
     def take_step(self, i1, i2):
 
@@ -304,9 +304,9 @@ class AAOSVM(SMOModel):
             return 0, self
 
         # Compute kernel & 2nd derivative eta
-        k11 = self.kernel(self.X[i1], self.X[i1])
-        k12 = self.kernel(self.X[i1], self.X[i2])
-        k22 = self.kernel(self.X[i2], self.X[i2])
+        k11 = self.X[i1] @ self.X[i1].T
+        k12 = self.X[i1] @ self.X[i2].T
+        k22 = self.X[i2] @ self.X[i2].T
         # eta = 2 * k12 - k11 - k22
         eta = k11 + k22 - 2 * k12
 
@@ -395,8 +395,8 @@ class AAOSVM(SMOModel):
         non_opt = [n for n in range(self.m) if (n != i1 and n != i2)]
         self.errors[non_opt] = (
             self.errors[non_opt]
-            + y1 * (a1 - alph1) * self.kernel(self.X[i1], self.X[non_opt])
-            + y2 * (a2 - alph2) * self.kernel(self.X[i2], self.X[non_opt])
+            + y1 * (a1 - alph1) * (self.X[i1] @ self.X[non_opt].T)
+            + y2 * (a2 - alph2) * (self.X[i2] @ self.X[non_opt].T)
             + self.b
             - b_new
         )

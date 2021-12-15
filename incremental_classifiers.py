@@ -84,7 +84,7 @@ for k in range(10):
 
             start_time = time()
             # ACCs, TPRs, F1s, _ = cross_validate(clf, X_train, y_train, 'inc')
-            ACCs, TPRs, F1s, _ = cross_validate(clf, X_train, y_train, 'inc', 
+            ACCs, TPRs, F1s, _ = cross_validate(clf, X_train, y_train, 'inc', name, 
                     random_state=int(format(k, 'b') + format(ds_cnt, 'b'), 2))
             finish = time() - start_time
 

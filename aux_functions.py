@@ -30,11 +30,11 @@ def dataset_split(X: np.ndarray, y: np.ndarray, split, type, random_state=42):
         rng = np.random.default_rng(random_state)
         sz_y = len(y)
         sz_s = 0
-        while sz_s <= split:
+        while sz_s < split:
             aux = rng.integers(low=0, high=sz_y)
             if y[aux] == type:
                 selected.add(aux)
-                sz_s += 1
+                sz_s = len(selected)
 
         selected = list(selected)
         
@@ -77,17 +77,17 @@ def dataset_splits(X: np.ndarray, y: np.ndarray, split, type, random_state=42):
         wrt.writerow([i] + selected)
 
 
-def cross_validate(clf, X, y, type, cv=5, random_state=42):
+def cross_validate(clf, X, y, type, clf_name, cv=5, random_state=42):
     ACCs = np.zeros(cv)
     TPRs = np.zeros(cv)
     F1s = np.zeros(cv)
     loss = np.zeros(cv)
     j = 0
 
-    # kf = KFold(n_splits=cv, random_state=random_state, shuffle=True)
-    kf = KFold(n_splits=cv)
+    kf = KFold(n_splits=cv, random_state=42, shuffle=True)
+    # kf = KFold(n_splits=cv)
 
-    f = open("models_{}_{}.pkl".format(type,random_state), 'wb')
+    f = open(clf_name + "_{}_{}.pkl".format(type,random_state), 'wb')
 
     if type == 'inc':
         for train_index, test_index in kf.split(X, y):
@@ -162,6 +162,7 @@ def cross_validate(clf, X, y, type, cv=5, random_state=42):
                 Sx, Sy = clf.partial_fit(X_partial, Sx, Sy, x, Y, i)
 
                 if i % (sz // 100) == 0:
+                # if i % 50 == 0:
                     print("reached final {}".format(i))
 
             y_pred = clf.decision_function(X_hold)

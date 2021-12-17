@@ -9,6 +9,9 @@ dataset_splits(X, y, 200, 1, 0)
 X_train, X_test, y_train, y_test, selected = dataset_split(X, y, 20, 1, 0)
 X_train, X_test, y_train, y_test, selected = dataset_split(X, y, 2, [1,2], 0)
 
+a = np.array([1,2])
+X_train, X_test, y_train, y_test, selected = dataset_split(X, y, 2, a, 0)
+
 X = np.array(list(range(100)))
 y = np.ones(100)
 y[0:50] *= -1

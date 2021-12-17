@@ -1,0 +1,8 @@
+with open('Linear SVM_std_0' + '.pkl', 'rb') as f:
+  aux_0 = pickle.load(f)
+  aux_1 = pickle.load(f)
+  aux_2 = pickle.load(f)
+  aux_3 = pickle.load(f)
+  aux_4 = pickle.load(f)
+
+

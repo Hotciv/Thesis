@@ -92,4 +92,9 @@ ds4 = ds4.sample(frac=1, random_state=42).reset_index(drop=True)
              1 - legitimate
 '''
 
-ds5 = ds4.copy()
+# from sklearn.preprocessing import MinMaxScaler
+# scaler = MinMaxScaler()
+# ds5 = scaler.fit_transform(ds4)
+# '''
+#     ds4 after passing through minmax normalization
+# '''

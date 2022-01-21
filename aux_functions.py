@@ -50,19 +50,49 @@ def dataset_split(X: np.ndarray, y: np.ndarray, split, type, random_state=42):
         # )
 
     # Specific instances from a class, with possible random instances to fill in
-    elif isinstance(type, list):
-        # probably the only occurences
-        if len(type) < split:
-            split -= len(type)
-            X_train, X_test, y_train, y_test = train_test_split(
-                X[y == y[type[0]]], y[y == y[type[0]]], test_size=split, random_state=random_state
-            )
+    # assumes all the instances are from a single class!
+    # it is not checking if list is made from a single class
+    elif isinstance(type, list) or isinstance(type, np.ndarray):
+        if split > len(type):
+            # split -= len(type)
+            t = y[type[0]]
+
+            selected = set(type)
+
+            rng = np.random.default_rng(random_state)
+            sz_y = len(y)
+            sz_s = 0
+            while sz_s < split:
+                aux = rng.integers(low=0, high=sz_y)
+                if y[aux] == t:
+                    selected.add(aux)
+                    sz_s = len(selected)
+
+            selected = list(selected)
+
+            X_test, y_test = \
+                X[selected], y[selected]
+            X_train = np.delete(X, selected, 0)
+            y_train = np.delete(y, selected)
+            # X_train, X_test, y_train, y_test = train_test_split(
+            #     X[y == y[type[0]]], y[y == y[type[0]]], test_size=split, random_state=random_state
+            # )
 
         elif len(type) == split:
             X_test, y_test = \
                 X[type], y[type]
             X_train = np.delete(X, type, 0)
             y_train = np.delete(y, type)
+            selected = type
+
+        elif split < len(type):
+            selected = np.random.choice(type, split, replace=False)
+
+            X_test, y_test = \
+                X[selected], y[selected]
+            X_train = np.delete(X, selected, 0)
+            y_train = np.delete(y, selected)
+
     return X_train, X_test, y_train, y_test, selected
 
 def dataset_splits(X: np.ndarray, y: np.ndarray, split, type, random_state=42):
@@ -184,6 +214,44 @@ def cross_validate(clf, X, y, type, clf_name, cv=5, random_state=42):
             loss[j] = len(y_pred[~bin])
 
             j += 1
+
+    # elif type == 'OSVM':
+    #     for train_index, test_index in kf.split(X, y):
+    #         X_partial, X_hold = X[train_index], X[test_index]
+    #         y_partial, y_hold = y[train_index], y[test_index]
+
+    #         Sx = clf.X
+    #         Sy = clf.y
+    #         sz = len(y_partial)
+    #         for i in range(2, sz, 1):
+    #             x = X_partial[i]
+    #             Y = y_partial[i]
+
+    #             Sx, Sy = clf.partial_fit(X_partial, Sx, Sy, x, Y, i)
+
+    #             if i % (sz // 100) == 0:
+    #             # if i % 50 == 0:
+    #                 print("reached final {}".format(i))
+
+    #         y_pred = clf.decision_function(X_hold)
+    #         y_pred[y_pred < 0] = -1
+    #         y_pred[y_pred >= 0] = 1
+    #         neg = y_pred == -1
+    #         pos = y_pred == 1
+    #         bin = neg | pos
+
+    #         pickle.dump(clf, f)
+
+    #         print(len(y_pred[neg]) + len(y_pred[pos]))
+    #         print(len(y_pred[~bin]))
+    #         print('y_pred', j)
+
+    #         ACCs[j] = accuracy_score(y_hold[bin], y_pred[bin])
+    #         TPRs[j] = recall_score(y_hold[bin], y_pred[bin])
+    #         F1s[j] = f1_score(y_hold[bin], y_pred[bin])
+    #         loss[j] = len(y_pred[~bin])
+
+    #         j += 1
 
     f.close()
 

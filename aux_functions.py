@@ -86,7 +86,10 @@ def dataset_split(X: np.ndarray, y: np.ndarray, split, type, random_state=42):
             selected = type
 
         elif split < len(type):
-            selected = np.random.choice(type, split, replace=False)
+            # selected = np.random.choice(type, split, replace=False)
+            rng = np.random.default_rng(random_state)
+            selected = rng.choice(type, split, replace=False)
+
 
             X_test, y_test = \
                 X[selected], y[selected]

@@ -115,7 +115,7 @@ for k in range(10):
         # X = ds[0]
         # Y = ds[1]
         start_time = time()
-        ACCs, TPRs, F1s, _ = cross_validate(model, ds[0], ds[1], 'AAOSVM', 'AAOSVM', 
+        ACCs, TPRs, F1s, _ = cross_validate(model, X_train, y_train, 'AAOSVM', 'AAOSVM', 
                         # random_state=int(format(11, 'b') + format(ds_cnt, 'b'), 2))
                         random_state=int(format(k, 'b') + format(ds_cnt, 'b'), 2))
         finish = time() - start_time

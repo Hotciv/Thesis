@@ -218,43 +218,62 @@ def cross_validate(clf, X, y, type, clf_name, cv=5, random_state=42):
 
             j += 1
 
-    # elif type == 'OSVM':
-    #     for train_index, test_index in kf.split(X, y):
-    #         X_partial, X_hold = X[train_index], X[test_index]
-    #         y_partial, y_hold = y[train_index], y[test_index]
+    elif type == 'OSVM':
+        for train_index, test_index in kf.split(X, y):
+            X_partial, X_hold = X[train_index], X[test_index]
+            y_partial, y_hold = y[train_index], y[test_index]
 
-    #         Sx = clf.X
-    #         Sy = clf.y
-    #         sz = len(y_partial)
-    #         for i in range(2, sz, 1):
-    #             x = X_partial[i]
-    #             Y = y_partial[i]
+            w = 2
 
-    #             Sx, Sy = clf.partial_fit(X_partial, Sx, Sy, x, Y, i)
+            # Slidding window
+            Sx = X_partial[0]
+            Sy = y_partial[0]
+            Sx = np.append([Sx], [X_partial[1]], 0)
+            Sy = np.append([Sy], [y_partial[1]], 0)
 
-    #             if i % (sz // 100) == 0:
-    #             # if i % 50 == 0:
-    #                 print("reached final {}".format(i))
+            sz = len(y_partial)
+            for i in range(2, sz, 1):
+                x = X_partial[i]
+                Y = y_partial[i]
 
-    #         y_pred = clf.decision_function(X_hold)
-    #         y_pred[y_pred < 0] = -1
-    #         y_pred[y_pred >= 0] = 1
-    #         neg = y_pred == -1
-    #         pos = y_pred == 1
-    #         bin = neg | pos
+                clf = clf.partial_fit(Sx)
 
-    #         pickle.dump(clf, f)
+                if i % (sz // 100) == 0:
+                # if i % 50 == 0:
+                    print("reached final {}".format(i))
 
-    #         print(len(y_pred[neg]) + len(y_pred[pos]))
-    #         print(len(y_pred[~bin]))
-    #         print('y_pred', j)
+                if w < 100:
+                    w += 1
 
-    #         ACCs[j] = accuracy_score(y_hold[bin], y_pred[bin])
-    #         TPRs[j] = recall_score(y_hold[bin], y_pred[bin])
-    #         F1s[j] = f1_score(y_hold[bin], y_pred[bin])
-    #         loss[j] = len(y_pred[~bin])
+                # if reached the limit of the window
+                # i.e. window is full and now will move
+                if Sy.shape[0] >= w:
+                    Sx = Sx[1:]
+                    Sy = Sy[1:]
 
-    #         j += 1
+                # Adding instance to the window
+                Sx = np.append(Sx, [x], 0)
+                Sy = np.append(Sy, [Y], 0)
+
+            y_pred = clf.predict(X_hold)
+            # y_pred[y_pred < 0] = -1
+            # y_pred[y_pred >= 0] = 1
+            neg = y_pred == -1
+            pos = y_pred == 1
+            bin = neg | pos
+
+            pickle.dump(clf, f)
+
+            print(len(y_pred[neg]) + len(y_pred[pos]))
+            print(len(y_pred[~bin]))
+            print('y_pred', j)
+
+            ACCs[j] = accuracy_score(y_hold[bin], y_pred[bin])
+            TPRs[j] = recall_score(y_hold[bin], y_pred[bin])
+            F1s[j] = f1_score(y_hold[bin], y_pred[bin])
+            loss[j] = len(y_pred[~bin])
+
+            j += 1
 
     f.close()
 

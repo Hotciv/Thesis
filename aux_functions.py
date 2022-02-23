@@ -300,6 +300,36 @@ def feature_selection(x, f=None):
 # print(selFeatures)
 # # /Feature selection testing
 
+# # Bias metrics
+def class_imbalance(y):
+    '''
+    Measures the class imbalance using the formula
+    (p - n)/(p + n)
+    where
+    p == number of positive instances
+    n == number of negative instances
+    '''
+
+    p = sum(y[y == 1])
+    n = -sum(y[y == -1])
+
+    return (p - n)/(p + n)
+
+def DPPTL(X, y):
+    '''
+    Difference in Positive Proportions of True Labels
+    also checks Demographic Parity when == 0
+
+    '''
+    pass
+
+def demographic_parity(X, y):
+    pass
+
+def equality_of_opportunity():
+    pass
+# # /Bias metrics
+
 # def plot_columns(X, y=None):
 #     sz = len(data)
 #     values = np.unique(data[0])

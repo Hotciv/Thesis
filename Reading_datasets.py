@@ -36,8 +36,6 @@ ds2["Result"].replace({1: -1, -1: 1}, inplace=True)
 
 data = arff.loadarff('Datasets\PhishingData.arff')
 ds3 = pd.DataFrame(data[0], dtype=np.int8)
-# aux = ds1[ds1["Result"] == 0]
-# aux.loc["Result"] = 1
 ds3["Result"].replace({0: 1}, inplace=True)
 ds3["Result"].replace({1: -1, -1: 1}, inplace=True)
 '''
@@ -50,35 +48,6 @@ ds3["Result"].replace({1: -1, -1: 1}, inplace=True)
 
     Shirazi et al. assumed the suspicious as legitimate
 '''
-
-# fig, ax = plt.subplots(1,1)
-# bins = np.arange(-1,3,1)
-# ax.set_xlabel('SFH')
-# ax.set_ylabel('Number of instances')
-# ax.hist(ds3['SFH'], bins=bins, align='left', rwidth=.5)
-# ax.set_xticks(bins[:-1])
-# plt.show()
-
-# fig, ax = plt.subplots(1,1)
-# ax.set_xlabel('SFH')
-# ax.set_ylabel('Number of instances')
-# ax.hist([ds3['SFH'][ds3['Result'] == 1], ds3['SFH'][ds3['Result'] == -1]], bins=bins, align='left', rwidth=.5)
-# ax.set_xticks(bins[:-1])
-# plt.show()
-
-# fig, ax = plt.subplots(1,1)
-# ax.set_xlabel('popUpWidnow')
-# ax.set_ylabel('Number of instances')
-# ax.hist(ds3['popUpWidnow'], bins=bins, align='left', rwidth=.5)
-# ax.set_xticks(bins[:-1])
-# plt.show()
-
-# fig, ax = plt.subplots(1,1)
-# ax.set_xlabel('popUpWidnow')
-# ax.set_ylabel('Number of instances')
-# ax.hist([ds3['popUpWidnow'][ds3['Result'] == 1],ds3['popUpWidnow'][ds3['Result'] == -1]], bins=bins, align='left', rwidth=.5)
-# ax.set_xticks(bins[:-1])
-# plt.show()
 
 data = arff.loadarff('Datasets\h3cgnj8hft-1\Phishing_Legitimate_full.arff')
 ds4 = pd.DataFrame(data[0], dtype=np.int8)

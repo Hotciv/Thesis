@@ -1,9 +1,7 @@
 from sklearn.linear_model import SGDOneClassSVM
 
-from sklearn.datasets import make_blobs, make_circles
-
 from sklearn.preprocessing import StandardScaler
-from adversarial_samples import cost, generating_adversarial_samples
+# from adversarial_samples import cost, generating_adversarial_samples
 from reading_datasets import *
 from aux_functions import *
 from sklearn import metrics
@@ -11,41 +9,12 @@ from csv import writer
 from time import time
 import numpy as np
 
-# Loading datasets
-# X - list of list of features
-# y - list of classes
-dataframes = [ds1_sub, ds2, ds3, ds4]
+# dataframes = [ds1_sub, ds2, ds3, ds4]
 # dataframes = [ds2, ds3, ds4]
 # dataframes = [ds1_sub]
 # dataframes = []
-datasets = []
 
-# X_train, y = make_blobs(n_samples=1000, centers=2, n_features=2, random_state=1)
-
-# scaler = StandardScaler()
-# X_train_scaled = scaler.fit_transform(X_train, y)
-
-# y[y == 0] = -1
-
-# # Add an outlier
-# X_outlier = np.append(X_train_scaled, [0.1, 0.1])
-# X_outlier = X_outlier.reshape(X_train.shape[0] + 1, X_train.shape[1])
-# y_outlier = np.append(y, 1)
-
-# # Add a second outlier, so the first one is showed
-# X_outlier = np.append(X_outlier, [0.1, 0.1])
-# X_outlier = X_outlier.reshape(X_train.shape[0] + 2, X_train.shape[1])
-# y_outlier = np.append(y_outlier, 0)
-
-# # Adding mock datasets
-# datasets.append((X_train_scaled, y))
-# datasets.append((X_outlier, y_outlier))
-
-for ds in dataframes:
-    y = ds.pop(ds.columns.tolist()[-1])
-    y = y.to_numpy()
-    x = ds.to_numpy()
-    datasets.append((x, y))
+datasets = to_dataset()
 
 np.random.seed(0)
 
@@ -93,10 +62,3 @@ for k in range(10):
         # print(x + ' ' for x in wrt)
 
 f.close()
-
-# l = len(score)
-# for i in range(1, l, 1):
-#     score[i] = score[i] + score[i-1]
-#     score[i] = score[i]/(2*l)
-# plt.plot(score)
-# plt.show()

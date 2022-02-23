@@ -315,18 +315,50 @@ def class_imbalance(y):
 
     return (p - n)/(p + n)
 
-def DPPTL(X, y):
+def DPPTL(attribute, a, X, y):
     '''
     Difference in Positive Proportions of True Labels
     also checks Demographic Parity when == 0
+    
+    attribute -> an attribute to be looked at
+    a -> value of the attribute to be looked at
+    X -> dataset
+    y -> predicted labels
 
+    uses the following formula:
+    pa/na - pd/nd
+
+    where
+    pa == number of positive instances where an attribute has a certain value
+    na == number of instances where an attribute has a certain value
+    pd == number of positive instances where an attribute does not have a certain value
+    nd == number of instances where an attribute does not have a certain value
+    '''
+    # positive instances
+    p = X[y == 1]
+
+    # indexes where the attribute has 'a' as value
+    index_pa = p[:, attribute] == a
+    index_na = X[:, attribute] == a
+
+    return p[index_pa]/X[index_na] - p[~index_pa]/X[~index_na]
+
+def demographic_parity(attribute, a, X, y):
+    '''
+    attribute -> an attribute to be looked at
+    a -> value of the attribute to be looked at
+    X -> dataset
+    y -> predicted labels
     '''
     pass
 
-def demographic_parity(X, y):
-    pass
-
-def equality_of_opportunity():
+def equality_of_opportunity(attribute, a, X, y):
+    '''
+    attribute -> an attribute to be looked at
+    a -> value of the attribute to be looked at
+    X -> dataset
+    y -> predicted labels
+    '''
     pass
 # # /Bias metrics
 

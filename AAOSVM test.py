@@ -1,3 +1,4 @@
+from sklearn import datasets
 from aux_functions import *
 
 from reading_datasets import *
@@ -8,63 +9,21 @@ from time import time
 import pickle
 
 # dataframes = [ds1_sub, ds2, ds3, ds4]
-# dataframes = [ds2, ds3, ds4]
-# dataframes = [ds4]
-# dataframes = []
+# dataframes = [0, 1, 2, 3]
+# dataframes = [1, 2, 3]
+# dataframes = [3]
 
-# # Mock dataset
-# X_train, y = make_blobs(n_samples=1000, centers=2, n_features=2, random_state=1)
-
-# scaler = StandardScaler()
-# X_train_scaled = scaler.fit_transform(X_train, y)
-
-# y[y == 0] = -1
-
-# # Add an outlier
-# X_outlier = np.append(X_train_scaled, [0.1, 0.1])
-# X_outlier = X_outlier.reshape(X_train.shape[0] + 1, X_train.shape[1])
-# y_outlier = np.append(y, 1)
-
-# # Add a second outlier, so the first one is showed
-# X_outlier = np.append(X_outlier, [0.1, 0.1])
-# X_outlier = X_outlier.reshape(X_train.shape[0] + 2, X_train.shape[1])
-# y_outlier = np.append(y_outlier, -1)
-
-# # print(X_outlier)
-# # print(y_outlier)
-# # /Mock dataset
-
-# datasets = []
-# for ds in dataframes:
-#     y = ds.pop(ds.columns.tolist()[-1])
-#     y = y.to_numpy()
-#     x = ds.to_numpy()
-#     datasets.append((x, y))
-
-# # Adding mock datasets
-# datasets.append((X_train_scaled, y))
-# datasets.append((X_outlier, y_outlier))
-# # /Adding mock datasets
-
-# ds4 normalized
-from sklearn.preprocessing import MinMaxScaler
-scaler = MinMaxScaler()
-y = ds1_sub.pop(ds1_sub.columns.tolist()[-1])
-y = y.to_numpy()
-ds5 = scaler.fit_transform(ds1_sub)
-
-datasets = [(ds5, y)]
-# /ds4 normalized
+datasets = to_dataset([1])
 
 np.random.seed(0)
 
 # Saving the results
-f = open("AAOSVM, ds1_norm 10x random200.csv", "w", newline="")
+f = open("AAOSVM, ds2 10x random200.csv", "w", newline="")
 wrt = writer(f)
 header = ["Dataset", "# of critical instances", "ACC", "TPR", "F1", "Time to execute"]
 wrt.writerow(header)
 
-g = open('indexes - ds1, norm.pkl', 'wb')
+g = open('indexes - ds2.pkl', 'wb')
 # /Saving the results
 
 # TODO: average results and get standard deviations from files

@@ -8,7 +8,6 @@ from matplotlib.pyplot import contour
 from numpy.core.defchararray import count
 from sklearn.cluster import KMeans
 from SVM_w_SMO import *
-from time import time
 
 
 class AAOSVM(SMOModel):
@@ -68,7 +67,7 @@ class AAOSVM(SMOModel):
         # C = 1000.0  # for SVM_w_SMO comparison
         # C = 1.0  # for SVM_w_SMO comparison
         # m = len(ds[1])  # for SVM_w_SMO comparison
-        
+
         m = 2
         initial_alphas = np.zeros(m)
         initial_b = 0.0
@@ -81,10 +80,10 @@ class AAOSVM(SMOModel):
 
         # Initialize model
         model = AAOSVM(Sx, Sy, C, initial_alphas, initial_b, np.zeros(m))
-        
+
         # Initialize error cache
         self.errors = self.decision_function(self.X) - self.y
-        
+
         model.w = np.zeros(len(X[0]))
 
         return self
@@ -99,12 +98,12 @@ class AAOSVM(SMOModel):
 
         self.clusters.R = sum(self.y == -1)
         self.clusters.M = sum(self.y == 1)
-        
+
         # number of instances in a cluster
         self.clusters.Z = np.zeros(self.k)
         for i in range(self.k):
             self.clusters.Z[i] = sum(self.clusters.labels_ == i)
-        
+
         # for i, l in enumerate(self.clusters.labels_):
         #         # number of instances in a cluster that have label y
         #         if self.y[i] == y:
@@ -165,14 +164,12 @@ class AAOSVM(SMOModel):
             # incorrect classification
             if h == -1:
                 return -self.Ym * self.decision_function(x)
-            
+
             # correct classification
             else:
                 return self.Em * self.decision_function(x)
 
-    def update_probabilities(
-        self, X
-    ):
+    def update_probabilities(self, X):
         """
         Calculates the probability of a type
         The only part of game theory that uses the whole 
@@ -201,7 +198,7 @@ class AAOSVM(SMOModel):
 
         # print(count, y)
         # print(count/self.clusters.Z[z])
-        return count/self.clusters.Z[z]
+        return count / self.clusters.Z[z]
 
     def mu(self, y, z, x):
         """
@@ -218,33 +215,40 @@ class AAOSVM(SMOModel):
                 count_R += 1
         # t = (M,xi)
         if y == 1:
-            return self.phi(1, z)*self.p[z]/(count_R/(count_R+count_M)+count_M/(count_R+count_M)*self.phi(1,z))
+            return (
+                self.phi(1, z)
+                * self.p[z]
+                / (
+                    count_R / (count_R + count_M)
+                    + count_M / (count_R + count_M) * self.phi(1, z)
+                )
+            )
 
         # t = (R,xj)
         elif self.clusters.predict(np.reshape(x, (1, -1))) == z:
-            return self.p[z]/(count_R/(count_R+count_M)+count_M/(count_R+count_M)*self.phi(1,z))
+            return self.p[z] / (
+                count_R / (count_R + count_M)
+                + count_M / (count_R + count_M) * self.phi(1, z)
+            )
 
         # t = (R,xj), j != i
         else:
             return 0
 
-
     def psi(self, x):
         """
         Helper function from Psi(x)
         """
-        mu_M = sum([self.mu(1,i,x) for i in range(self.k)])
-        mu_R = sum([self.mu(-1,i,x) for i in range(self.k)])
-        aux = mu_M/mu_R
+        mu_M = sum([self.mu(1, i, x) for i in range(self.k)])
+        mu_R = sum([self.mu(-1, i, x) for i in range(self.k)])
+        aux = mu_M / mu_R
         return aux * (self.Em + self.Ym) / (self.Er + self.Yr)
 
     def update_psi(self, x):
         """
         Function that incorporates prior knowledge into the SVM
         """
-        self.Psi = (1 + self.psi(x)) / (
-            sum(self.w) + 2 * self.b
-        )
+        self.Psi = (1 + self.psi(x)) / (sum(self.w) + 2 * self.b)
 
     def update_weights(self, i1, i2, a1, a2):
         """
@@ -315,9 +319,9 @@ class AAOSVM(SMOModel):
         # if eta < 0:
         #     a2 = alph2 - y2 * (E1 - E2) / eta
         # Compute new alpha 2 (a2) if eta is positive
-        if (eta > 0):
+        if eta > 0:
             a2 = alph2 + y2 * (E1 - E2) / eta
-            
+
             # Clip a2 based on bounds L & H
             if L < a2 < H:
                 a2 = a2
@@ -421,7 +425,7 @@ class AAOSVM(SMOModel):
         examineAll = 1
         t = 0
 
-        # print('While')    
+        # print('While')
         while t < self.T and ((numChanged > 0) or (examineAll)):
             numChanged = 0
             if examineAll:
@@ -448,7 +452,7 @@ class AAOSVM(SMOModel):
                 examineAll = 1
 
             t += 1
-            
+
         return self
 
     def partial_fit(self, X, Sx, Sy, x, y, i):
@@ -464,11 +468,8 @@ class AAOSVM(SMOModel):
             # Initialize error cache
             self.errors = self.decision_function(self.X) - self.y
 
-            # Track time to train
-            tic = time()
             # Train model
             self.train()
-            toc = time()
 
         # Increasing the size of the parameters of the model
         if self.mem > self.m:

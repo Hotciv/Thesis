@@ -60,6 +60,7 @@ class AAOSVM(SMOModel):
         self.clusters = None  # clusters of websites
         self.p = np.array([1 / k for i in range(k)])  # vector of probabilities of types
         self.k = k
+        self.T = 2  # maximum number of iterations for each train() optimization
 
     def reset(self, X, y):
         # Set model parameters and initial values
@@ -335,10 +336,18 @@ class AAOSVM(SMOModel):
             alphas_adj = self.alphas.copy()
             alphas_adj[i2] = L
             # objective function output with a2 = L
-            Lobj = self.objective_function(alphas_adj)
+            Lobj = 0.5 * np.sum(
+                (self.y[:, None] * self.y[None, :])
+                * (self.X @ self.X.T)
+                * (alphas_adj[:, None] * alphas_adj[None, :])
+            ) - np.sum(alphas_adj)
             alphas_adj[i2] = H
             # objective function output with a2 = H
-            Hobj = self.objective_function(alphas_adj)
+            Hobj = 0.5 * np.sum(
+                (self.y[:, None] * self.y[None, :])
+                * (self.X @ self.X.T)
+                * (alphas_adj[:, None] * alphas_adj[None, :])
+            ) - np.sum(alphas_adj)
             # if Lobj > (Hobj + self.eps):
             #     a2 = L
             # elif Lobj < (Hobj - self.eps):
@@ -406,46 +415,41 @@ class AAOSVM(SMOModel):
 
         return 1, self
 
-    # def train(self):
+    def train(self):
 
-    #     numChanged = 1
-    #     examineAll = 0
+        numChanged = 0
+        examineAll = 1
+        t = 0
 
-    #     examine_result, self = self.examine_example(-1)
-    #     if examine_result:
-    #         obj_result = self.objective_function(self.alphas)
-    #         self._obj.append(obj_result)
+        # print('While')    
+        while t < self.T and ((numChanged > 0) or (examineAll)):
+            numChanged = 0
+            if examineAll:
+                # print('For 1')
+                # loop over all training examples
+                for i in range(self.alphas.shape[0]):
+                    examine_result, self = self.examine_example(i)
+                    numChanged += examine_result
+                    if examine_result:
+                        obj_result = self.objective_function(self.alphas)
+                        self._obj.append(obj_result)
+            else:
+                # print('For 2')
+                # loop over examples where alphas are not already at their limits
+                for i in np.where((self.alphas != 0) & (self.alphas != self.C))[0]:
+                    examine_result, self = self.examine_example(i)
+                    numChanged += examine_result
+                    if examine_result:
+                        obj_result = self.objective_function(self.alphas)
+                        self._obj.append(obj_result)
+            if examineAll == 1:
+                examineAll = 0
+            elif numChanged == 0:
+                examineAll = 1
 
-    #     while(numChanged > 0) or (examineAll):
-    #     # while(numChanged > 0):  # or (examineAll):
-    #         numChanged = 0
-    #         if examineAll:
-    #             # loop over all training examples
-    #             for i in range(self.alphas.shape[0]):
-    #                 examine_result, self = self.examine_example(i)
-    #                 numChanged += examine_result
-    #                 if examine_result:
-    #                     obj_result = self.objective_function(self.alphas)
-    #                     self._obj.append(obj_result)
-    #             print('ExamineAll')
-    #         else:
-    #             # loop over examples where alphas are not already at their limits
-    #             for i in np.where((self.alphas != 0) & (self.alphas != self.C))[0]:
-    #                 examine_result, self = self.examine_example(i)
-    #                 numChanged += examine_result
-    #                 if examine_result:
-    #                     obj_result = self.objective_function(self.alphas)
-    #                     self._obj.append(obj_result)
-    #                 # print('Alphas')
-    #         if examineAll == 1:
-    #             examineAll = 0
-    #         elif numChanged == 0:
-    #             examineAll = 1
-
-    #     # plt.plot(range(len(self._obj)), self._obj)
-    #     # plt.show()
-
-    #     return self
+            t += 1
+            
+        return self
 
     def partial_fit(self, X, Sx, Sy, x, y, i):
 

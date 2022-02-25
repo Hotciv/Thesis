@@ -15,8 +15,8 @@ import matplotlib.pyplot as plt
 # # This line is only needed if you have a HiDPI display
 # %config InlineBackend.figure_format = 'retina'
 
-from sklearn.datasets import make_blobs, make_circles, make_moons
-from sklearn.preprocessing import StandardScaler
+# from sklearn.datasets import make_blobs, make_circles
+# from sklearn.preprocessing import StandardScaler
 
 
 class SMOModel:
@@ -95,7 +95,13 @@ class SMOModel:
 
     # TODO: probably going to change this or remove it
     def plot_decision_boundary(
-        self, ax, xlabel='Feature 1', ylabel='Feature 2', resolution=100, colors=("b", "k", "r"), levels=(-1, 0, 1)
+        self,
+        ax,
+        xlabel="Feature 1",
+        ylabel="Feature 2",
+        resolution=100,
+        colors=("b", "k", "r"),
+        levels=(-1, 0, 1),
     ):
         """Plots the model's decision boundary on the input axes object.
         Range of decision boundary grid is determined by the training data.
@@ -315,9 +321,11 @@ class SMOModel:
         numChanged = 0
         examineAll = 1
 
+        # print('While')
         while (numChanged > 0) or (examineAll):
             numChanged = 0
             if examineAll:
+                # print('For 1')
                 # loop over all training examples
                 for i in range(self.alphas.shape[0]):
                     examine_result, self = self.examine_example(i)
@@ -326,6 +334,7 @@ class SMOModel:
                         obj_result = self.objective_function(self.alphas)
                         self._obj.append(obj_result)
             else:
+                # print('For 2')
                 # loop over examples where alphas are not already at their limits
                 for i in np.where((self.alphas != 0) & (self.alphas != self.C))[0]:
                     examine_result, self = self.examine_example(i)
@@ -337,7 +346,8 @@ class SMOModel:
                 examineAll = 0
             elif numChanged == 0:
                 examineAll = 1
-
+        # import sys
+        # sys.exit(-1)
         return self
 
 

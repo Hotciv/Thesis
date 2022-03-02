@@ -11,7 +11,7 @@ def generating_adversarial_samples(x, selFeatures, df, y=1):
     Keyword arguments:
     x -- an instance (a row)
     selFeatures -- a list of indexes of the selected features
-    df -- a dataframe that contains the dataset
+    df -- a dataframe that contains the dataset, with labels
     y -- which samples should be used (+1/legitimate or -1/phishing)
     '''
     L = pd.DataFrame()
@@ -36,7 +36,7 @@ def generating_adversarial_samples(x, selFeatures, df, y=1):
 
     L_pr -- a list of lists, each sublist is a set of values that will be used to generate a new adversarial sample
     '''
-    # test = [[1, 3, 5], [2, 4, 6, 8], [10, 20]]
+    # test = [[1, 3, 5], [2, 4, 6], [10, 20, 30]]
 
     # print(list(product(*test)))
     

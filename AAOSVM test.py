@@ -29,6 +29,7 @@ header = [
     "F1",
     "F1 std",
     "Time to execute",
+    "Number of critical instances",
 ]
 wrt.writerow(header)
 
@@ -118,14 +119,17 @@ for k in range(10):
 
         # header = ["Dataset", "# of critical instances", "Time to execute"]
         # wrt.writerow([ds_cnt, np.count_nonzero(model.alphas), finish])
-        
+
         # header = [
         #     "Dataset",
-        #     "# of critical instances",
         #     "ACC",
+        #     "ACC std",
         #     "TPR",
+        #     "TPR std",
         #     "F1",
+        #     "F1 std",
         #     "Time to execute",
+        #     "Number of critical instances",
         # ]
         wrt.writerow(
             [
@@ -137,6 +141,7 @@ for k in range(10):
                 F1s.mean(),
                 F1s.std(),
                 finish,
+                np.count_nonzero(model.alphas),
             ]
         )
         pickle.dump(np.where(model.alphas > 0)[0], g)

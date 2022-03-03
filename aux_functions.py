@@ -388,45 +388,45 @@ def equality_of_opportunity(attribute, a, X, y):
     pass
 
 
-# def empirical_robustness(
-#     classifier, x: np.array, adv_x: np.ndarray,
-# ) -> Union[float, np.ndarray]:
-#     """
-#     Compute the Empirical Robustness of a classifier object over the sample 'x' for a given adversarial crafting
-#     method 'attack'. This is equivalent to computing the minimal perturbation that the attacker must introduce for a
-#     successful attack.
-#     | Paper link: https://arxiv.org/abs/1511.04599
-#     | Adapted from https://github.com/Trusted-AI/adversarial-robustness-toolbox/blob/main/art/metrics/metrics.py
+def empirical_robustness(
+    classifier, x: np.array, adv_x: np.ndarray,
+) -> Union[float, np.ndarray]:
+    """
+    Compute the Empirical Robustness of a classifier object over the sample 'x' for a given adversarial crafting
+    method 'attack'. This is equivalent to computing the minimal perturbation that the attacker must introduce for a
+    successful attack.
+    | Paper link: https://arxiv.org/abs/1511.04599
+    | Adapted from https://github.com/Trusted-AI/adversarial-robustness-toolbox/blob/main/art/metrics/metrics.py
 
-#     :param classifier: A trained model.
-#     :param x: Data sample of shape that can be fed into 'classifier' and was used to generate the adversarial samples.
-#     :param adv_x: A set of samples adversarialy generated from 'x'.
-#     :return: The average empirical robustness computed on 'x'.
-#     """
-#     # crafter = get_crafter(classifier, attack_name, attack_params)
-#     # crafter.set_params(**{"minimal": True})
-#     # adv_x = crafter.generate(x)
+    :param classifier: A trained model.
+    :param x: Data sample of shape that can be fed into 'classifier' and was used to generate the adversarial samples.
+    :param adv_x: A set of samples adversarialy generated from 'x'.
+    :return: The average empirical robustness computed on 'x'.
+    """
+    # crafter = get_crafter(classifier, attack_name, attack_params)
+    # crafter.set_params(**{"minimal": True})
+    # adv_x = crafter.generate(x)
 
-#     # Predict the labels for adversarial examples
-#     y = classifier.predict(x)
-#     y_pred = classifier.predict(adv_x)
+    # Predict the labels for adversarial examples
+    y = classifier.predict(x)
+    y_pred = classifier.predict(adv_x)
 
-#     idxs = np.argmax(y_pred, axis=1) != np.argmax(y, axis=1)
-#     if np.sum(idxs) == 0.0:
-#         return 0.0
+    idxs = np.argmax(y_pred, axis=1) != np.argmax(y, axis=1)
+    if np.sum(idxs) == 0.0:
+        return 0.0
 
-#     norm_type = 2
-#     # if hasattr(crafter, "norm"):
-#     #     norm_type = crafter.norm  # type: ignore
-#     perts_norm = np.linalg.norm(
-#         (adv_x - x).reshape(x.shape[0], -1), ord=norm_type, axis=1
-#     )
-#     perts_norm = perts_norm[idxs]
+    norm_type = 2
+    # if hasattr(crafter, "norm"):
+    #     norm_type = crafter.norm  # type: ignore
+    perts_norm = np.linalg.norm(
+        (adv_x - x).reshape(x.shape[0], -1), ord=norm_type, axis=1
+    )
+    perts_norm = perts_norm[idxs]
 
-#     return np.mean(
-#         perts_norm
-#         / np.linalg.norm(x[idxs].reshape(np.sum(idxs), -1), ord=norm_type, axis=1)
-#     )
+    return np.mean(
+        perts_norm
+        / np.linalg.norm(x[idxs].reshape(np.sum(idxs), -1), ord=norm_type, axis=1)
+    )
 
 
 # # /Bias metrics

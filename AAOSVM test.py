@@ -13,17 +13,26 @@ import pickle
 # dataframes = [1, 2, 3]
 # dataframes = [3]
 
-datasets = to_dataset([1])
+datasets = to_dataset([2])
 
 np.random.seed(0)
 
 # Saving the results
-f = open("AAOSVM, ds2 10x random200.csv", "w", newline="")
+f = open("AAOSVM, ds3 10x random200, changing scores.csv", "w", newline="")
 wrt = writer(f)
-header = ["Dataset", "# of critical instances", "ACC", "TPR", "F1", "Time to execute"]
+header = [
+    "Dataset",
+    "ACC",
+    "ACC std",
+    "TPR",
+    "TPR std",
+    "F1",
+    "F1 std",
+    "Time to execute",
+]
 wrt.writerow(header)
 
-g = open('indexes - ds2.pkl', 'wb')
+g = open("indexes - ds3.pkl", "wb")
 # /Saving the results
 
 # TODO: average results and get standard deviations from files
@@ -38,7 +47,7 @@ for k in range(10):
         X_train, X_test, y_train, _, _ = dataset_split(X, y, 200, 1, k)
         # X_train, X_test, y_train, _, _ = dataset_split(X, y, 200, 1)
 
-        print("\n\nGoing through DS" + str(ds_cnt + 1) + ' ' + str(k) + ' times')
+        print("\n\nGoing through DS" + str(ds_cnt + 1) + " " + str(k) + " times")
 
         # Set model parameters and initial values
         C = 100.0
@@ -64,22 +73,28 @@ for k in range(10):
 
         # Initialize model
         model = AAOSVM(Sx, Sy, C, initial_alphas, initial_b, np.zeros(m))
-        
+
         # Initialize error cache
         initial_error = model.decision_function(model.X) - model.y
         model.errors = initial_error
-        
+
         model.w = initial_w
 
         # X = ds[0]
         # Y = ds[1]
         start_time = time()
-        ACCs, TPRs, F1s, _ = cross_validate(model, X_train, y_train, 'AAOSVM', 'AAOSVM', 
-                        # random_state=int(format(11, 'b') + format(ds_cnt, 'b'), 2))
-                        random_state=int(format(k, 'b') + format(ds_cnt, 'b'), 2))
+        ACCs, TPRs, F1s, _ = cross_validate(
+            model,
+            X_train,
+            y_train,
+            "AAOSVM",
+            "AAOSVM",
+            # random_state=int(format(11, 'b') + format(ds_cnt, 'b'), 2))
+            random_state=int(format(k, "b") + format(ds_cnt, "b"), 2),
+        )
         finish = time() - start_time
 
-        print('finished', finish)
+        print("finished", finish)
         # # Support vector count
         # sv_count = np.where(model.alphas > 0)[0]
         # # sv_count = np.where(model.alphas > 0)
@@ -103,10 +118,30 @@ for k in range(10):
 
         # header = ["Dataset", "# of critical instances", "Time to execute"]
         # wrt.writerow([ds_cnt, np.count_nonzero(model.alphas), finish])
-        header = ["Dataset", "# of critical instances", "ACC", "TPR", "F1", "Time to execute"]
-        wrt.writerow([ds_cnt, np.count_nonzero(model.alphas), ACCs.mean(), TPRs.mean(), F1s.mean(), finish])
+        
+        # header = [
+        #     "Dataset",
+        #     "# of critical instances",
+        #     "ACC",
+        #     "TPR",
+        #     "F1",
+        #     "Time to execute",
+        # ]
+        wrt.writerow(
+            [
+                ds_cnt,
+                ACCs.mean(),
+                ACCs.std(),
+                TPRs.mean(),
+                TPRs.std(),
+                F1s.mean(),
+                F1s.std(),
+                finish,
+            ]
+        )
         pickle.dump(np.where(model.alphas > 0)[0], g)
-        print('wrote')
+
+        print("wrote")
 
 f.close()
 g.close()

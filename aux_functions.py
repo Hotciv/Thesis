@@ -127,7 +127,7 @@ def cross_validate(clf, X, y, type, clf_name, cv=5, random_state=42):
             X_partial, X_hold = X[train_index], X[test_index]
             y_partial, y_hold = y[train_index], y[test_index]
 
-            # clf.reset()
+            clf.reset()
 
             # TODO: change to go 1 sample at a time
             clf.fit(X_partial, y_partial, classes=[-1, 1])

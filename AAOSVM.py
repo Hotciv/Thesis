@@ -82,11 +82,11 @@ class AAOSVM(SMOModel):
         model = AAOSVM(Sx, Sy, C, initial_alphas, initial_b, np.zeros(m))
 
         # Initialize error cache
-        self.errors = self.decision_function(self.X) - self.y
+        model.errors = model.decision_function(model.X) - model.y
 
         model.w = np.zeros(len(X[0]))
 
-        return self
+        return model
 
     def get_clusters(self):
         """
@@ -465,11 +465,28 @@ class AAOSVM(SMOModel):
         # if y * (self.w @ x + self.b) < self.slack:
         if y * (self.w @ x + self.b) * self.Psi < self.slack:
 
-            # Initialize error cache
+            # Initialize error cache  TODO: why is this here?
             self.errors = self.decision_function(self.X) - self.y
+
+            prev_errors = self.errors.copy()
 
             # Train model
             self.train()
+
+            # # Update scores
+            # for j, err in enumerate(self.errors):
+            #     # Decreased the error and Malicious sample
+            #     if abs(err) < abs(prev_errors[j]) and Sy[j] == 1:
+            #         self.Em -= self.Em * np.tanh(err)
+            #     # Decreased the error and Regular sample
+            #     elif abs(err) < abs(prev_errors[j]) and Sy[j] == -1:
+            #         self.Er -= self.Er * np.tanh(err)
+            #     # Increased the error and Malicious sample
+            #     elif abs(err) > abs(prev_errors[j]) and Sy[j] == 1:
+            #         self.Ym -= self.Ym * np.tanh(err)
+            #     # Increased the error and Regular sample
+            #     elif abs(err) > abs(prev_errors[j]) and Sy[j] == -1:
+            #         self.Yr -= self.Yr * np.tanh(err)
 
         # Increasing the size of the parameters of the model
         if self.mem > self.m:

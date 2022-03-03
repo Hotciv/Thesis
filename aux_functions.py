@@ -1,11 +1,14 @@
 from sklearn.metrics import accuracy_score, f1_score, recall_score
-from sklearn.model_selection import train_test_split
+
+# from sklearn.model_selection import train_test_split
 from sklearn.model_selection import KFold
-import matplotlib.pyplot as plt
+
+# import matplotlib.pyplot as plt
 from random import randrange
 from csv import writer
 import numpy as np
 import pickle
+from typing import Any, Dict, List, Optional, Union, TYPE_CHECKING
 
 # from numpy.lib.function_base import average
 
@@ -15,6 +18,7 @@ import pickle
 # from ray import init
 
 # get_node_ip_address = lambda: '127.0.0.1'
+
 
 def dataset_split(X: np.ndarray, y: np.ndarray, split, type, random_state=42):
     """
@@ -37,9 +41,8 @@ def dataset_split(X: np.ndarray, y: np.ndarray, split, type, random_state=42):
                 sz_s = len(selected)
 
         selected = list(selected)
-        
-        X_test, y_test = \
-            X[selected], y[selected]
+
+        X_test, y_test = X[selected], y[selected]
         X_train = np.delete(X, selected, 0)
         y_train = np.delete(y, selected)
 
@@ -70,8 +73,7 @@ def dataset_split(X: np.ndarray, y: np.ndarray, split, type, random_state=42):
 
             selected = list(selected)
 
-            X_test, y_test = \
-                X[selected], y[selected]
+            X_test, y_test = X[selected], y[selected]
             X_train = np.delete(X, selected, 0)
             y_train = np.delete(y, selected)
             # X_train, X_test, y_train, y_test = train_test_split(
@@ -79,8 +81,7 @@ def dataset_split(X: np.ndarray, y: np.ndarray, split, type, random_state=42):
             # )
 
         elif len(type) == split:
-            X_test, y_test = \
-                X[type], y[type]
+            X_test, y_test = X[type], y[type]
             X_train = np.delete(X, type, 0)
             y_train = np.delete(y, type)
             selected = type
@@ -90,13 +91,12 @@ def dataset_split(X: np.ndarray, y: np.ndarray, split, type, random_state=42):
             rng = np.random.default_rng(random_state)
             selected = rng.choice(type, split, replace=False)
 
-
-            X_test, y_test = \
-                X[selected], y[selected]
+            X_test, y_test = X[selected], y[selected]
             X_train = np.delete(X, selected, 0)
             y_train = np.delete(y, selected)
 
     return X_train, X_test, y_train, y_test, selected
+
 
 def dataset_splits(X: np.ndarray, y: np.ndarray, split, type, random_state=42):
     # saving the results on a csv file
@@ -106,7 +106,7 @@ def dataset_splits(X: np.ndarray, y: np.ndarray, split, type, random_state=42):
     wrt.writerow(header)
 
     for i in range(10):
-        X_train, X_test, y_train, y_test, selected = dataset_split(X, y, split, type, i) 
+        X_train, X_test, y_train, y_test, selected = dataset_split(X, y, split, type, i)
         wrt.writerow([i] + selected)
 
 
@@ -120,14 +120,17 @@ def cross_validate(clf, X, y, type, clf_name, cv=5, random_state=42):
     kf = KFold(n_splits=cv, random_state=42, shuffle=True)
     # kf = KFold(n_splits=cv)
 
-    f = open(clf_name + "_{}_{}.pkl".format(type,random_state), 'wb')
+    f = open(clf_name + "_{}_{}.pkl".format(type, random_state), "wb")
 
-    if type == 'inc':
+    if type == "inc":
         for train_index, test_index in kf.split(X, y):
             X_partial, X_hold = X[train_index], X[test_index]
             y_partial, y_hold = y[train_index], y[test_index]
 
-            clf.fit(X_partial, y_partial, classes=[-1,1])
+            # clf.reset()
+
+            # TODO: change to go 1 sample at a time
+            clf.fit(X_partial, y_partial, classes=[-1, 1])
             y_pred = clf.predict(X_hold)
             neg = y_pred == -1
             pos = y_pred == 1
@@ -137,7 +140,7 @@ def cross_validate(clf, X, y, type, clf_name, cv=5, random_state=42):
 
             print(len(y_pred[neg]) + len(y_pred[pos]))
             print(len(y_pred[~bin]))
-            print('y_pred', j)
+            print("y_pred", j)
 
             ACCs[j] = accuracy_score(y_hold[bin], y_pred[bin])
             TPRs[j] = recall_score(y_hold[bin], y_pred[bin])
@@ -145,8 +148,8 @@ def cross_validate(clf, X, y, type, clf_name, cv=5, random_state=42):
             loss[j] = len(y_pred[~bin])
 
             j += 1
-            
-    elif type == 'std':
+
+    elif type == "std":
         # register_ray()
         for train_index, test_index in kf.split(X, y):
             X_partial, X_hold = X[train_index], X[test_index]
@@ -164,7 +167,7 @@ def cross_validate(clf, X, y, type, clf_name, cv=5, random_state=42):
 
             print(len(y_pred[neg]) + len(y_pred[pos]))
             print(len(y_pred[~bin]))
-            print('y_pred', j)
+            print("y_pred", j)
 
             ACCs[j] = accuracy_score(y_hold[bin], y_pred[bin])
             TPRs[j] = recall_score(y_hold[bin], y_pred[bin])
@@ -173,12 +176,24 @@ def cross_validate(clf, X, y, type, clf_name, cv=5, random_state=42):
 
             j += 1
 
-    elif type == 'AAOSVM':
+    elif type == "AAOSVM":
         for train_index, test_index in kf.split(X, y):
             # print(train_index)
             # print(test_index)
             # print(y)
             # input()
+
+            # Saving scores
+            h = open("AAOSVM_scores_{}.csv".format(random_state), "w", newline="")
+            wrt_s = writer(h)
+            header = [
+                "Utility of Malicious sample",
+                "Utility of Regular sample",
+                "Cost of Malicious sample",
+                "Cost of Regular sample",
+            ]
+            wrt_s.writerow(header)
+            # /Saving scores
 
             X_partial, X_hold = X[train_index], X[test_index]
             y_partial, y_hold = y[train_index], y[test_index]
@@ -194,8 +209,13 @@ def cross_validate(clf, X, y, type, clf_name, cv=5, random_state=42):
 
                 Sx, Sy = clf.partial_fit(X_partial, Sx, Sy, x, Y, i)
 
+                # Saving scores
+                wrt_s.writerow(
+                    [clf.Em, clf.Er, clf.Ym, clf.Yr,]
+                )
+
                 if i % (sz // 100) == 0:
-                # if i % 50 == 0:
+                    # if i % 50 == 0:
                     print("reached final {}".format(i))
 
             y_pred = clf.decision_function(X_hold)
@@ -209,7 +229,7 @@ def cross_validate(clf, X, y, type, clf_name, cv=5, random_state=42):
 
             print(len(y_pred[neg]) + len(y_pred[pos]))
             print(len(y_pred[~bin]))
-            print('y_pred', j)
+            print("y_pred", j)
 
             ACCs[j] = accuracy_score(y_hold[bin], y_pred[bin])
             TPRs[j] = recall_score(y_hold[bin], y_pred[bin])
@@ -218,12 +238,14 @@ def cross_validate(clf, X, y, type, clf_name, cv=5, random_state=42):
 
             j += 1
 
-    elif type == 'OSVM':
+    elif type == "OSVM":
         for train_index, test_index in kf.split(X, y):
             X_partial, X_hold = X[train_index], X[test_index]
             y_partial, y_hold = y[train_index], y[test_index]
 
             w = 2
+
+            # TODO: make it reset
 
             # Slidding window
             Sx = X_partial[0]
@@ -239,7 +261,7 @@ def cross_validate(clf, X, y, type, clf_name, cv=5, random_state=42):
                 clf = clf.partial_fit(Sx)
 
                 if i % (sz // 100) == 0:
-                # if i % 50 == 0:
+                    # if i % 50 == 0:
                     print("reached final {}".format(i))
 
                 if w < 100:
@@ -266,7 +288,7 @@ def cross_validate(clf, X, y, type, clf_name, cv=5, random_state=42):
 
             print(len(y_pred[neg]) + len(y_pred[pos]))
             print(len(y_pred[~bin]))
-            print('y_pred', j)
+            print("y_pred", j)
 
             ACCs[j] = accuracy_score(y_hold[bin], y_pred[bin])
             TPRs[j] = recall_score(y_hold[bin], y_pred[bin])
@@ -293,6 +315,7 @@ def feature_selection(x, f=None):
 
     return selFeatures
 
+
 # # Feature selection testing
 # selFeatures = feature_selection(np.array(list(range(30))), 2)
 # print(selFeatures)
@@ -302,21 +325,22 @@ def feature_selection(x, f=None):
 
 # # Bias metrics
 def class_imbalance(y):
-    '''
+    """
     Measures the class imbalance using the formula
     (p - n)/(p + n)
     where
     p == number of positive instances
     n == number of negative instances
-    '''
+    """
 
     p = sum(y[y == 1])
     n = -sum(y[y == -1])
 
-    return (p - n)/(p + n)
+    return (p - n) / (p + n)
+
 
 def DPPTL(attribute, a, X, y):
-    '''
+    """
     Difference in Positive Proportions of True Labels
     also checks Demographic Parity when == 0
     
@@ -333,7 +357,7 @@ def DPPTL(attribute, a, X, y):
     na == number of instances where an attribute has a certain value
     pd == number of positive instances where an attribute does not have a certain value
     nd == number of instances where an attribute does not have a certain value
-    '''
+    """
     # positive instances
     p = X[y == 1]
 
@@ -341,25 +365,70 @@ def DPPTL(attribute, a, X, y):
     index_pa = p[:, attribute] == a
     index_na = X[:, attribute] == a
 
-    return p[index_pa]/X[index_na] - p[~index_pa]/X[~index_na]
+    return p[index_pa] / X[index_na] - p[~index_pa] / X[~index_na]
 
-def demographic_parity(attribute, a, X, y):
-    '''
-    attribute -> an attribute to be looked at
-    a -> value of the attribute to be looked at
-    X -> dataset
-    y -> predicted labels
-    '''
-    pass
+
+# def demographic_parity(attribute, a, X, y):
+#     '''
+#     attribute -> an attribute to be looked at
+#     a -> value of the attribute to be looked at
+#     X -> dataset
+#     y -> predicted labels
+#     '''
+#     pass
+
 
 def equality_of_opportunity(attribute, a, X, y):
-    '''
+    """
     attribute -> an attribute to be looked at
     a -> value of the attribute to be looked at
     X -> dataset
     y -> predicted labels
-    '''
+    """
     pass
+
+
+# def empirical_robustness(
+#     classifier, x: np.array, adv_x: np.ndarray,
+# ) -> Union[float, np.ndarray]:
+#     """
+#     Compute the Empirical Robustness of a classifier object over the sample 'x' for a given adversarial crafting
+#     method 'attack'. This is equivalent to computing the minimal perturbation that the attacker must introduce for a
+#     successful attack.
+#     | Paper link: https://arxiv.org/abs/1511.04599
+#     | Adapted from https://github.com/Trusted-AI/adversarial-robustness-toolbox/blob/main/art/metrics/metrics.py
+
+#     :param classifier: A trained model.
+#     :param x: Data sample of shape that can be fed into 'classifier' and was used to generate the adversarial samples.
+#     :param adv_x: A set of samples adversarialy generated from 'x'.
+#     :return: The average empirical robustness computed on 'x'.
+#     """
+#     # crafter = get_crafter(classifier, attack_name, attack_params)
+#     # crafter.set_params(**{"minimal": True})
+#     # adv_x = crafter.generate(x)
+
+#     # Predict the labels for adversarial examples
+#     y = classifier.predict(x)
+#     y_pred = classifier.predict(adv_x)
+
+#     idxs = np.argmax(y_pred, axis=1) != np.argmax(y, axis=1)
+#     if np.sum(idxs) == 0.0:
+#         return 0.0
+
+#     norm_type = 2
+#     # if hasattr(crafter, "norm"):
+#     #     norm_type = crafter.norm  # type: ignore
+#     perts_norm = np.linalg.norm(
+#         (adv_x - x).reshape(x.shape[0], -1), ord=norm_type, axis=1
+#     )
+#     perts_norm = perts_norm[idxs]
+
+#     return np.mean(
+#         perts_norm
+#         / np.linalg.norm(x[idxs].reshape(np.sum(idxs), -1), ord=norm_type, axis=1)
+#     )
+
+
 # # /Bias metrics
 
 # def plot_columns(X, y=None):

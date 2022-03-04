@@ -8,20 +8,13 @@
 # from pyspark.sql import SparkSession # instantiate spark session
 # from skdist.distribute.search import DistGridSearchCV
 
-# from sklearn.model_selection import cross_val_score
-# from sklearn.preprocessing import StandardScaler
-# from adversarial_samples import cost, generating_adversarial_samples
-# from sklearn.utils import shuffle
 from reading_datasets import *
 from aux_functions import *
-# from sklearn import metrics
 from csv import writer
 from time import time
-# import numpy as np
 
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.svm import SVC  # , LinearSVC
-# from sklearn.gaussian_process.kernels import RBF
+from sklearn.svm import SVC
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.naive_bayes import GaussianNB
@@ -45,7 +38,6 @@ names = [
     "Gradient Boost",
 ]
 
-# TODO: check parameters
 classifiers = [
     KNeighborsClassifier(3),
     SVC(kernel="linear", C=100, max_iter=10000),
@@ -60,29 +52,39 @@ classifiers = [
 # X - list of list of features
 # y - list of classes
 # dataframes = [ds1_sub, ds2, ds3, ds4]
-# dataframes = [ds2, ds3, ds4]
-dataframes = [ds3]
-datasets = []
 
-for ds in dataframes:
-    y = ds.pop(ds.columns.tolist()[-1])
-    y = y.to_numpy()
-    X = ds.to_numpy()
-    datasets.append((X, y))
+datasets, name = to_dataset()
+
+# # ds4 normalized
+# from sklearn.preprocessing import MinMaxScaler
+# scaler = MinMaxScaler()
+# y = ds1_sub.pop(ds1_sub.columns.tolist()[-1])
+# y = y.to_numpy()
+# ds5 = scaler.fit_transform(ds1_sub)
+
+# datasets = [(ds5, y)]
+# # /ds4 normalized
 
 # saving the results on a csv file
-f = open("standard_classifiers_results - 1_4, random, new.csv", "w", newline="")
+f = open("standard_classifiers_results - 5, random, SVMs.csv", "w", newline="")
 wrt = writer(f)
-header = ["Dataset", "Classifier", "ACC", "TPR", "F1", "Time to execute"]
+header = [
+    "Dataset",
+    "ACC",
+    "ACC std",
+    "TPR",
+    "TPR std",
+    "F1",
+    "F1 std",
+    "Time to execute",
+]
 wrt.writerow(header)
 
-# TODO: average results and get standard deviations from files
-# repeat experiment 10x
 for k in range(10):
 
     # iterate over datasets
     for ds_cnt, ds in enumerate(datasets):
-
+        
         X, y = ds
 
         X_train, X_test, y_train, _, _ = dataset_split(X, y, 200, 1, k)
@@ -136,8 +138,8 @@ for k in range(10):
             #             verbose=True
             #             )
 
-            # header = ['Dataset', 'Classifier', 'ACC', 'TPR', 'f1', 'Time to execute']
-            wrt.writerow([ds_cnt, name, ACCs.mean(), TPRs.mean(), F1s.mean(), finish])
+            # header = ["Dataset", "ACC", "ACC std", "TPR", "TPR std", "F1", "F1 std", "Time to execute"]
+            wrt.writerow([ds_cnt, ACCs.mean(), ACCs.std(), TPRs.mean(), TPRs.std(), F1s.mean(), F1s.std(), finish])
             print('wrote')
             # wrt.writerow([ds_cnt, name, score.mean(), finish])
 

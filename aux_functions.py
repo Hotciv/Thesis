@@ -239,13 +239,15 @@ def cross_validate(clf, X, y, type, clf_name, cv=5, random_state=42):
             j += 1
 
     elif type == "OSVM":
+        from sklearn.linear_model import SGDOneClassSVM
+
         for train_index, test_index in kf.split(X, y):
             X_partial, X_hold = X[train_index], X[test_index]
             y_partial, y_hold = y[train_index], y[test_index]
 
             w = 2
 
-            # TODO: make it reset
+            clf = SGDOneClassSVM(random_state=42)
 
             # Slidding window
             Sx = X_partial[0]

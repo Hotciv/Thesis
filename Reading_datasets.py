@@ -14,11 +14,21 @@ import numpy as np
 
 dataframes = []
 
-# # ds1:
-# aux = pd.read_csv('Datasets/72ptz43s9v-1/dataset_full.csv')
-# ds1_sub:
+# ds1 (AKA ds5):
+aux = pd.read_csv('Datasets/72ptz43s9v-1/dataset_full.csv')
+aux["phishing"].replace({0: -1}, inplace=True)
+dataframes.append(aux)
+"""
+    TODO: change
+    58645 instances x 111 attributes
+    Some attributes are > 1, some are between 0 and 1, inclusive
+    phishing: 0 - legitimate
+              1 - phishing
+"""
+
+# ds1_sub (AKA ds1):
 aux = pd.read_csv("Datasets/72ptz43s9v-1/dataset_small.csv")
-aux["phishing"].replace({0: -1}, inplace=True)  # test column name
+aux["phishing"].replace({0: -1}, inplace=True)
 dataframes.append(aux)
 """
     58645 instances x 111 attributes
@@ -72,6 +82,9 @@ dataframes.append(aux)
              1 - legitimate
 """
 
+# sending ds5 to it's place
+dataframes = dataframes[1:] + [dataframes[0]]
+
 # from sklearn.preprocessing import MinMaxScaler
 # scaler = MinMaxScaler()
 # ds5 = scaler.fit_transform(ds4)
@@ -80,19 +93,23 @@ dataframes.append(aux)
 # '''
 
 
-def to_dataset(df_numbers=[0, 1, 2, 3]):
+def to_dataset(df_numbers=[0, 1, 2, 3, 4]):
     """
     Transforms Pandas DataFrames into numpy datasets which consists of tuples of 'x' and 'y' where
         x (np.ndarray): an array of instances and each instance has a number of features.
         y (np.array): an array of labels.
+
+    As a bonus, also get the correct names to include in filename.
 
     Parameters:
         df_numbers (list): a list of DataFrames indexes to be turned into "numpy datasets" (described above).
 
     Returns:
         datasets (list): a list of "numpy datasets" (described above).
+        name (str): a str to be inserted into the filename.
     """
 
+    # DataFrames -> datasets
     datasets = []
     for index in df_numbers:
         ds = dataframes[index]
@@ -101,7 +118,14 @@ def to_dataset(df_numbers=[0, 1, 2, 3]):
         x = ds.to_numpy()
         datasets.append((x, y))
 
-    return datasets
+    # name
+    names = ["ds1", "ds2", "ds3", "ds4", "ds5"]
+    name = ''
+    for i in df_numbers:
+        name = name + names[i] + ', '
+    name = name[:-2]
+
+    return datasets, name
 
 
 def get_mock_datasets():

@@ -1,26 +1,18 @@
 from sklearn.linear_model import SGDOneClassSVM
 
-from sklearn.preprocessing import StandardScaler
-
-# from adversarial_samples import cost, generating_adversarial_samples
 from reading_datasets import *
 from aux_functions import *
-from sklearn import metrics
 from csv import writer
 from time import time
 import numpy as np
 
 # dataframes = [ds1_sub, ds2, ds3, ds4]
-# dataframes = [ds2, ds3, ds4]
-# dataframes = [ds1_sub]
-# dataframes = []
-
-datasets = to_dataset()
+datasets, name = to_dataset()
 
 np.random.seed(0)
 
 # Saving the results
-f = open("OSVM, ds1-4 10x random200.csv", "w", newline="")
+f = open("OSVM, " + name + " 10x random200.csv", "w", newline="")
 wrt = writer(f)
 header = [
     "Dataset",
@@ -35,20 +27,19 @@ header = [
 wrt.writerow(header)
 # /Saving the results
 
-# # TODO: average results and get standard deviations from files
-# # repeat experiment 10x
 for k in range(10):
     # iterate over datasets
     for ds_cnt, ds in enumerate(datasets):
-        model = SGDOneClassSVM(random_state=42)  # TODO: remove random_state
+        # TODO: remove random_state? if so, remember about aux_functions as well
+        model = SGDOneClassSVM(random_state=42) 
 
         X, y = ds
 
-        # X_train, X_test, y_train, _, _ = dataset_split(X, y, 200, 1, k)
-        X_train, X_test, y_train, _, _ = dataset_split(X, y, 200, 1)
+        X_train, X_test, y_train, _, _ = dataset_split(X, y, 200, 1, k)
+        # X_train, X_test, y_train, _, _ = dataset_split(X, y, 200, 1)
 
-        # print("\n\nGoing through DS" + str(ds_cnt + 1) + ' ' + str(k) + ' times')
-        print("\n\nGoing through DS" + str(ds_cnt + 1) + " times")
+        print("\n\nGoing through DS" + str(ds_cnt + 1) + ' ' + str(k) + ' times')
+        # print("\n\nGoing through DS" + str(ds_cnt + 1) + " times")
 
         start_time = time()
         ACCs, TPRs, F1s, _ = cross_validate(

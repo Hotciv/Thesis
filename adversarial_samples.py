@@ -16,7 +16,7 @@ import numpy as np
 #     """
 #     L = pd.DataFrame()
 #     L_unique = []
-#     genSamples = []
+#     gen_samples = []
 
 #     # Gets only the legitimate or phishing samples
 #     df = df[df.iloc[:, -1] == y]
@@ -52,27 +52,37 @@ import numpy as np
 #             temp[j] = sample[i]
 #             i += 1
 
-#         genSamples.append(temp)
+#         gen_samples.append(temp)
 
-#     return np.array(genSamples)
+#     return np.array(gen_samples)
 
 
 def generating_adversarial_samples(x, selFeatures, ds, labels, y=1):
     """
     Generates new samples based on previous ones and selected features
     An important note is that it should be able to deal with samples that got successfully classified as phishing
+        * does not check if label of 'x' == 'y', i.e., 'x' can have label '-1' and generate samples from '1'
 
+    Parameters:
+        x (np.array): an instance, a row from 'ds'
+        selFeatures (list): a list of indexes of the selected features to be altered
+        ds (np.ndarray): a dataset that contains the 'x' (ds.x)
+        labels (np.array): labels of 'ds' (ds.y)
+        y (int): which samples should be used
+            +1 -> phishing
+            -1 -> legitimate
+        criteria (int): how the new samples should be labeled
+            0 -> invert labels
+            1 -> keep labels
+            2 -> generate new labels based on cluster proximity
 
-    Keyword arguments:
-    x -- an instance (a row)
-    selFeatures -- a list of indexes of the selected features
-    ds -- a dataset that contains the dataset
-    labels -- a numpy array of labels
-    y -- which samples should be used (+1/phishing or -1/legitimate)
+    Returns
+        gen_samples (np.ndarray): samples generated from x
+        gen_labels (np.array): labels for the generated samples, based on the 'criteria'
     """
     L = []
     L_unique = []
-    genSamples = []
+    gen_samples = []
 
     # Gets only the legitimate or phishing samples
     ds = ds[labels == y]
@@ -109,9 +119,9 @@ def generating_adversarial_samples(x, selFeatures, ds, labels, y=1):
             temp[j] = sample[i]
             i += 1
 
-        genSamples.append(temp)
+        gen_samples.append(temp)
 
-    return np.array(genSamples)
+    return np.array(gen_samples)
 
 
 def cost(a, b):

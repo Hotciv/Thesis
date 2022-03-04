@@ -10,15 +10,13 @@ import pickle
 
 # dataframes = [ds1_sub, ds2, ds3, ds4]
 # dataframes = [0, 1, 2, 3]
-# dataframes = [1, 2, 3]
-# dataframes = [3]
 
-datasets = to_dataset([2])
+datasets, name = to_dataset([2])
 
 np.random.seed(0)
 
 # Saving the results
-f = open("AAOSVM, ds3 10x random200, changing scores.csv", "w", newline="")
+f = open("AAOSVM, " + name + " 10x random200, changing the scores.csv", "w", newline="")
 wrt = writer(f)
 header = [
     "Dataset",

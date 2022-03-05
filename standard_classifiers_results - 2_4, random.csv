@@ -1,2 +1,0 @@
-Dataset,Classifier,ACC,TPR,F1,Time to execute
-0,Nearest Neighbors (KNN),1.0,1.0,1.0,0.6099112033843994

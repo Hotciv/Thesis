@@ -129,7 +129,7 @@ def dataset_split(X: np.ndarray, y: np.ndarray, split: int, type, random_state=4
 #         wrt.writerow([i] + selected)
 
 
-def cross_validate(clf, X, y, type, clf_name, cv=5, random_state=42, aux=''):
+def cross_validate(clf, X, y, type, clf_name, cv=5, random_state=42, aux='', reset=None):
     """
     Cross validation to be used across all classifiers
     TODO: continue explanation
@@ -143,6 +143,7 @@ def cross_validate(clf, X, y, type, clf_name, cv=5, random_state=42, aux=''):
         cv (int): number of cross validations to be performed.
         random_state (int): initial random state for auditatorial purposes.
         aux (str): extra parameter to help specify the filename.
+        reset (dict): dictionary of initial parameters of the classifier to reset it.
 
     Returns:
         ACCs (np.array): list of accuracy scores from the cross validation.
@@ -159,7 +160,7 @@ def cross_validate(clf, X, y, type, clf_name, cv=5, random_state=42, aux=''):
     kf = KFold(n_splits=cv, random_state=42, shuffle=True)
     # kf = KFold(n_splits=cv)
 
-    f = open(clf_name + "_{}_{}.pkl".format(type, random_state), "wb")
+    f = open(clf_name + aux + "_{}_{}.pkl".format(type, random_state), "wb")
 
     if type == "inc":
         for train_index, test_index in kf.split(X, y):
@@ -194,9 +195,7 @@ def cross_validate(clf, X, y, type, clf_name, cv=5, random_state=42, aux=''):
             X_partial, X_hold = X[train_index], X[test_index]
             y_partial, y_hold = y[train_index], y[test_index]
 
-            clf.reset()
-            # exceptions:
-            # KNeighborsClassifier, SVC, 
+            clf.set_params(**reset)
 
             # init(address='auto')
             # with parallel_backend('ray'):

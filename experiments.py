@@ -90,6 +90,7 @@ f = open("standard_classifiers_results " + name + " 10x random200.csv", "w", new
 wrt = writer(f)
 header = [
     "Dataset",
+    "Classifier",
     "ACC",
     "ACC std",
     "TPR",
@@ -97,6 +98,7 @@ header = [
     "F1",
     "F1 std",
     "Time to execute",
+    "Loss",
 ]
 wrt.writerow(header)
 
@@ -118,27 +120,31 @@ for k in range(10):
 
             print(name)
 
+            # getting initial parameters to reset classifier in the cross validation
             reset = clf.get_params()
 
+            # timed cross validation
             start_time = time()
-            ACCs, TPRs, F1s, _ = cross_validate(
+            ACCs, TPRs, F1s, loss = cross_validate(
                 clf,
                 X_train,
                 y_train,
                 "std",
                 name,
-                random_state = k,
-                aux = "_ds{}".format(ds_cnt + 1),
-                reset = reset,
+                random_state=k,
+                aux="_ds{}".format(ds_cnt + 1),
+                reset=reset,
             )
             finish = time() - start_time
 
             print("finished", finish)
 
-            # header = ["Dataset", "ACC", "ACC std", "TPR", "TPR std", "F1", "F1 std", "Time to execute"]
+            # saving
+            # header  # to peek at definition
             wrt.writerow(
                 [
                     ds_cnt,
+                    name,
                     ACCs.mean(),
                     ACCs.std(),
                     TPRs.mean(),
@@ -146,6 +152,7 @@ for k in range(10):
                     F1s.mean(),
                     F1s.std(),
                     finish,
+                    loss,
                 ]
             )
             print("wrote")
@@ -170,7 +177,6 @@ for k in range(10):
             # score = clf.score(X_test, y_test)
             # print(str(start_time - time()) + " score " + str(score))
 
-            
 
 f.close()
 

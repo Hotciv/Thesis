@@ -138,7 +138,7 @@ def cross_validate(clf, X, y, type, clf_name, cv=5, random_state=42, aux='', res
         clf (classifier): classifier to be trained and evaluated.
         X (np.ndarray): dataset to be used in the cross validation.
         y (np.array): labels of dataset to be used in the cross validation.
-        type (str): classifier type.
+        type (str): classifier type; decides how the cross validation is going to happen.
         clf_name (str): classifier name.
         cv (int): number of cross validations to be performed.
         random_state (int): initial random state for auditatorial purposes.

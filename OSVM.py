@@ -30,16 +30,15 @@ wrt.writerow(header)
 for k in range(10):
     # iterate over datasets
     for ds_cnt, ds in enumerate(datasets):
-        # TODO: remove random_state? if so, remember about aux_functions as well
         model = SGDOneClassSVM(random_state=42) 
+
+        reset = model.get_params()
 
         X, y = ds
 
         X_train, X_test, y_train, _, _ = dataset_split(X, y, 200, 1, k)
-        # X_train, X_test, y_train, _, _ = dataset_split(X, y, 200, 1)
 
         print("\n\nGoing through DS" + str(ds_cnt + 1) + ' ' + str(k) + ' times')
-        # print("\n\nGoing through DS" + str(ds_cnt + 1) + " times")
 
         start_time = time()
         ACCs, TPRs, F1s, _ = cross_validate(
@@ -48,8 +47,9 @@ for k in range(10):
             y_train,
             "OSVM",
             "inc",
-            # random_state=int(format(11, 'b') + format(ds_cnt, 'b'), 2))
-            random_state=int(format(k, "b") + format(ds_cnt, "b"), 2),
+            random_state = k,
+            aux = "_ds{}".format(ds_cnt + 1),
+            reset = reset,
         )
         finish = time() - start_time
 
@@ -76,6 +76,7 @@ for k in range(10):
                 finish,
             ]
         )
+        print("wrote")
         # wrt = [ds_cnt, ACCs.mean(), TPRs.mean(), F1s.mean(), finish]
         # print(x + ' ' for x in wrt)
 

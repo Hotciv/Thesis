@@ -1,0 +1,474 @@
+finished 186.84420037269592
+Support vector count: 14
+bias:           0.236
+w:              [-0.17785779  0.14144661 -0.0544443  -0.22649326 -0.31398927 -0.27283924
+  0.12866068  0.18649029  0.32710659  0.03801428 -0.1058378   0.18961654
+ -0.14249281 -0.12077501  0.13388816 -0.17359058  0.03152006 -0.16125095
+  0.13928382 -0.06377818 -0.12584494 -0.0670542   0.03974816 -0.19227539
+ -0.10175835 -0.03513468 -0.13876557  0.01270876  0.0255836  -0.19009128
+ -0.2438624  -0.00386614 -0.03815177  0.2437587   0.00110891  0.26559572
+ -0.11936613  0.09861364  0.02088657  0.00379216  0.06737061 -0.00456119
+ -0.21074271  0.07008558 -0.20816704  0.12021056  0.03287637  0.10728763
+  0.21360511 -0.06035971]
+         54484084 function calls (53861958 primitive calls) in 186.611 seconds
+
+   Ordered by: internal time
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+  5620082   58.129    0.000   90.981    0.000 AAOSVM.py:282(take_step)
+     3575   43.229    0.012   43.229    0.012 {built-in method builtins.sum}
+ 15482287   30.434    0.000   30.434    0.000 SVM_w_SMO.py:46(linear_kernel)
+     1300   16.971    0.013   24.699    0.019 threadpoolctl.py:430(_find_modules_with_enum_process_module_ex)
+   207438    5.005    0.000  101.752    0.000 SVM_w_SMO.py:275(examine_example)
+     4550    4.036    0.001    4.036    0.001 _k_means_common.pyx:99(__pyx_fuse_1_inertia_dense)
+  5532201    2.691    0.000    2.691    0.000 {built-in method builtins.max}
+   427700    2.277    0.000    3.656    0.000 ntpath.py:180(split)
+1077808/663818    1.855    0.000    8.389    0.000 {built-in method numpy.core._multiarray_umath.implement_array_function}
+208072/104036    1.690    0.000    2.601    0.000 numeric.py:1140(roll)
+   427700    1.407    0.000    7.557    0.000 threadpoolctl.py:489(_make_module_from_path)
+  5532523    1.395    0.000    1.395    0.000 {built-in method builtins.min}
+   195204    1.349    0.000    1.349    0.000 {method 'reduce' of 'numpy.ufunc' objects}
+   104036    0.964    0.000    2.275    0.000 {method 'choice' of 'numpy.random.mtrand.RandomState' objects}
+    81990    0.959    0.000  186.380    0.002 AAOSVM.py:450(partial_fit)
+  1710800    0.900    0.000    1.559    0.000 threadpoolctl.py:518(_check_prefix)
+   428358    0.734    0.000    0.977    0.000 ntpath.py:124(splitdrive)
+  3436635    0.663    0.000    0.663    0.000 {method 'startswith' of 'str' objects}
+    24749    0.554    0.000    1.285    0.000 pairwise.py:330(_euclidean_distances)
+     8558    0.489    0.000    2.456    0.000 AAOSVM.py:260(objective_function)
+   163846    0.446    0.000    1.905    0.000 fromnumeric.py:69(_wrapreduction)
+    27674    0.375    0.000    0.375    0.000 {built-in method numpy.core._multiarray_umath.c_einsum}
+     3250    0.324    0.000    6.233    0.002 _kmeans.py:385(_kmeans_single_elkan)
+    24749    0.272    0.000    0.288    0.000 extmath.py:120(safe_sparse_dot)
+    11749    0.272    0.000    0.601    0.000 _k_means_elkan.pyx:184(__pyx_fuse_1elkan_iter_chunked_dense)
+     3250    0.236    0.000    2.087    0.001 _kmeans.py:147(_kmeans_plusplus)
+     1300    0.229    0.000    0.278    0.000 _k_means_lloyd.pyx:29(__pyx_fuse_1lloyd_iter_chunked_dense)
+   152140    0.226    0.000    0.226    0.000 {built-in method numpy.arange}
+    16624    0.225    0.000    1.625    0.000 validation.py:486(check_array)
+   427700    0.222    0.000    3.878    0.000 ntpath.py:214(basename)
+     8558    0.221    0.000    0.221    0.000 AAOSVM.py:395(<listcomp>)
+   427700    0.209    0.000    0.437    0.000 threadpoolctl.py:569(_realpath)
+   104036    0.206    0.000    0.317    0.000 numeric.py:1335(normalize_axis_tuple)
+  1149435    0.206    0.000    0.266    0.000 {built-in method builtins.isinstance}
+    11749    0.190    0.000    0.280    0.000 _k_means_common.pyx:163(__pyx_fuse_1_relocate_empty_clusters_dense)
+    16624    0.186    0.000    0.979    0.000 validation.py:90(_assert_all_finite)
+   164188    0.162    0.000    1.198    0.000 function_base.py:4762(append)
+   431945    0.162    0.000    0.162    0.000 {method 'get' of 'dict' objects}
+   860600    0.161    0.000    0.161    0.000 {built-in method _ctypes.byref}
+   104036    0.148    0.000    1.125    0.000 fromnumeric.py:2933(prod)
+        1    0.142    0.142  186.842  186.842 aux_functions.py:80(cross_validate)
+   164551    0.139    0.000    1.015    0.000 <__array_function__ internals>:2(concatenate)
+208072/104036    0.138    0.000    2.774    0.000 <__array_function__ internals>:2(roll)
+   428029    0.135    0.000    0.208    0.000 ntpath.py:34(_get_bothseps)
+      749    0.134    0.000  104.350    0.139 SVM_w_SMO.py:313(train)
+   695588    0.115    0.000    0.115    0.000 {method 'items' of 'dict' objects}
+   938248    0.115    0.000    0.115    0.000 {built-in method builtins.len}
+   164188    0.114    0.000    1.455    0.000 <__array_function__ internals>:2(append)
+   229835    0.114    0.000    0.148    0.000 {built-in method builtins.getattr}
+     1950    0.113    0.000   19.825    0.010 AAOSVM.py:205(mu)
+   163846    0.108    0.000    0.108    0.000 fromnumeric.py:70(<dictcomp>)
+   857374    0.104    0.000    0.104    0.000 {built-in method nt.fspath}
+     8558    0.099    0.000    0.099    0.000 AAOSVM.py:248(update_weights)
+        5    0.099    0.020    0.099    0.020 {built-in method _pickle.dump}
+   114771    0.094    0.000    0.094    0.000 {method 'reshape' of 'numpy.ndarray' objects}
+   427709    0.092    0.000    0.092    0.000 {method 'rstrip' of 'str' objects}
+   429674    0.089    0.000    0.089    0.000 {method 'replace' of 'str' objects}
+   428358    0.085    0.000    0.085    0.000 {method 'lower' of 'str' objects}
+   104036    0.083    0.000    1.312    0.000 <__array_function__ internals>:2(prod)
+    40241    0.081    0.000    0.838    0.000 fromnumeric.py:2123(sum)
+    13000    0.081    0.000    0.147    0.000 _methods.py:91(_clip_dep_is_scalar_nan)
+    18361    0.079    0.000    0.178    0.000 validation.py:253(_num_samples)
+   108586    0.078    0.000    0.173    0.000 <__array_function__ internals>:2(empty_like)
+     6500    0.077    0.000    0.182    0.000 numeric.py:2337(within_tol)
+      515    0.072    0.000    0.072    0.000 {built-in method builtins.print}
+     2275    0.071    0.000    0.071    0.000 AAOSVM.py:189(phi)
+   425307    0.070    0.000    0.070    0.000 {built-in method numpy.asanyarray}
+    83172    0.069    0.000    0.495    0.000 fromnumeric.py:51(_wrapfunc)
+    34483    0.064    0.000    0.064    0.000 {method 'argmin' of 'numpy.ndarray' objects}
+    69872    0.061    0.000    0.186    0.000 <__array_function__ internals>:2(where)
+   104036    0.058    0.000    0.092    0.000 numeric.py:1385(<listcomp>)
+      658    0.057    0.000    0.057    0.000 {built-in method nt._getfinalpathname}
+     6500    0.055    0.000    0.449    0.000 numeric.py:2257(isclose)
+     3250    0.053    0.000    0.056    0.000 _k_means_elkan.pyx:33(__pyx_fuse_1init_bounds_dense)
+   167672    0.052    0.000    0.052    0.000 {built-in method builtins.hasattr}
+    14999    0.052    0.000    0.052    0.000 index_tricks.py:778(fill_diagonal)
+    28184    0.052    0.000    0.052    0.000 {method 'argmax' of 'numpy.ndarray' objects}
+    27674    0.050    0.000    0.610    0.000 extmath.py:51(row_norms)
+      327    0.046    0.000    0.046    0.000 {function SeedSequence.generate_state at 0x000002B1DCA27A60}
+    11749    0.045    0.000    0.119    0.000 numeric.py:2385(array_equal)
+      325    0.044    0.000    8.636    0.027 _kmeans.py:1113(fit)
+   104036    0.044    0.000    0.044    0.000 numeric.py:1221(<dictcomp>)
+    16624    0.043    0.000    0.725    0.000 extmath.py:869(_safe_accumulator_op)
+    16804    0.043    0.000    0.070    0.000 warnings.py:181(_add_filter)
+    14999    0.042    0.000    0.042    0.000 {method 'partition' of 'numpy.ndarray' objects}
+    40241    0.041    0.000    0.931    0.000 <__array_function__ internals>:2(sum)
+   102577    0.039    0.000    0.062    0.000 base.py:1205(isspmatrix)
+    14999    0.039    0.000    1.198    0.000 pairwise.py:63(check_pairwise_arrays)
+    34483    0.039    0.000    0.142    0.000 fromnumeric.py:1202(argmin)
+   104206    0.038    0.000    0.038    0.000 {method 'ravel' of 'numpy.ndarray' objects}
+    80262    0.038    0.000    0.038    0.000 {built-in method numpy.asarray}
+        2    0.038    0.019    0.038    0.019 {method 'normal' of 'numpy.random.mtrand.RandomState' objects}
+     6500    0.036    0.000    0.036    0.000 {method 'cumsum' of 'numpy.ndarray' objects}
+    19500    0.036    0.000    0.112    0.000 {method 'all' of 'numpy.generic' objects}
+     6500    0.036    0.000    0.776    0.000 extmath.py:1063(stable_cumsum)
+     6500    0.036    0.000    0.036    0.000 _methods.py:106(_clip_dep_invoke_with_casting)
+     1302    0.036    0.000    0.038    0.000 {built-in method builtins.__build_class__}
+    16804    0.035    0.000    0.039    0.000 warnings.py:458(__enter__)
+      327    0.035    0.000    0.095    0.000 validation.py:1029(check_random_state)
+     3250    0.035    0.000    0.035    0.000 {method 'randint' of 'numpy.random.mtrand.RandomState' objects}
+   105046    0.034    0.000    0.034    0.000 {built-in method numpy.core._multiarray_umath.normalize_axis_index}
+    11749    0.034    0.000    0.034    0.000 _k_means_elkan.pyx:184(elkan_iter_chunked_dense)
+    14999    0.034    0.000    0.046    0.000 pairwise.py:39(_return_float_dtype)
+    13656    0.033    0.000    0.080    0.000 _ufunc_config.py:32(seterr)
+    34483    0.032    0.000    0.212    0.000 <__array_function__ internals>:2(argmin)
+    28184    0.032    0.000    0.115    0.000 fromnumeric.py:1121(argmax)
+     1300    0.032    0.000    1.799    0.001 _kmeans.py:686(_labels_inertia)
+   208072    0.031    0.000    0.031    0.000 numeric.py:1136(_roll_dispatcher)
+    18269    0.031    0.000    0.031    0.000 {method 'copy' of 'numpy.ndarray' objects}
+      325    0.030    0.000    0.030    0.000 {built-in method nt.stat}
+   138370    0.029    0.000    0.029    0.000 einsumfunc.py:989(_einsum_dispatcher)
+    14999    0.028    0.000    1.966    0.000 pairwise.py:226(euclidean_distances)
+    19533    0.028    0.000    0.028    0.000 {built-in method numpy.zeros}
+    16624    0.028    0.000    0.068    0.000 numerictypes.py:358(issubdtype)
+    12934    0.027    0.000    0.027    0.000 {built-in method numpy.empty}
+     6500    0.027    0.000    0.027    0.000 {method 'random_sample' of 'numpy.random.mtrand.RandomState' objects}
+    13656    0.027    0.000    0.029    0.000 _ufunc_config.py:131(geterr)
+     5204    0.027    0.000    0.028    0.000 __init__.py:398(__getitem__)
+    19121    0.027    0.000    0.051    0.000 {built-in method _abc._abc_instancecheck}
+      325    0.027    0.000   50.514    0.155 AAOSVM.py:172(update_probabilities)
+   164551    0.027    0.000    0.027    0.000 multiarray.py:148(concatenate)
+   164188    0.027    0.000    0.027    0.000 function_base.py:4758(_append_dispatcher)
+    28184    0.026    0.000    0.171    0.000 <__array_function__ internals>:2(argmax)
+    16804    0.026    0.000    0.099    0.000 warnings.py:165(simplefilter)
+    19500    0.026    0.000    0.209    0.000 fromnumeric.py:2367(all)
+    27674    0.025    0.000    0.544    0.000 <__array_function__ internals>:2(einsum)
+     6500    0.024    0.000    0.218    0.000 _methods.py:125(_clip)
+    33248    0.024    0.000    0.038    0.000 numerictypes.py:284(issubclass_)
+    14999    0.023    0.000    0.095    0.000 fromnumeric.py:667(partition)
+    13000    0.023    0.000    0.043    0.000 fromnumeric.py:3127(ndim)
+    16804    0.022    0.000    0.024    0.000 warnings.py:477(__exit__)
+    18249    0.022    0.000    0.114    0.000 {method 'sum' of 'numpy.ndarray' objects}
+    16804    0.021    0.000    0.021    0.000 warnings.py:437(__init__)
+     4550    0.021    0.000    0.026    0.000 _k_means_common.pyx:99(_inertia_dense)
+    27674    0.019    0.000    0.395    0.000 einsumfunc.py:997(einsum)
+   104036    0.019    0.000    0.019    0.000 fromnumeric.py:2928(_prod_dispatcher)
+   104036    0.019    0.000    0.019    0.000 {built-in method _operator.index}
+    14999    0.019    0.000    0.133    0.000 <__array_function__ internals>:2(partition)
+     6530    0.018    0.000    0.018    0.000 {method 'searchsorted' of 'numpy.ndarray' objects}
+    19500    0.018    0.000    0.266    0.000 <__array_function__ internals>:2(all)
+18702/18695    0.017    0.000    0.017    0.000 {built-in method _abc._abc_subclasscheck}
+      325    0.017    0.000    0.028    0.000 _methods.py:195(_var)
+    16804    0.017    0.000    0.017    0.000 {method 'remove' of 'list' objects}
+    16624    0.017    0.000    0.026    0.000 <frozen importlib._bootstrap>:389(parent)
+    51891    0.017    0.000    0.017    0.000 {built-in method builtins.issubclass}
+    14007    0.017    0.000    0.058    0.000 <__array_function__ internals>:2(copyto)
+    16624    0.017    0.000    0.024    0.000 validation.py:476(_ensure_no_complex_data)
+    69872    0.016    0.000    0.016    0.000 multiarray.py:341(where)
+    31249    0.016    0.000    0.133    0.000 _methods.py:60(_all)
+    16624    0.016    0.000    0.039    0.000 _config.py:24(get_config)
+    14999    0.015    0.000    0.084    0.000 <__array_function__ internals>:2(fill_diagonal)
+   108586    0.015    0.000    0.015    0.000 multiarray.py:80(empty_like)
+     7802    0.015    0.000    0.064    0.000 numeric.py:289(full)
+     4550    0.014    0.000    0.055    0.000 numeric.py:76(zeros_like)
+      760    0.014    0.000    0.264    0.000 AAOSVM.py:274(decision_function)
+      227    0.014    0.000    0.014    0.000 {method 'sort' of 'numpy.ndarray' objects}
+     6500    0.014    0.000    0.014    0.000 {method 'take' of 'numpy.ndarray' objects}
+     4550    0.014    0.000    4.053    0.001 _k_means_common.pyx:99(__pyx_fuse_1_inertia_dense (wrapper))
+      325    0.013    0.000    9.113    0.028 AAOSVM.py:91(get_clusters)
+     3250    0.013    0.000    2.102    0.001 _kmeans.py:1054(_init_centroids)
+     1300    0.012    0.000   26.569    0.020 _kmeans.py:753(_labels_inertia_threadpool_limit)
+    11749    0.012    0.000    0.069    0.000 {method 'all' of 'numpy.ndarray' objects}
+     1302    0.012    0.000    0.012    0.000 {built-in method _ctypes.LoadLibrary}
+    13656    0.012    0.000    0.012    0.000 {built-in method numpy.seterrobj}
+     1300    0.012    0.000    0.018    0.000 _k_means_lloyd.pyx:29(lloyd_iter_chunked_dense)
+     3250    0.011    0.000    0.011    0.000 _k_means_elkan.pyx:33(init_bounds_dense)
+    11749    0.011    0.000    0.143    0.000 <__array_function__ internals>:2(array_equal)
+    15600    0.011    0.000    0.011    0.000 stringsource:345(__cinit__)
+     1625    0.011    0.000    0.540    0.000 base.py:486(_validate_data)
+     1300    0.010    0.000    0.028    0.000 threadpoolctl.py:640(get_version)
+    13000    0.010    0.000    0.066    0.000 <__array_function__ internals>:2(ndim)
+     1302    0.010    0.000    0.064    0.000 __init__.py:339(__init__)
+    13000    0.010    0.000    0.010    0.000 {built-in method builtins.abs}
+     6500    0.010    0.000    0.243    0.000 fromnumeric.py:2046(clip)
+     1320    0.010    0.000    0.017    0.000 validation.py:1203(<listcomp>)
+    18249    0.009    0.000    0.092    0.000 _methods.py:46(_sum)
+     1300    0.009    0.000   27.355    0.021 _kmeans.py:1304(predict)
+     1300    0.009    0.000    0.121    0.000 threadpoolctl.py:599(__init__)
+     6828    0.009    0.000    0.058    0.000 _ufunc_config.py:429(__enter__)
+    40241    0.009    0.000    0.009    0.000 fromnumeric.py:2118(_sum_dispatcher)
+    16624    0.009    0.000    0.009    0.000 {method 'rpartition' of 'str' objects}
+    19121    0.009    0.000    0.061    0.000 abc.py:96(__instancecheck__)
+    13000    0.009    0.000    0.011    0.000 _methods.py:101(_clip_dep_is_byte_swapped)
+     6500    0.009    0.000    0.054    0.000 fromnumeric.py:2458(cumsum)
+     6500    0.009    0.000    0.072    0.000 <__array_function__ internals>:2(cumsum)
+    50412    0.009    0.000    0.009    0.000 {built-in method _warnings._filters_mutated}
+    16624    0.009    0.000    0.016    0.000 _config.py:16(_get_threadlocal_config)
+     5204    0.008    0.000    0.040    0.000 __init__.py:391(__getattr__)
+     6500    0.008    0.000    0.481    0.000 <__array_function__ internals>:2(isclose)
+     6828    0.008    0.000    0.040    0.000 _ufunc_config.py:434(__exit__)
+    16804    0.008    0.000    0.008    0.000 {method 'insert' of 'list' objects}
+    14300    0.008    0.000    0.015    0.000 stringsource:657(memoryview_cwrapper)
+     6500    0.008    0.000    0.227    0.000 {method 'clip' of 'numpy.ndarray' objects}
+     1300    0.008    0.000   24.736    0.019 threadpoolctl.py:259(_set_threadpool_limits)
+    27312    0.008    0.000    0.008    0.000 {built-in method numpy.geterrobj}
+18702/18695    0.007    0.000    0.025    0.000 abc.py:100(__subclasscheck__)
+     6500    0.007    0.000    0.259    0.000 <__array_function__ internals>:2(clip)
+    34483    0.007    0.000    0.007    0.000 fromnumeric.py:1198(_argmin_dispatcher)
+     2600    0.007    0.000    0.024    0.000 threadpoolctl.py:656(set_num_threads)
+     6530    0.007    0.000    0.033    0.000 fromnumeric.py:1283(searchsorted)
+    16631    0.007    0.000    0.007    0.000 {method 'copy' of 'dict' objects}
+      685    0.007    0.000    0.018    0.000 _methods.py:162(_mean)
+     1625    0.007    0.000    0.038    0.000 validation.py:1495(_check_sample_weight)
+     6500    0.007    0.000    0.022    0.000 <__array_function__ internals>:2(result_type)
+     6530    0.006    0.000    0.048    0.000 <__array_function__ internals>:2(searchsorted)
+    27320    0.006    0.000    0.006    0.000 {method 'endswith' of 'str' objects}
+     1625    0.006    0.000    0.008    0.000 validation.py:200(_num_features)
+     1010    0.006    0.000    0.007    0.000 _methods.py:66(_count_reduce_items)
+    15600    0.006    0.000    0.006    0.000 stringsource:372(__dealloc__)
+    28184    0.006    0.000    0.006    0.000 fromnumeric.py:1117(_argmax_dispatcher)
+     4550    0.006    0.000    0.067    0.000 <__array_function__ internals>:2(zeros_like)
+     1320    0.006    0.000    0.027    0.000 validation.py:1139(check_is_fitted)
+     1300    0.005    0.000    0.500    0.000 _kmeans.py:1008(_check_test_data)
+     1300    0.005    0.000    0.006    0.000 __init__.py:272(create_unicode_buffer)
+    11749    0.005    0.000    0.005    0.000 _k_means_common.pyx:277(__pyx_fuse_1_center_shift)
+    19500    0.004    0.000    0.004    0.000 fromnumeric.py:2362(_all_dispatcher)
+     1300    0.004    0.000    0.011    0.000 threadpoolctl.py:179(unregister)
+      325    0.004    0.000   19.833    0.061 AAOSVM.py:231(psi)
+     6501    0.004    0.000    0.004    0.000 _ufunc_config.py:425(__init__)
+    11749    0.004    0.000    0.004    0.000 _k_means_common.pyx:260(__pyx_fuse_1_average_centers)
+        1    0.004    0.004    0.045    0.045 _samples_generator.py:792(make_blobs)
+     1300    0.004    0.000   24.744    0.019 threadpoolctl.py:167(__init__)
+     1655    0.004    0.000    0.018    0.000 numeric.py:149(ones)
+     1300    0.004    0.000   24.703    0.019 threadpoolctl.py:368(_load_modules)
+    14999    0.004    0.000    0.004    0.000 index_tricks.py:774(_fill_diagonal_dispatcher)
+     1300    0.004    0.000   24.707    0.019 threadpoolctl.py:334(__init__)
+     1300    0.004    0.000    0.004    0.000 {built-in method nt._getfullpathname}
+    14007    0.004    0.000    0.004    0.000 multiarray.py:1071(copyto)
+      227    0.003    0.000    0.018    0.000 arraysetops.py:320(_unique1d)
+     1300    0.003    0.000    0.004    0.000 threadpoolctl.py:220(_check_params)
+    14999    0.003    0.000    0.003    0.000 fromnumeric.py:663(_partition_dispatcher)
+     1300    0.003    0.000    0.007    0.000 stringsource:999(memoryview_fromslice)
+     1625    0.003    0.000    0.011    0.000 base.py:354(_check_n_features)
+     1625    0.003    0.000    0.005    0.000 base.py:400(_check_feature_names)
+     1300    0.003    0.000    0.008    0.000 threadpoolctl.py:664(get_threading_layer)
+     5200    0.003    0.000    0.003    0.000 threadpoolctl.py:362(__iter__)
+    13000    0.003    0.000    0.003    0.000 fromnumeric.py:3123(_ndim_dispatcher)
+    11749    0.003    0.000    0.003    0.000 numeric.py:2381(_array_equal_dispatcher)
+      362    0.003    0.000    0.003    0.000 {built-in method numpy.array}
+      329    0.003    0.000    0.005    0.000 ntpath.py:450(normpath)
+      329    0.002    0.000    0.068    0.000 ntpath.py:625(realpath)
+      975    0.002    0.000    0.010    0.000 <__array_function__ internals>:2(reshape)
+      325    0.002    0.000    0.044    0.000 _kmeans.py:937(_check_params)
+      325    0.002    0.000    0.036    0.000 context.py:169(_cpu_count_user)
+     1302    0.002    0.000    0.002    0.000 __init__.py:375(_FuncPtr)
+     1300    0.002    0.000    0.011    0.000 threadpoolctl.py:651(get_num_threads)
+    15600    0.002    0.000    0.002    0.000 stringsource:663(memoryview_check)
+     9881    0.002    0.000    0.002    0.000 {method 'append' of 'list' objects}
+      325    0.002    0.000   19.839    0.061 AAOSVM.py:240(update_psi)
+     2600    0.002    0.000    0.003    0.000 threadpoolctl.py:560(_get_windll)
+      650    0.002    0.000    0.003    0.000 os.py:670(__getitem__)
+      325    0.002    0.000    0.029    0.000 fromnumeric.py:3590(var)
+      325    0.002    0.000    0.042    0.000 _kmeans.py:245(_tolerance)
+      975    0.002    0.000    0.006    0.000 fromnumeric.py:198(reshape)
+     6500    0.002    0.000    0.002    0.000 fromnumeric.py:2454(_cumsum_dispatcher)
+      327    0.002    0.000    0.054    0.000 contextlib.py:72(inner)
+     1300    0.002    0.000    0.013    0.000 threadpoolctl.py:176(__exit__)
+     5204    0.002    0.000    0.002    0.000 {built-in method builtins.setattr}
+        1    0.002    0.002  186.892  186.892 profiling.py:15(profile_test)
+      325    0.002    0.000    0.045    0.000 {built-in method sklearn.utils._openmp_helpers._openmp_effective_n_threads}
+     6500    0.002    0.000    0.002    0.000 numeric.py:2253(_isclose_dispatcher)
+      325    0.002    0.000   19.725    0.061 AAOSVM.py:236(<listcomp>)
+     6530    0.001    0.000    0.001    0.000 fromnumeric.py:1279(_searchsorted_dispatcher)
+       90    0.001    0.000    0.013    0.000 multiclass.py:201(type_of_target)
+     1625    0.001    0.000    0.002    0.000 validation.py:1638(_get_feature_names)
+     6500    0.001    0.000    0.001    0.000 fromnumeric.py:2042(_clip_dispatcher)
+     6500    0.001    0.000    0.001    0.000 multiarray.py:664(result_type)
+     1320    0.001    0.000    0.001    0.000 {built-in method builtins.vars}
+      650    0.001    0.000    0.005    0.000 _collections_abc.py:657(get)
+      325    0.001    0.000    0.001    0.000 {built-in method nt.cpu_count}
+     1300    0.001    0.000    0.001    0.000 {method 'split' of 'bytes' objects}
+     1300    0.001    0.000    0.010    0.000 threadpoolctl.py:661(_get_extra_info)
+     1300    0.001    0.000    0.001    0.000 threadpoolctl.py:528(_warn_if_incompatible_openmp)
+      325    0.001    0.000    0.008    0.000 fromnumeric.py:3322(mean)
+     4550    0.001    0.000    0.001    0.000 numeric.py:72(_zeros_like_dispatcher)
+      325    0.001    0.000    0.039    0.000 context.py:110(cpu_count)
+     1320    0.001    0.000    0.002    0.000 inspect.py:72(isclass)
+      327    0.001    0.000    0.001    0.000 {built-in method nt.urandom}
+      327    0.001    0.000    0.002    0.000 random.py:721(getrandbits)
+     2600    0.001    0.000    0.001    0.000 {built-in method _ctypes.sizeof}
+     1300    0.001    0.000    0.001    0.000 {built-in method nt.getpid}
+      325    0.001    0.000    0.031    0.000 genericpath.py:16(exists)
+      325    0.001    0.000    0.103    0.000 AAOSVM.py:235(<listcomp>)
+        6    0.001    0.000    0.002    0.000 _split.py:60(split)
+      325    0.001    0.000    0.040    0.000 parallel.py:282(cpu_count)
+      498    0.001    0.000    0.001    0.000 {method 'format' of 'str' objects}
+        2    0.001    0.000    0.001    0.000 {method 'shuffle' of 'numpy.random.mtrand.RandomState' objects}
+      360    0.001    0.000    0.013    0.000 {method 'mean' of 'numpy.ndarray' objects}
+      329    0.001    0.000    0.002    0.000 ntpath.py:61(isabs)
+      650    0.001    0.000    0.002    0.000 os.py:740(encodekey)
+     1500    0.001    0.000    0.001    0.000 {built-in method time.time}
+     1300    0.001    0.000    0.001    0.000 threadpoolctl.py:234(<dictcomp>)
+      658    0.001    0.000    0.001    0.000 ntpath.py:44(normcase)
+      325    0.001    0.000    0.031    0.000 <__array_function__ internals>:2(var)
+        1    0.001    0.001  186.893  186.893 <string>:1(<module>)
+      325    0.001    0.000    0.004    0.000 os.py:766(getenv)
+      227    0.001    0.000    0.001    0.000 {method 'flatten' of 'numpy.ndarray' objects}
+      325    0.001    0.000    0.001    0.000 _kmeans.py:913(__init__)
+       20    0.001    0.000    0.010    0.001 multiclass.py:41(unique_labels)
+      325    0.001    0.000    0.001    0.000 <__array_function__ internals>:2(may_share_memory)
+      325    0.001    0.000    0.009    0.000 <__array_function__ internals>:2(mean)
+      227    0.001    0.000    0.019    0.000 arraysetops.py:138(unique)
+     1300    0.001    0.000    0.001    0.000 {method 'decode' of 'bytes' objects}
+       30    0.000    0.000    0.001    0.000 arraysetops.py:519(in1d)
+        1    0.000    0.000    0.000    0.000 {built-in method io.open}
+       10    0.000    0.000    0.018    0.002 _classification.py:374(multilabel_confusion_matrix)
+     1300    0.000    0.000    0.000    0.000 {built-in method builtins.globals}
+      650    0.000    0.000    0.001    0.000 os.py:734(check_str)
+       90    0.000    0.000    0.001    0.000 multiclass.py:117(is_multilabel)
+     1300    0.000    0.000    0.000    0.000 {built-in method sys.audit}
+     1300    0.000    0.000    0.000    0.000 stringsource:976(__dealloc__)
+     2600    0.000    0.000    0.000    0.000 stringsource:518(__getbuffer__)
+      329    0.000    0.000    0.000    0.000 {built-in method nt.getcwd}
+       10    0.000    0.000    0.030    0.003 _classification.py:1370(precision_recall_fscore_support)
+      325    0.000    0.000    0.002    0.000 context.py:41(cpu_count)
+     1300    0.000    0.000    0.000    0.000 threadpoolctl.py:173(__enter__)
+      975    0.000    0.000    0.000    0.000 fromnumeric.py:193(_reshape_dispatcher)
+      379    0.000    0.000    0.000    0.000 {method 'split' of 'str' objects}
+      650    0.000    0.000    0.000    0.000 {method 'upper' of 'str' objects}
+       45    0.000    0.000    0.000    0.000 {method 'astype' of 'numpy.ndarray' objects}
+      227    0.000    0.000    0.020    0.000 <__array_function__ internals>:2(unique)
+       25    0.000    0.000    0.015    0.001 _classification.py:57(_check_targets)
+      327    0.000    0.000    0.000    0.000 {built-in method from_bytes}
+        1    0.000    0.000    0.000    0.000 {method 'close' of '_io.BufferedWriter' objects}
+       80    0.000    0.000    0.001    0.000 validation.py:994(column_or_1d)
+       20    0.000    0.000    0.000    0.000 _classification.py:1265(_prf_divide)
+     1300    0.000    0.000    0.000    0.000 stringsource:559(__get__)
+      329    0.000    0.000    0.000    0.000 {method 'join' of 'str' objects}
+       50    0.000    0.000    0.000    0.000 arrayprint.py:980(__call__)
+       20    0.000    0.000    0.003    0.000 _encode.py:193(_check_unknown)
+        6    0.000    0.000    0.001    0.000 _split.py:93(_iter_test_masks)
+       67    0.000    0.000    0.001    0.000 fromnumeric.py:2268(any)
+     51/1    0.000    0.000    0.001    0.001 arrayprint.py:751(recurser)
+      227    0.000    0.000    0.000    0.000 arraysetops.py:125(_unpack_tuple)
+       42    0.000    0.000    0.002    0.000 validation.py:317(check_consistent_length)
+      325    0.000    0.000    0.000    0.000 fromnumeric.py:3585(_var_dispatcher)
+       10    0.000    0.000    0.000    0.000 ufunclike.py:127(isposinf)
+      100    0.000    0.000    0.000    0.000 {built-in method numpy.core._multiarray_umath.dragon4_positional}
+      325    0.000    0.000    0.000    0.000 fromnumeric.py:3317(_mean_dispatcher)
+       80    0.000    0.000    0.000    0.000 fromnumeric.py:1718(ravel)
+      325    0.000    0.000    0.000    0.000 {built-in method builtins.callable}
+      329    0.000    0.000    0.000    0.000 {method 'lstrip' of 'str' objects}
+        5    0.000    0.000    0.002    0.000 AAOSVM.py:64(reset)
+       67    0.000    0.000    0.001    0.000 <__array_function__ internals>:2(any)
+      325    0.000    0.000    0.000    0.000 multiarray.py:1368(may_share_memory)
+       30    0.000    0.000    0.001    0.000 arraysetops.py:784(setdiff1d)
+        5    0.000    0.000    0.000    0.000 base.py:309(__getstate__)
+       20    0.000    0.000    0.005    0.000 _label.py:119(transform)
+      327    0.000    0.000    0.000    0.000 contextlib.py:59(_recreate_cm)
+       80    0.000    0.000    0.000    0.000 <__array_function__ internals>:2(shape)
+        6    0.000    0.000    0.000    0.000 AAOSVM.py:19(__init__)
+       42    0.000    0.000    0.001    0.000 validation.py:328(<listcomp>)
+       80    0.000    0.000    0.000    0.000 <__array_function__ internals>:2(ravel)
+       40    0.000    0.000    0.004    0.000 multiclass.py:23(_unique_multiclass)
+        5    0.000    0.000    0.004    0.001 _classification.py:144(accuracy_score)
+       35    0.000    0.000    0.001    0.000 function_base.py:280(average)
+       25    0.000    0.000    0.005    0.000 arraysetops.py:743(union1d)
+       50    0.000    0.000    0.000    0.000 arrayprint.py:701(_extendLine)
+       20    0.000    0.000    0.004    0.000 _encode.py:151(_encode)
+        1    0.000    0.000    0.000    0.000 arrayprint.py:896(fillFormat)
+       50    0.000    0.000    0.000    0.000 arrayprint.py:715(_extendLine_pretty)
+       10    0.000    0.000    0.011    0.001 _classification.py:1329(_check_set_wise_labels)
+      227    0.000    0.000    0.000    0.000 arraysetops.py:133(_unique_dispatcher)
+       35    0.000    0.000    0.001    0.000 <__array_function__ internals>:2(average)
+        6    0.000    0.000    0.000    0.000 SVM_w_SMO.py:25(__init__)
+       10    0.000    0.000    0.000    0.000 _encode.py:7(_unique)
+       30    0.000    0.000    0.001    0.000 <__array_function__ internals>:2(setdiff1d)
+       60    0.000    0.000    0.006    0.000 multiclass.py:76(<genexpr>)
+        2    0.000    0.000    0.000    0.000 validation.py:369(<listcomp>)
+       10    0.000    0.000    0.000    0.000 shape_base.py:285(hstack)
+       30    0.000    0.000    0.001    0.000 <__array_function__ internals>:2(in1d)
+       25    0.000    0.000    0.000    0.000 {method 'any' of 'numpy.ndarray' objects}
+       60    0.000    0.000    0.004    0.000 multiclass.py:104(<genexpr>)
+       30    0.000    0.000    0.000    0.000 <__array_function__ internals>:2(bincount)
+       80    0.000    0.000    0.000    0.000 fromnumeric.py:1928(shape)
+       10    0.000    0.000    0.000    0.000 _label.py:85(fit)
+       51    0.000    0.000    0.000    0.000 arrayprint.py:946(<genexpr>)
+       20    0.000    0.000    0.000    0.000 {built-in method builtins.sorted}
+        6    0.000    0.000    0.001    0.000 _split.py:437(_iter_test_indices)
+       51    0.000    0.000    0.000    0.000 arrayprint.py:951(<genexpr>)
+       10    0.000    0.000    0.000    0.000 shape_base.py:23(atleast_1d)
+        1    0.000    0.000  186.893  186.893 {built-in method builtins.exec}
+       60    0.000    0.000    0.000    0.000 multiclass.py:107(<genexpr>)
+       25    0.000    0.000    0.005    0.000 <__array_function__ internals>:2(union1d)
+        1    0.000    0.000    0.000    0.000 {method 'uniform' of 'numpy.random.mtrand.RandomState' objects}
+       10    0.000    0.000    0.000    0.000 ufunclike.py:22(func)
+       67    0.000    0.000    0.000    0.000 fromnumeric.py:2263(_any_dispatcher)
+       10    0.000    0.000    0.000    0.000 __init__.py:986(is_scalar_nan)
+       27    0.000    0.000    0.000    0.000 _methods.py:54(_any)
+       10    0.000    0.000    0.000    0.000 <__array_function__ internals>:2(isposinf)
+       80    0.000    0.000    0.000    0.000 fromnumeric.py:1924(_shape_dispatcher)
+       10    0.000    0.000    0.000    0.000 <__array_function__ internals>:2(hstack)
+        5    0.000    0.000    0.015    0.003 _classification.py:1751(recall_score)
+       80    0.000    0.000    0.000    0.000 fromnumeric.py:1714(_ravel_dispatcher)
+       10    0.000    0.000    0.000    0.000 ufunclike.py:48(func)
+       10    0.000    0.000    0.000    0.000 <__array_function__ internals>:2(atleast_1d)
+       51    0.000    0.000    0.000    0.000 arrayprint.py:955(<genexpr>)
+        5    0.000    0.000    0.000    0.000 _classification.py:135(_weighted_sum)
+        6    0.000    0.000    0.002    0.000 _split.py:306(split)
+       51    0.000    0.000    0.000    0.000 arrayprint.py:956(<genexpr>)
+        5    0.000    0.000    0.015    0.003 _classification.py:1125(fbeta_score)
+       10    0.000    0.000    0.000    0.000 shape_base.py:218(_vhstack_dispatcher)
+       50    0.000    0.000    0.000    0.000 {method 'splitlines' of 'str' objects}
+        1    0.000    0.000    0.001    0.001 arrayprint.py:468(wrapper)
+       45    0.000    0.000    0.000    0.000 {method 'pop' of 'set' objects}
+        1    0.000    0.000    0.001    0.001 arrayprint.py:523(array2string)
+        1    0.000    0.000    0.001    0.001 arrayprint.py:485(_array2string)
+        1    0.000    0.000    0.000    0.000 arrayprint.py:869(__init__)
+       10    0.000    0.000    0.000    0.000 shape_base.py:207(_arrays_for_stack_dispatcher)
+       35    0.000    0.000    0.000    0.000 function_base.py:276(_average_dispatcher)
+        1    0.000    0.000    0.000    0.000 arrayprint.py:416(_get_format_function)
+        5    0.000    0.000    0.015    0.003 _classification.py:982(f1_score)
+        1    0.000    0.000    0.001    0.001 arrayprint.py:1534(_array_str_implementation)
+       10    0.000    0.000    0.000    0.000 _classification.py:47(_check_zero_division)
+       10    0.000    0.000    0.000    0.000 {built-in method math.isnan}
+        1    0.000    0.000    0.000    0.000 {method 'seed' of 'numpy.random.mtrand.RandomState' objects}
+       10    0.000    0.000    0.000    0.000 {method 'tolist' of 'numpy.ndarray' objects}
+        1    0.000    0.000    0.000    0.000 copyreg.py:99(_slotnames)
+       30    0.000    0.000    0.000    0.000 arraysetops.py:780(_setdiff1d_dispatcher)
+       20    0.000    0.000    0.000    0.000 {built-in method from_iterable}
+        1    0.000    0.000    0.000    0.000 arrayprint.py:61(_make_options_dict)
+        6    0.000    0.000    0.000    0.000 AAOSVM.py:61(<listcomp>)
+       30    0.000    0.000    0.000    0.000 arraysetops.py:515(_in1d_dispatcher)
+       30    0.000    0.000    0.000    0.000 multiarray.py:883(bincount)
+       25    0.000    0.000    0.000    0.000 arraysetops.py:739(_union1d_dispatcher)
+        6    0.000    0.000    0.000    0.000 validation.py:337(_make_indexable)
+        2    0.000    0.000    0.000    0.000 {method 'any' of 'numpy.generic' objects}
+        2    0.000    0.000    0.000    0.000 _split.py:276(__init__)
+        2    0.000    0.000    0.000    0.000 validation.py:357(indexable)
+        1    0.000    0.000    0.000    0.000 arrayprint.py:367(_get_formatdict)
+        2    0.000    0.000    0.000    0.000 _split.py:434(__init__)
+        1    0.000    0.000    0.000    0.000 {built-in method builtins.locals}
+        5    0.000    0.000    0.000    0.000 __init__.py:145(_DType_reduce)
+        1    0.000    0.000    0.000    0.000 <__array_function__ internals>:2(count_nonzero)
+       10    0.000    0.000    0.000    0.000 ufunclike.py:68(_dispatcher)
+        1    0.000    0.000    0.000    0.000 arrayprint.py:375(<lambda>)
+        1    0.000    0.000    0.000    0.000 <__array_function__ internals>:2(amin)
+        1    0.000    0.000    0.000    0.000 numeric.py:425(count_nonzero)
+        1    0.000    0.000    0.001    0.001 arrayprint.py:742(_formatArray)
+       10    0.000    0.000    0.000    0.000 shape_base.py:19(_atleast_1d_dispatcher)
+        1    0.000    0.000    0.000    0.000 fromnumeric.py:2638(amax)
+        1    0.000    0.000    0.000    0.000 <__array_function__ internals>:2(amax)
+        1    0.000    0.000    0.000    0.000 {built-in method numpy.core._multiarray_umath.count_nonzero}
+        6    0.000    0.000    0.000    0.000 _collections_abc.py:302(__subclasshook__)
+        1    0.000    0.000    0.000    0.000 fromnumeric.py:2763(amin)
+        1    0.000    0.000    0.000    0.000 {method 'get' of 'mappingproxy' objects}
+        1    0.000    0.000    0.000    0.000 arrayprint.py:66(<dictcomp>)
+        1    0.000    0.000    0.000    0.000 {method 'update' of 'dict' objects}
+        1    0.000    0.000    0.000    0.000 {method 'discard' of 'set' objects}
+        1    0.000    0.000    0.000    0.000 numeric.py:421(_count_nonzero_dispatcher)
+        1    0.000    0.000    0.000    0.000 fromnumeric.py:2633(_amax_dispatcher)
+        1    0.000    0.000    0.000    0.000 arrayprint.py:860(_none_or_positive_arg)
+        1    0.000    0.000    0.000    0.000 {built-in method _thread.get_ident}
+        1    0.000    0.000    0.000    0.000 {method 'add' of 'set' objects}
+        1    0.000    0.000    0.000    0.000 {built-in method builtins.id}
+        1    0.000    0.000    0.000    0.000 fromnumeric.py:2758(_amin_dispatcher)
+        1    0.000    0.000    0.000    0.000 {method 'disable' of '_lsprof.Profiler' objects}

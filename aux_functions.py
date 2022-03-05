@@ -20,10 +20,26 @@ from typing import Any, Dict, List, Optional, Union, TYPE_CHECKING
 # get_node_ip_address = lambda: '127.0.0.1'
 
 
-def dataset_split(X: np.ndarray, y: np.ndarray, split, type, random_state=42):
+def dataset_split(X: np.ndarray, y: np.ndarray, split: int, type, random_state=42):
     """
     Split the dataset in training and testing according to
     a number of samples, or a percentage of dataset to be reserved for testing
+
+    Parameters:
+        X (np.ndarray): dataset to be split into train and test.
+        y (np.array): labels of the dataset to be split into train and test.
+        split (int): number of samples to be used as test.
+        type 
+            (int): class to remove random 'split' samples (phishing or legitimate).
+            (list/np.array): list/np.array to select 'split' samples.
+        random_state (int): initial random state for auditatorial purposes.
+
+        Returns:
+            X_train (np.ndarray): split of the dataset to train.
+            X_test (np.ndarray): split of the dataset to test.
+            y_train (np.array): split of the labels of the dataset to train.
+            y_test (np.array): split of the labels of the dataset to test.
+            selected (list/np.array): indexes of the test split.
     """
 
     selected = None
@@ -98,19 +114,42 @@ def dataset_split(X: np.ndarray, y: np.ndarray, split, type, random_state=42):
     return X_train, X_test, y_train, y_test, selected
 
 
-def dataset_splits(X: np.ndarray, y: np.ndarray, split, type, random_state=42):
-    # saving the results on a csv file
-    f = open("standard_splits.csv", "w", newline="")
-    wrt = writer(f)
-    header = ["Split", "Indexes"]
-    wrt.writerow(header)
+# def dataset_splits(X: np.ndarray, y: np.ndarray, split, type, random_state=42):
+#     """
 
-    for i in range(10):
-        X_train, X_test, y_train, y_test, selected = dataset_split(X, y, split, type, i)
-        wrt.writerow([i] + selected)
+#     """
+#     # saving the results on a csv file
+#     f = open("standard_splits.csv", "w", newline="")
+#     wrt = writer(f)
+#     header = ["Split", "Indexes"]
+#     wrt.writerow(header)
+
+#     for i in range(10):
+#         X_train, X_test, y_train, y_test, selected = dataset_split(X, y, split, type, i)
+#         wrt.writerow([i] + selected)
 
 
-def cross_validate(clf, X, y, type, clf_name, cv=5, random_state=42):
+def cross_validate(clf, X, y, type, clf_name, cv=5, random_state=42, aux=''):
+    """
+    Cross validation to be used across all classifiers
+    TODO: continue explanation
+
+    Parameters:
+        clf (classifier): classifier to be trained and evaluated.
+        X (np.ndarray): dataset to be used in the cross validation.
+        y (np.array): labels of dataset to be used in the cross validation.
+        type (str): classifier type.
+        clf_name (str): classifier name.
+        cv (int): number of cross validations to be performed.
+        random_state (int): initial random state for auditatorial purposes.
+        aux (str): extra parameter to help specify the filename.
+
+    Returns:
+        ACCs (np.array): list of accuracy scores from the cross validation.
+        TPRs (np.array): list of TPR scores from the cross validation.
+        F1s (np.array): list of f1 scores from the cross validation.
+        loss (np.array): list of numbers of samples that did not get predicted correctly (label ~(-1|+1)).
+    """
     ACCs = np.zeros(cv)
     TPRs = np.zeros(cv)
     F1s = np.zeros(cv)
@@ -154,6 +193,10 @@ def cross_validate(clf, X, y, type, clf_name, cv=5, random_state=42):
         for train_index, test_index in kf.split(X, y):
             X_partial, X_hold = X[train_index], X[test_index]
             y_partial, y_hold = y[train_index], y[test_index]
+
+            clf.reset()
+            # exceptions:
+            # KNeighborsClassifier, SVC, 
 
             # init(address='auto')
             # with parallel_backend('ray'):
@@ -305,17 +348,27 @@ def cross_validate(clf, X, y, type, clf_name, cv=5, random_state=42):
 
 
 def feature_selection(x, f=None):
+    """
+    Gets a list of features to feed into the AST.
+
+    Parameters:
+        x (np.array): a sample.
+        f (int): a number of features to be selected from the sample.
+
+    Returns:
+        sel_features (list): list of features selected.
+    """
     if f == None:
         f = randrange(0, 5)
 
-    selFeatures = []
+    sel_features = []
 
-    while len(selFeatures) < f:
+    while len(sel_features) < f:
         s = randrange(0, x.shape[0])
-        if s not in selFeatures:
-            selFeatures.append(s)
+        if s not in sel_features:
+            sel_features.append(s)
 
-    return selFeatures
+    return sel_features
 
 
 # # Feature selection testing
@@ -329,10 +382,20 @@ def feature_selection(x, f=None):
 def class_imbalance(y):
     """
     Measures the class imbalance using the formula
-    (p - n)/(p + n)
-    where
-    p == number of positive instances
-    n == number of negative instances
+
+                (p - n)
+                -------
+                (p + n)
+    
+        where
+        p == number of positive instances
+        n == number of negative instances
+
+    Parameters:
+        y (np.array): array of labels.
+    
+    Return:
+        (float): result of the formula.
     """
 
     p = sum(y[y == 1])
@@ -341,24 +404,28 @@ def class_imbalance(y):
     return (p - n) / (p + n)
 
 
-def DPPTL(attribute, a, X, y):
+def DPPTL(attribute: int, a, X, y):
     """
     Difference in Positive Proportions of True Labels
     also checks Demographic Parity when == 0
     
-    attribute -> an attribute to be looked at
-    a -> value of the attribute to be looked at
-    X -> dataset
-    y -> predicted labels
-
     uses the following formula:
     pa/na - pd/nd
 
-    where
-    pa == number of positive instances where an attribute has a certain value
-    na == number of instances where an attribute has a certain value
-    pd == number of positive instances where an attribute does not have a certain value
-    nd == number of instances where an attribute does not have a certain value
+        where
+        pa == number of positive instances where an attribute has a certain value
+        na == number of instances where an attribute has a certain value
+        pd == number of positive instances where an attribute does not have a certain value
+        nd == number of instances where an attribute does not have a certain value
+
+    Parameters:
+        attribute (int): an attribute to be looked at.
+        a (float): value of the attribute to be looked at.
+        X (np.ndarray): dataset.
+        y (np.array): predicted labels of dataset.
+
+    Return:
+        (float): result of the formula.
     """
     # positive instances
     p = X[y == 1]
@@ -400,10 +467,13 @@ def empirical_robustness(
     | Paper link: https://arxiv.org/abs/1511.04599
     | Adapted from https://github.com/Trusted-AI/adversarial-robustness-toolbox/blob/main/art/metrics/metrics.py
 
-    :param classifier: A trained model.
-    :param x: Data sample of shape that can be fed into 'classifier' and was used to generate the adversarial samples.
-    :param adv_x: A set of samples adversarialy generated from 'x'.
-    :return: The average empirical robustness computed on 'x'.
+    Parameters:
+        classifier (classifier): A trained model.
+        x (np.array): Data sample of shape that can be fed into 'classifier' and was used to generate the adversarial samples.
+        adv_x (np.ndarray): A set of samples adversarialy generated from 'x'.
+
+    Returns:
+        (Union[float, np.ndarray]): The average empirical robustness computed on 'x'.
     """
     # crafter = get_crafter(classifier, attack_name, attack_params)
     # crafter.set_params(**{"minimal": True})

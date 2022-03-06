@@ -16,7 +16,7 @@ datasets, name = to_dataset([2])
 np.random.seed(0)
 
 # Saving the results
-f = open("AAOSVM, " + name + " 10x random200, changing the scores.csv", "w", newline="")
+f = open("AAOSVM, " + name + " 10x random200.csv", "w", newline="")
 wrt = writer(f)
 header = [
     "Dataset",
@@ -28,14 +28,13 @@ header = [
     "F1 std",
     "Time to execute",
     "Number of critical instances",
+    "Loss",
 ]
 wrt.writerow(header)
 
-g = open("indexes - ds3.pkl", "wb")
+g = open("indexes - " + name + ".pkl", "wb")
 # /Saving the results
 
-# TODO: average results and get standard deviations from files
-# repeat experiment 10x
 for k in range(10):
 
     # iterate over datasets
@@ -44,25 +43,15 @@ for k in range(10):
         X, y = ds
 
         X_train, X_test, y_train, _, _ = dataset_split(X, y, 200, 1, k)
-        # X_train, X_test, y_train, _, _ = dataset_split(X, y, 200, 1)
 
         print("\n\nGoing through DS" + str(ds_cnt + 1) + " " + str(k) + " times")
 
         # Set model parameters and initial values
         C = 100.0
-        # C = 1000.0  # for SVM_w_SMO comparison
-        # C = 1.0  # for SVM_w_SMO comparison
-        # m = len(ds[1])  # for SVM_w_SMO comparison
         m = 2
         initial_alphas = np.zeros(m)
         initial_b = 0.0
         initial_w = np.zeros(len(ds[0][0]))
-        initial_Psi = 0.0
-
-        # # Initialize model
-        # model = AAOSVM(ds[0], ds[1], C,
-        #             initial_alphas, initial_b, np.zeros(m))
-        # model.w = initial_w
 
         # Slidding window
         Sx = X_train[0]
@@ -77,19 +66,20 @@ for k in range(10):
         initial_error = model.decision_function(model.X) - model.y
         model.errors = initial_error
 
+        # Initialize weights
         model.w = initial_w
 
         # X = ds[0]
         # Y = ds[1]
         start_time = time()
-        ACCs, TPRs, F1s, _ = cross_validate(
+        ACCs, TPRs, F1s, loss = cross_validate(
             model,
             X_train,
             y_train,
             "AAOSVM",
             "AAOSVM",
-            # random_state=int(format(11, 'b') + format(ds_cnt, 'b'), 2))
-            random_state=int(format(k, "b") + format(ds_cnt, "b"), 2),
+            random_state=k,
+            aux="_ds{}".format(ds_cnt + 1),
         )
         finish = time() - start_time
 
@@ -118,17 +108,7 @@ for k in range(10):
         # header = ["Dataset", "# of critical instances", "Time to execute"]
         # wrt.writerow([ds_cnt, np.count_nonzero(model.alphas), finish])
 
-        # header = [
-        #     "Dataset",
-        #     "ACC",
-        #     "ACC std",
-        #     "TPR",
-        #     "TPR std",
-        #     "F1",
-        #     "F1 std",
-        #     "Time to execute",
-        #     "Number of critical instances",
-        # ]
+        # header  # to peek at definition
         wrt.writerow(
             [
                 ds_cnt,
@@ -140,9 +120,10 @@ for k in range(10):
                 F1s.std(),
                 finish,
                 np.count_nonzero(model.alphas),
+                loss,
             ]
         )
-        pickle.dump(np.where(model.alphas > 0)[0], g)
+        pickle.dump((k, ds_cnt, np.where(model.alphas > 0)[0]), g)
 
         print("wrote")
 

@@ -9,6 +9,7 @@ from csv import writer
 import numpy as np
 import pickle
 from typing import Any, Dict, List, Optional, Union, TYPE_CHECKING
+from time import asctime
 
 # from numpy.lib.function_base import average
 
@@ -258,7 +259,7 @@ def cross_validate(clf, X: np.ndarray, y: np.array, type: str, clf_name: str, cv
 
                 # showing progress at the rate of 1%
                 if i % (sz // 100) == 0:
-                    print("reached final {}".format(i))
+                    print("reached final {}".format(i), asctime())
 
             y_pred = clf.decision_function(X_hold)
             y_pred[y_pred < 0] = -1

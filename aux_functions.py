@@ -158,7 +158,6 @@ def cross_validate(clf, X, y, type, clf_name, cv=5, random_state=42, aux='', res
     j = 0
 
     kf = KFold(n_splits=cv, random_state=42, shuffle=True)
-    # kf = KFold(n_splits=cv)
 
     f = open(clf_name + aux + "_{}_{}.pkl".format(type, random_state), "wb")
 
@@ -220,10 +219,6 @@ def cross_validate(clf, X, y, type, clf_name, cv=5, random_state=42, aux='', res
 
     elif type == "AAOSVM":
         for train_index, test_index in kf.split(X, y):
-            # print(train_index)
-            # print(test_index)
-            # print(y)
-            # input()
 
             # Saving scores
             h = open("AAOSVM_scores" + aux + "_{}.csv".format(random_state), "w", newline="")
@@ -237,11 +232,14 @@ def cross_validate(clf, X, y, type, clf_name, cv=5, random_state=42, aux='', res
             wrt_s.writerow(header)
             # /Saving scores
 
+            # splitting the data
             X_partial, X_hold = X[train_index], X[test_index]
             y_partial, y_hold = y[train_index], y[test_index]
 
+            # resetting the classifier
             clf = clf.reset(X_partial, y_partial)
 
+            # creating a slidding window
             Sx = clf.X
             Sy = clf.y
             sz = len(y_partial)
@@ -249,6 +247,7 @@ def cross_validate(clf, X, y, type, clf_name, cv=5, random_state=42, aux='', res
                 x = X_partial[i]
                 Y = y_partial[i]
 
+                # training on one sample at a time
                 Sx, Sy = clf.partial_fit(X_partial, Sx, Sy, x, Y, i)
 
                 # Saving scores
@@ -256,8 +255,8 @@ def cross_validate(clf, X, y, type, clf_name, cv=5, random_state=42, aux='', res
                     [clf.Em, clf.Er, clf.Ym, clf.Yr,]
                 )
 
+                # showing progress at the rate of 1%
                 if i % (sz // 100) == 0:
-                    # if i % 50 == 0:
                     print("reached final {}".format(i))
 
             y_pred = clf.decision_function(X_hold)
@@ -267,6 +266,7 @@ def cross_validate(clf, X, y, type, clf_name, cv=5, random_state=42, aux='', res
             pos = y_pred == 1
             bin = neg | pos
 
+            # saving trained model
             pickle.dump(clf, f)
 
             print(len(y_pred[neg]) + len(y_pred[pos]))

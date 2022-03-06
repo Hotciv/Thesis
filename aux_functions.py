@@ -22,7 +22,7 @@ from typing import Any, Dict, List, Optional, Union, TYPE_CHECKING
 
 def dataset_split(X: np.ndarray, y: np.ndarray, split: int, type, random_state=42):
     """
-    Split the dataset in training and testing according to
+    Split the dataset in training and testing according to\
     a number of samples, or a percentage of dataset to be reserved for testing
 
     Parameters:
@@ -129,10 +129,11 @@ def dataset_split(X: np.ndarray, y: np.ndarray, split: int, type, random_state=4
 #         wrt.writerow([i] + selected)
 
 
-def cross_validate(clf, X, y, type, clf_name, cv=5, random_state=42, aux='', reset=None):
+def cross_validate(clf, X: np.ndarray, y: np.array, type: str, clf_name: str, cv=5, random_state=42, aux='', reset=None):
     """
-    Cross validation to be used across all classifiers
-    TODO: continue explanation
+    Cross validation to be used across all classifiers.
+    It uses 3 metrics to evaluate the classifiers:
+        Accuracy, TPR, and f1
 
     Parameters:
         clf (classifier): classifier to be trained and evaluated.
@@ -401,9 +402,9 @@ def class_imbalance(y):
     return (p - n) / (p + n)
 
 
-def DPPTL(attribute: int, a, X, y):
+def DPPTL(attribute: int, a: float, X: np.ndarray, y: np.array):
     """
-    Difference in Positive Proportions of True Labels
+    Calculates the Difference in Positive Proportions of True Labels\
     also checks Demographic Parity when == 0
     
     uses the following formula:
@@ -444,22 +445,22 @@ def DPPTL(attribute: int, a, X, y):
 #     pass
 
 
-def equality_of_opportunity(attribute, a, X, y):
-    """
-    attribute -> an attribute to be looked at
-    a -> value of the attribute to be looked at
-    X -> dataset
-    y -> predicted labels
-    """
-    pass
+# def equality_of_opportunity(attribute, a, X, y):
+#     """
+#     attribute -> an attribute to be looked at
+#     a -> value of the attribute to be looked at
+#     X -> dataset
+#     y -> predicted labels
+#     """
+#     pass
 
 
 def empirical_robustness(
     classifier, x: np.array, adv_x: np.ndarray,
 ) -> Union[float, np.ndarray]:
     """
-    Compute the Empirical Robustness of a classifier object over the sample 'x' for a given adversarial crafting
-    method 'attack'. This is equivalent to computing the minimal perturbation that the attacker must introduce for a
+    Compute the Empirical Robustness of a classifier object over the sample 'x' for a given adversarial crafting\
+    method 'attack'. This is equivalent to computing the minimal perturbation that the attacker must introduce for a\
     successful attack.
     | Paper link: https://arxiv.org/abs/1511.04599
     | Adapted from https://github.com/Trusted-AI/adversarial-robustness-toolbox/blob/main/art/metrics/metrics.py

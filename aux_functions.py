@@ -226,7 +226,7 @@ def cross_validate(clf, X, y, type, clf_name, cv=5, random_state=42, aux='', res
             # input()
 
             # Saving scores
-            h = open("AAOSVM_scores_{}.csv".format(random_state), "w", newline="")
+            h = open("AAOSVM_scores" + aux + "_{}.csv".format(random_state), "w", newline="")
             wrt_s = writer(h)
             header = [
                 "Utility of Malicious sample",

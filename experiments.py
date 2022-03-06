@@ -16,6 +16,8 @@ from sklearn.ensemble import GradientBoostingClassifier
 
 from sklearn.linear_model import SGDOneClassSVM
 
+import AAOSVM
+
 # # for helping the experiment 0?
 # from pyspark.sql import SparkSession # instantiate spark session
 # from skdist.distribute.search import DistGridSearchCV
@@ -166,10 +168,36 @@ def experiment_cv(
         classifiers = [SGDOneClassSVM(random_state=42)]
         clf_type = "OSVM"
 
-    # elif n == 3:
-    #     names = ["AAOSVM"]
-    #     classifiers = [SGDOneClassSVM(random_state=42)]
-    #     clf_type = "AAOSVM"
+    elif n == 3:
+        names = ["AAOSVM"]
+
+        # AAOSVM intitalization
+        # Set model parameters and initial values
+        C = 100.0
+        m = 2
+        initial_alphas = np.zeros(m)
+        initial_b = 0.0
+        initial_w = np.zeros(len(ds[0][0]))
+
+        # Slidding window
+        Sx = X_train[0]
+        Sy = y_train[0]
+        Sx = np.append([Sx], [X_train[1]], 0)
+        Sy = np.append([Sy], [y_train[1]], 0)
+
+        # Initialize model
+        model = AAOSVM(Sx, Sy, C, initial_alphas, initial_b, np.zeros(m))
+
+        # Initialize error cache
+        initial_error = model.decision_function(model.X) - model.y
+        model.errors = initial_error
+
+        # Initialize weights
+        model.w = initial_w
+        # /AAOSVM intitalization
+
+        classifiers = [model]
+        clf_type = "AAOSVM"
     # /settings
 
     # iterate over classifiers
@@ -178,7 +206,8 @@ def experiment_cv(
         print(clf_name)
 
         # getting initial parameters to reset classifier in the cross validation
-        reset = clf.get_params()
+        if n == 1 or n == 2:
+            reset = clf.get_params()
 
         # timed cross validation
         start_time = time()
@@ -272,6 +301,10 @@ def experiment_load(
     elif n == 2:
         names = ["inc"]
         clf_type = "OSVM"
+
+    elif n == 3:
+        names = ["AAOSVM"]
+        clf_type = "AAOSVM"
     # /settings
 
     # iterate over classifiers
@@ -305,8 +338,10 @@ def experiment_load(
                 clf.append(pickle.load(f))
 
                 y_pred = clf[j].predict(X_hold)
-                # y_pred[y_pred < 0] = -1
-                # y_pred[y_pred >= 0] = 1
+                # AAOSVM usually does not predict -1|+1
+                if clf_type == 'AAOSVM':
+                    y_pred[y_pred < 0] = -1
+                    y_pred[y_pred >= 0] = 1
                 neg = y_pred == -1
                 pos = y_pred == 1
                 bin = neg | pos

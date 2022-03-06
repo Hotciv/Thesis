@@ -19,8 +19,7 @@ aux = pd.read_csv('Datasets/72ptz43s9v-1/dataset_full.csv')
 aux["phishing"].replace({0: -1}, inplace=True)
 dataframes.append(aux)
 """
-    TODO: change
-    58645 instances x 111 attributes
+    88647 instances x 111 attributes
     Some attributes are > 1, some are between 0 and 1, inclusive
     phishing: 0 - legitimate
               1 - phishing

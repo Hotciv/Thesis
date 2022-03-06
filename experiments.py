@@ -50,6 +50,16 @@ if normalization == "y":
         X, y = ds
         datasets[ds_cnt] = (dataset_normalization([X])[0], y)
 
+# input -> create a new csv file?
+load = input("Loading trained models? (y/n)\n")
+while load != "y" and load != "n":
+    load = input("Loading trained models? (y/n)\n")
+
+if load == 'y':
+    load = input("Rebuild csv file from trained models? (y/n)\n")
+    while load != "y" and load != "n":
+        load = input("Rebuild csv file from trained models? (y/n)\n")
+
 def filename_build(n: int, selection="10x random200"):
     """
     Function to create an automated filename for the experiment
@@ -63,6 +73,8 @@ def filename_build(n: int, selection="10x random200"):
         fn = "standard_classifiers_results "
     elif n == 2:
         fn = "OSVM, "
+    elif n == 3:
+        fn = "AAOSVM, "
 
     return fn + name + " " + selection + norm + ".csv"
 
@@ -153,6 +165,11 @@ def experiment_cv(
         names = ["inc"]
         classifiers = [SGDOneClassSVM(random_state=42)]
         clf_type = "OSVM"
+
+    # elif n == 3:
+    #     names = ["AAOSVM"]
+    #     classifiers = [SGDOneClassSVM(random_state=42)]
+    #     clf_type = "AAOSVM"
     # /settings
 
     # iterate over classifiers
@@ -319,22 +336,23 @@ def experiment_load(
         return clf, the_200, X_hold, X_hold, selected
 
 
-header = [
-    "Dataset",
-    "Classifier",
-    "ACC",
-    "ACC std",
-    "TPR",
-    "TPR std",
-    "F1",
-    "F1 std",
-    "Time to execute",
-    "Loss",
-]
-# saving the results on a csv file
-f = open(filename_build(n), "w", newline="")
-wrt = writer(f)
-wrt.writerow(header)
+if load == 'n':
+    header = [
+        "Dataset",
+        "Classifier",
+        "ACC",
+        "ACC std",
+        "TPR",
+        "TPR std",
+        "F1",
+        "F1 std",
+        "Time to execute",
+        "Loss",
+    ]
+    # saving the results on a csv file
+    f = open(filename_build(n), "w", newline="")
+    wrt = writer(f)
+    wrt.writerow(header)
 
 # repeating the experiment 10x on different splits
 for k in range(10):
@@ -346,8 +364,10 @@ for k in range(10):
 
         print("\n\nGoing through DS" + str(ds_cnt + 1) + " " + str(k + 1) + " time")
 
-        experiment_cv(n, wrt, X, y, k)
-        # loaded = experiment_load(2, k, True)
+        if load == 'n':
+            experiment_cv(n, wrt, X, y, k)
+        else:
+            loaded = experiment_load(n, k, True)
         # print(loaded)
         # input()
 
@@ -370,6 +390,7 @@ for k in range(10):
         # clf.fit(X_train, y_train)
         # score = clf.score(X_test, y_test)
         # print(str(start_time - time()) + " score " + str(score))
-f.close()
+if load == 'n':
+    f.close()
 
 # experiment 5

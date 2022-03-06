@@ -167,22 +167,22 @@ def get_mock_datasets():
     return datasets
 
 
-def dataset_normalization():
+def dataset_normalization(datasets):
     """
-    Function to normalize datasets.
+    Function to normalize datasets using MinMaxScaler.
 
-    Attributes?
+    Parameters:
+        datasets (list): list of np.ndarray datasets without the labels.
 
     Returns:
-        datasets (list): a list of "numpy datasets" (described above).
+        normalized_datasets (list): a list of "numpy datasets" (described above).
     """
-    # # ds4 normalized
-    # from sklearn.preprocessing import MinMaxScaler
-    # scaler = MinMaxScaler()
-    # y = ds1_sub.pop(ds1_sub.columns.tolist()[-1])
-    # y = y.to_numpy()
-    # ds5 = scaler.fit_transform(ds1_sub)
+    from sklearn.preprocessing import MinMaxScaler
 
-    # datasets = [(ds5, y)]
-    # # /ds4 normalized
-    pass
+    normalized_datasets = []
+
+    scaler = MinMaxScaler()
+    for ds in datasets:
+        normalized_datasets.append(scaler.fit_transform(ds))
+
+    return normalized_datasets

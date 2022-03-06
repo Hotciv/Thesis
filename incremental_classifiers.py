@@ -57,21 +57,17 @@ header = ["Dataset", "Classifier", "ACC", "TPR", "F1", "Time to execute"]
 # header = ["Dataset", "Classifier", "ACC", "Time to execute"]
 wrt.writerow(header)
 
-# TODO: average results and get standard deviations from files
 # repeat experiment 10x
 for k in range(10):
 
     # iterate over datasets
     for ds_cnt, ds in enumerate(datasets):
 
-        # TODO: preprocess dataset, split into training and test part?
         X, y = ds
 
         X_train, X_test, y_train, _, _ = dataset_split(X, y, 200, 1, k)
-        # X_train, y_train = X, y
 
         print("\n\nGoing through DS" + str(ds_cnt + 1) + " " + str(k + 1) + " time")
-
 
         # iterate over classifiers
         for name, clf in zip(names, classifiers):
@@ -83,7 +79,7 @@ for k in range(10):
             print(name)
 
             start_time = time()
-            # ACCs, TPRs, F1s, _ = cross_validate(clf, X_train, y_train, 'inc')
+            # TODO: update func call
             ACCs, TPRs, F1s, _ = cross_validate(clf, X_train, y_train, 'inc', name, 
                     random_state=int(format(k, 'b') + format(ds_cnt, 'b'), 2))
             finish = time() - start_time

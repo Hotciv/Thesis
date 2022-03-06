@@ -73,7 +73,7 @@ class SMOModel:
         return result
 
     # Objective function to optimize
-    # TODO: understand why it is in reverse, according to the paper
+    # Note: it is in reverse, according to the paper
     def objective_function(self, alphas):
         """Returns the SVM objective function based in the input model defined by:
         `alphas`: vector of Lagrange multipliers
@@ -93,7 +93,6 @@ class SMOModel:
 
         return (self.alphas * self.y) @ self.kernel(self.X, x_test) - self.b
 
-    # TODO: probably going to change this or remove it
     def plot_decision_boundary(
         self,
         ax,
@@ -242,11 +241,11 @@ class SMOModel:
         b2 = E2 + y1 * (a1 - alph1) * k12 + y2 * (a2 - alph2) * k22 + self.b
 
         # Set new threshold based on if a1 or a2 is bound by L and/or H
-        # TODO: understand this part?
         if 0 < a1 and a1 < self.C:
             b_new = b1
         elif 0 < a2 and a2 < self.C:
             b_new = b2
+
         # Average thresholds if both are bound
         else:
             b_new = (b1 + b2) * 0.5
@@ -256,14 +255,14 @@ class SMOModel:
         self.alphas[i2] = a2
 
         # Update error cache
-        # TODO: where is the following from?
+        # Note: do not know where the following is from
         # Error cache for optimized alphas is set to 0 if they're unbound
         for index, alph in zip([i1, i2], [a1, a2]):
             if 0.0 < alph < self.C:
                 self.errors[index] = 0.0
 
         # Set non-optimized errors based on equation 12.11 in Platt's book
-        # TODO: basically the same formula for computing threshold
+        # Note: basically the same formula for computing threshold
         non_opt = [n for n in range(self.m) if (n != i1 and n != i2)]
         self.errors[non_opt] = (
             self.errors[non_opt]
@@ -290,7 +289,7 @@ class SMOModel:
 
             if len(self.alphas[(self.alphas != 0) & (self.alphas != self.C)]) > 1:
                 # Use 2nd choice heuristic is choose max difference in error
-                # TODO: understand this?
+                # Note: do not fully understand this
                 if self.errors[i2] > 0:
                     i1 = np.argmin(self.errors)
                 elif self.errors[i2] <= 0:

@@ -130,7 +130,17 @@ def dataset_split(X: np.ndarray, y: np.ndarray, split: int, type, random_state=4
 #         wrt.writerow([i] + selected)
 
 
-def cross_validate(clf, X: np.ndarray, y: np.array, type: str, clf_name: str, cv=5, random_state=42, aux='', reset=None):
+def cross_validate(
+    clf,
+    X: np.ndarray,
+    y: np.array,
+    type: str,
+    clf_name: str,
+    cv=5,
+    random_state=42,
+    aux="",
+    reset=None,
+):
     """
     Cross validation to be used across all classifiers.
     It uses 3 metrics to evaluate the classifiers:
@@ -223,7 +233,9 @@ def cross_validate(clf, X: np.ndarray, y: np.array, type: str, clf_name: str, cv
         for train_index, test_index in kf.split(X, y):
 
             # Saving scores
-            h = open("AAOSVM_scores" + aux + "_{}.csv".format(random_state), "w", newline="")
+            h = open(
+                "AAOSVM_scores" + aux + "_{}.csv".format(random_state), "w", newline=""
+            )
             wrt_s = writer(h)
             header = [
                 "Utility of Malicious sample",

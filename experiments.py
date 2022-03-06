@@ -4,8 +4,9 @@
 
 from reading_datasets import *
 from aux_functions import *
-from csv import writer, reader
+from csv import writer
 from time import time
+from glob import glob
 
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
@@ -57,10 +58,13 @@ load = input("Loading trained models? (y/n)\n")
 while load != "y" and load != "n":
     load = input("Loading trained models? (y/n)\n")
 
-if load == 'y':
+rerun = False
+if load == "y":
     load = input("Rebuild csv file from trained models? (y/n)\n")
     while load != "y" and load != "n":
         load = input("Rebuild csv file from trained models? (y/n)\n")
+        rerun = True
+
 
 def filename_build(n: int, selection="10x random200"):
     """
@@ -71,6 +75,11 @@ def filename_build(n: int, selection="10x random200"):
     else:
         norm = ""
 
+    if rerun:
+        rr = ", rerun"
+    else:
+        rr = ""
+
     if n == 1:
         fn = "standard_classifiers_results "
     elif n == 2:
@@ -78,7 +87,8 @@ def filename_build(n: int, selection="10x random200"):
     elif n == 3:
         fn = "AAOSVM, "
 
-    return fn + name + " " + selection + norm + ".csv"
+    return fn + name + " " + selection + norm + rr + ".csv"
+
 
 ##############################################
 ################--- TODO: ---#################
@@ -109,6 +119,7 @@ def filename_build(n: int, selection="10x random200"):
 ##########################################
 # --- experiment 1 - standard, batch ---###
 ##########################################
+
 
 def experiment_cv(
     n: int, wrt: writer, X, y, k=11, just_SVMs=False, selection="10x random200"
@@ -271,8 +282,6 @@ def experiment_load(
         y_test (np.array): split of the labels of the dataset to test.
         selected (list/np.array): indexes of the test split.
     """
-    from glob import glob
-
     if selection == "10x random200":
         # removing 200 random phishing samples
         X_train, X_test, y_train, y_test, selected = dataset_split(X, y, 200, 1, k)
@@ -339,7 +348,7 @@ def experiment_load(
 
                 y_pred = clf[j].predict(X_hold)
                 # AAOSVM usually does not predict -1|+1
-                if clf_type == 'AAOSVM':
+                if clf_type == "AAOSVM":
                     y_pred[y_pred < 0] = -1
                     y_pred[y_pred >= 0] = 1
                 neg = y_pred == -1
@@ -371,7 +380,7 @@ def experiment_load(
         return clf, the_200, X_hold, X_hold, selected
 
 
-if load == 'n':
+if load == "n":
     header = [
         "Dataset",
         "Classifier",
@@ -399,7 +408,7 @@ for k in range(10):
 
         print("\n\nGoing through DS" + str(ds_cnt + 1) + " " + str(k + 1) + " time")
 
-        if load == 'n':
+        if load == "n":
             experiment_cv(n, wrt, X, y, k)
         else:
             loaded = experiment_load(n, k, True)
@@ -425,7 +434,7 @@ for k in range(10):
         # clf.fit(X_train, y_train)
         # score = clf.score(X_test, y_test)
         # print(str(start_time - time()) + " score " + str(score))
-if load == 'n':
+if load == "n":
     f.close()
 
 # experiment 5

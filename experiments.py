@@ -63,23 +63,24 @@ datasets, name = to_dataset()
 ##########################################
 
 
-def experiment_cv(n: int, just_SVMs=False, selection="random200"):
+def experiment_cv(n: int, k=11, just_SVMs=False, selection="10x random200"):
     """
     The core of experiments cross validation and saves results in 
     csv files with filenames automatically generated.
 
     Parameters:
         n (int): experiment number.
+        k (int): iteration number; 11 is for when there is just one execution.
         just_SVMs
             (bool): as False, uses all classifiers available and
                 as True, uses just SVMs.
             (list): list of indexes of classifiers to be used.
-        selection (["random200", "support_vectors"]): selection of
+        selection (["10x random200", "support_vectors"]): selection of
             random 200 phishing samples or
             support vectors + close by samples (KNN)
     """
 
-    if selection == "random200":
+    if selection == "10x random200":
         # removing 200 random phishing samples
         X_train, X_test, y_train, y_test, selected = dataset_split(X, y, 200, 1, k)
 
@@ -102,12 +103,11 @@ def experiment_cv(n: int, just_SVMs=False, selection="random200"):
         "Loss",
     ]
 
-    
     # saving the results on a csv file
-    f = open(fn + name + " 10x " + selection + ".csv", "w", newline="")
+    f = open(fn + name + " " + selection + ".csv", "w", newline="")
     wrt = writer(f)
     wrt.writerow(header)
-    
+
     if n == 1:
         # settings
         names = [
@@ -182,8 +182,79 @@ def experiment_cv(n: int, just_SVMs=False, selection="random200"):
 
     f.close()
 
-def experiment_load():
-    pass
+
+def experiment_load(n: int, k=11, all_models=False, just_SVMs=False, selection="10x random200"):
+    """
+    Load experiments from cross validation and returns model, the selected 200 samples, 
+    and the test/train from the original cross validation split.
+
+    Parameters:
+        n (int): experiment number.
+        k (int): iteration number; 11 is for when there is just one execution.
+        just_SVMs
+            (bool): as False, uses all classifiers available and
+                as True, uses just SVMs.
+            (list): list of indexes of classifiers to be used.
+        selection (["10x random200", "support_vectors"]): selection of
+            random 200 phishing samples or
+            support vectors + close by samples (KNN)
+
+    Yields:
+        clf (classifier): trained classifier from a cross validation.
+        the_200 (np.ndarray): the selected 200 samples.
+        X_test (np.ndarray): split of the dataset to test.
+        y_test (np.array): split of the labels of the dataset to test.
+        selected (list/np.array): indexes of the test split.
+    """
+    if selection == "10x random200":
+        # removing 200 random phishing samples
+        X_train, X_test, y_train, y_test, selected = dataset_split(X, y, 200, 1, k)
+        the_200 = X_test
+
+    # # construction of filename
+    # if n == 1:
+    #     fn = "standard_classifiers_results "
+    # elif n == 2:
+    #     fn = "OSVM, "
+
+    kf = KFold(n_splits=5, random_state=42, shuffle=True)
+
+    if n == 1:
+        # settings
+        names = [
+            "Nearest Neighbors (KNN)",
+            "Linear SVM",
+            "RBF SVM",
+            "Decision Tree",
+            "Random Forest",
+            "Naive Bayes",
+            "Gradient Boost",
+        ]
+
+        clf_type = "std"
+
+        if just_SVMs == True:
+            names = names[1:3]
+            classifiers = classifiers[1:3]
+
+    # iterate over classifiers
+    for clf_name in names:
+        # loading the first model from a pkl file
+        f = open(
+            clf_name + "_ds{}".format(ds_cnt + 1) + "_{}_{}.pkl".format(clf_type, k),
+            "r",
+        )
+
+        if not all_models:
+            # first model from a cross validation
+            clf = pickle.load(f)
+
+        # the test/train from the original cross validation split
+        train_index, test_index = kf.split(X, y).__next__()
+        X_partial, X_hold = X_train[train_index], X_train[test_index]
+        y_partial, y_hold = y_train[train_index], y_train[test_index]
+
+        yield clf, the_200, X_hold, X_hold, selected
 
 
 # repeating the experiment 10x on different splits
@@ -196,7 +267,7 @@ for k in range(10):
 
         print("\n\nGoing through DS" + str(ds_cnt + 1) + " " + str(k + 1) + " time")
 
-        experiment_cv(1, cv=False, selection="random200")
+        experiment_cv(1, k)
 
         # feature selection and etc
         # selFeatures = feature_selection(X_test[0], 4)

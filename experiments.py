@@ -19,6 +19,8 @@ from sklearn.linear_model import SGDOneClassSVM
 
 import AAOSVM
 
+from adversarial_samples import generating_adversarial_samples, generating_labels
+
 # # for helping the experiment 0?
 # from pyspark.sql import SparkSession # instantiate spark session
 # from skdist.distribute.search import DistGridSearchCV
@@ -340,8 +342,8 @@ def experiment_load(
 
             # gets the test/train from the original cross validation split
             train_index, test_index = kf.split(X_train, y_train).__next__()
-            X_partial, X_hold = X_train[train_index], X_train[test_index]
-            y_partial, y_hold = y_train[train_index], y_train[test_index]
+            _, X_hold = X_train[train_index], X_train[test_index]
+            _, y_hold = y_train[train_index], y_train[test_index]
         else:
             clf = []
             ACCs = np.zeros(kf.get_n_splits())
@@ -390,30 +392,33 @@ def experiment_load(
         return clf, the_200, X_hold, y_hold, selected
 
 
-# def send_noise(
-#     # n: int,
-#     features: int,
-#     clf: Union[object, list],
-#     the_200: np.ndarray,
-#     X_hold: np.ndarray,
-#     y_hold: np.array,
-#     selected: Union[list, np.array],
-#     k: int,
-# ):
-#     """
-#     Gets 
-#     """
-#     # feature selection and etc
-#     for f in range(5):
-#         for x in the_200:
-#             selFeatures = feature_selection(x, f, k)
-        
-    # # print(selFeatures)
-    # # input()
-    # X = pd.DataFrame(X)
+def send_noise(
+    # n: int,
+    # features: int,
+    clf: Union[object, list],
+    the_200: np.ndarray,
+    X: np.ndarray,
+    y: np.array,
+    selected: Union[list, np.array],
+    k: int,
+):
+    """
+    Gets 
+    """
+    # feature selection and generating adversarial samples
+    for f in range(5):
+        for c in range(3):
+            if f == 0:
+                gen_labels = generating_labels(the_200, c)
+                y_pred = clf.predict(the_200)
+            else:
+                for x in the_200:
+                    selFeatures = feature_selection(x, f, k)
+                    gen_samples, gen_labels = generating_adversarial_samples(x, selFeatures, X, y, c)
+                    y_pred = clf.predict(gen_samples)
+
 
     # for instance in X_test:
-    #     samples = generating_adversarial_samples(instance, selFeatures, X, y)
     #     pred = clf.predict(samples)
     #     if ((pred + y) == 0).any():
     #         foolers.append(pred)
@@ -459,11 +464,12 @@ for k in range(10):
         if load == "n":
             experiment_cv(n, wrt, X, y, k)
         else:
-            loaded = experiment_load(n, k, rerun)
+            clf, the_200, X_hold, y_hold, selected = experiment_load(n, k, rerun)
         # print(loaded)
         # input()
 
-        # send_noise()
+        if not rerun:
+            send_noise(clf, the_200, X, y, selected, k)
 
 if load == "n":
     f.close()

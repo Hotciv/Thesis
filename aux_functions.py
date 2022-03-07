@@ -4,7 +4,7 @@ from sklearn.metrics import accuracy_score, f1_score, recall_score
 from sklearn.model_selection import KFold
 
 # import matplotlib.pyplot as plt
-from random import randrange
+from random import randrange, seed
 from csv import writer
 import numpy as np
 import pickle
@@ -358,17 +358,21 @@ def cross_validate(
     return ACCs, TPRs, F1s, loss  # last one means the "ones that should not be"
 
 
-def feature_selection(x, f=None):
+def feature_selection(x, f=None, random_state=42):
     """
     Gets a list of features to feed into the AST.
 
     Parameters:
         x (np.array): a sample.
         f (int): a number of features to be selected from the sample.
+        random_state (int): a number to feed the random seed\
+            in order to repeat the same results.
 
     Returns:
         sel_features (list): list of features selected.
     """
+    seed(random_state)
+
     if f == None:
         f = randrange(0, 5)
 
@@ -378,6 +382,8 @@ def feature_selection(x, f=None):
         s = randrange(0, x.shape[0])
         if s not in sel_features:
             sel_features.append(s)
+
+    seed(0)
 
     return sel_features
 

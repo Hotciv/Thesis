@@ -60,9 +60,10 @@ while load != "y" and load != "n":
 
 rerun = False
 if load == "y":
-    load = input("Rebuild csv file from trained models? (y/n)\n")
-    while load != "y" and load != "n":
-        load = input("Rebuild csv file from trained models? (y/n)\n")
+    rebuild = input("Rebuild csv file from trained models? (y/n)\n")
+    while rebuild != "y" and rebuild != "n":
+        rebuild = input("Rebuild csv file from trained models? (y/n)\n")
+    if rebuild == "y":
         rerun = True
 
 
@@ -282,6 +283,12 @@ def experiment_load(
         y_test (np.array): split of the labels of the dataset to test.
         selected (list/np.array): indexes of the test split.
     """
+    results = glob("Results, new/*/")
+    if normalization == "y":
+        r = 1
+    else:
+        r = 0
+
     if selection == "10x random200":
         # removing 200 random phishing samples
         X_train, X_test, y_train, y_test, selected = dataset_split(X, y, 200, 1, k)
@@ -320,7 +327,10 @@ def experiment_load(
     for clf_name in names:
         # loading the first model from a pkl file
         f = open(
-            clf_name + "_ds{}".format(ds_cnt + 1) + "_{}_{}.pkl".format(clf_type, k),
+            results[r]
+            + clf_name
+            + "_ds{}".format(ds_cnt + 1)
+            + "_{}_{}.pkl".format(clf_type, k),
             "rb",
         )
 
@@ -377,10 +387,48 @@ def experiment_load(
                 "\n",
             )  # TODO: reconstruct csv file with proper clf_name
 
-        return clf, the_200, X_hold, X_hold, selected
+        return clf, the_200, X_hold, y_hold, selected
 
 
-if load == "n":
+# def send_noise(
+#     # n: int,
+#     features: int,
+#     clf: Union[object, list],
+#     the_200: np.ndarray,
+#     X_hold: np.ndarray,
+#     y_hold: np.array,
+#     selected: Union[list, np.array],
+#     k: int,
+# ):
+#     """
+#     Gets 
+#     """
+#     # feature selection and etc
+#     for f in range(5):
+#         for x in the_200:
+#             selFeatures = feature_selection(x, f, k)
+        
+    # # print(selFeatures)
+    # # input()
+    # X = pd.DataFrame(X)
+
+    # for instance in X_test:
+    #     samples = generating_adversarial_samples(instance, selFeatures, X, y)
+    #     pred = clf.predict(samples)
+    #     if ((pred + y) == 0).any():
+    #         foolers.append(pred)
+
+    # print(len(foolers)/200)
+
+    # print(score, ACCs)
+    # input()
+    # clf.fit(X_train, y_train)
+    # score = clf.score(X_test, y_test)
+    # print(str(start_time - time()) + " score " + str(score))
+    pass
+
+
+if load == "n" and not rerun:
     header = [
         "Dataset",
         "Classifier",
@@ -411,29 +459,12 @@ for k in range(10):
         if load == "n":
             experiment_cv(n, wrt, X, y, k)
         else:
-            loaded = experiment_load(n, k, True)
+            loaded = experiment_load(n, k, rerun)
         # print(loaded)
         # input()
 
-        # feature selection and etc
-        # selFeatures = feature_selection(X_test[0], 4)
-        # # print(selFeatures)
-        # # input()
-        # X = pd.DataFrame(X)
+        # send_noise()
 
-        # for instance in X_test:
-        #     samples = generating_adversarial_samples(instance, selFeatures, X, y)
-        #     pred = clf.predict(samples)
-        #     if ((pred + y) == 0).any():
-        #         foolers.append(pred)
-
-        # print(len(foolers)/200)
-
-        # print(score, ACCs)
-        # input()
-        # clf.fit(X_train, y_train)
-        # score = clf.score(X_test, y_test)
-        # print(str(start_time - time()) + " score " + str(score))
 if load == "n":
     f.close()
 

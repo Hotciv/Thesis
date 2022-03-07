@@ -1,3 +1,4 @@
+from sklearn.cluster import KMeans
 from itertools import product
 import numpy as np
 
@@ -31,7 +32,7 @@ import numpy as np
 
 #     # Product possible values to generate all combinations
 #     """
-#     1 2  ->  1 2 | 3 2 | 3 4 | 1 4  
+#     1 2  ->  1 2 | 3 2 | 3 4 | 1 4
 #     3 4      3 4 | 1 4 | 1 2 | 3 2
 
 #     L_pr -- a list of lists, each sublist is a set of values that will be used to generate a new adversarial sample
@@ -57,7 +58,22 @@ import numpy as np
 #     return np.array(gen_samples)
 
 
-def generating_adversarial_samples(x, selFeatures, ds, labels, y=1):
+def generating_labels(gen_samples: np.ndarray, labels: np.array, criteria: int, y=1):
+    if criteria == 0:
+        gen_labels = labels[labels == y]
+        gen_labels *= -1
+    elif criteria == 1:
+        gen_labels = labels[labels == y]
+    elif criteria == 2:
+        km = KMeans(2, random_state=42).fit(gen_samples)
+        gen_labels =  np.array(km.labels_)
+        gen_labels[gen_labels == 0] = -1
+
+    return gen_labels
+
+def generating_adversarial_samples(
+    x: np.array, selFeatures: list, ds: np.ndarray, labels: np.array, criteria: int, y=1
+):
     """
     Generates new samples based on previous ones and selected features
     An important note is that it should be able to deal with samples that got successfully classified as phishing
@@ -121,7 +137,7 @@ def generating_adversarial_samples(x, selFeatures, ds, labels, y=1):
 
         gen_samples.append(temp)
 
-    return np.array(gen_samples)
+    return np.array(gen_samples), np.array(generating_labels(gen_samples, np.ones(len(gen_samples)) * y, criteria, y))
 
 
 def cost(a, b):

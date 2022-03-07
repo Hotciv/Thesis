@@ -58,12 +58,24 @@ import numpy as np
 #     return np.array(gen_samples)
 
 
-def generating_labels(gen_samples: np.ndarray, labels: np.array, criteria: int, y=1):
+def generating_labels(gen_samples: np.ndarray, criteria: int, y=1)->np.array:
+    """
+    Generates labels for the gen_samples based on 'criteria'.
+
+    Parameters:
+        gen_samples (np.ndarray): samples to be labeled.
+        criteria (int): how the new samples should be labeled
+            0 -> invert labels
+            1 -> keep labels
+            2 -> generate new labels based on cluster proximity
+        y (int): +1 -> for phishing samples/-1 -> for legitimate samples
+
+    Returns:
+        gen_labels (np.array): labels for the gen_samples, based on the 'criteria'
+    """
+    gen_labels = np.ones(len(gen_samples)) * y
     if criteria == 0:
-        gen_labels = labels[labels == y]
         gen_labels *= -1
-    elif criteria == 1:
-        gen_labels = labels[labels == y]
     elif criteria == 2:
         km = KMeans(2, random_state=42).fit(gen_samples)
         gen_labels =  np.array(km.labels_)
@@ -137,7 +149,7 @@ def generating_adversarial_samples(
 
         gen_samples.append(temp)
 
-    return np.array(gen_samples), np.array(generating_labels(gen_samples, np.ones(len(gen_samples)) * y, criteria, y))
+    return np.array(gen_samples), np.array(generating_labels(gen_samples, criteria, y))
 
 
 def cost(a, b):

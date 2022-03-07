@@ -73,10 +73,13 @@ def filename_build(n: int, selection="10x random200"):
     """
     Function to create an automated filename for the experiment
     """
+    results = glob("Results, new/*/")
     if normalization == "y":
         norm = ", normalized"
+        r = 1
     else:
         norm = ""
+        r = 0
 
     if rerun:
         rr = ", rerun"
@@ -90,7 +93,7 @@ def filename_build(n: int, selection="10x random200"):
     elif n == 3:
         fn = "AAOSVM, "
 
-    return fn + name + " " + selection + norm + rr + ".csv"
+    return results[r] + fn + name + " " + selection + norm + rr + ".csv"
 
 
 ##############################################
@@ -259,7 +262,7 @@ def experiment_cv(
 
 
 def experiment_load(
-    n: int, k=11, all_models=False, just_SVMs=False, selection="10x random200"
+    n: int, wrt: writer, k=11, all_models=False, just_SVMs=False, selection="10x random200"
 ):
     """
     Load experiments from cross validation and returns model, the selected 200 samples, 
@@ -267,6 +270,7 @@ def experiment_load(
 
     Parameters:
         n (int): experiment number.
+        wrt (writer): csv writer to save the results of the rerun.
         k (int): iteration number; 11 is for when there is just one execution.
         just_SVMs
             (bool): as False, uses all classifiers available and
@@ -351,18 +355,19 @@ def experiment_load(
             F1s = np.zeros(kf.get_n_splits())
             loss = np.zeros(kf.get_n_splits())
             j = 0
+            start_time = time()
             for train_index, test_index in kf.split(X_train, y_train):
                 _, X_hold = X_train[train_index], X_train[test_index]
                 _, y_hold = y_train[train_index], y_train[test_index]
 
-                # loads all models from a cross validation
+                # loads all models from a cross validation, one by one
                 clf.append(pickle.load(f))
+                print(clf_name, time() - start_time, j, "loaded")
+                start_time = time()
 
                 y_pred = clf[j].predict(X_hold)
-                # AAOSVM usually does not predict -1|+1
-                if clf_type == "AAOSVM":
-                    y_pred[y_pred < 0] = -1
-                    y_pred[y_pred >= 0] = 1
+                print(clf_name, time() - start_time, j, "predicted")
+                start_time = time()
                 neg = y_pred == -1
                 pos = y_pred == 1
                 bin = neg | pos
@@ -374,7 +379,7 @@ def experiment_load(
 
                 j += 1
 
-            print(
+            wrt.writerow(
                 [
                     ds_cnt,
                     clf_name,
@@ -386,7 +391,6 @@ def experiment_load(
                     F1s.std(),
                     loss,
                 ],
-                "\n",
             )  # TODO: reconstruct csv file with proper clf_name
 
         return clf, the_200, X_hold, y_hold, selected
@@ -433,7 +437,7 @@ def send_noise(
     pass
 
 
-if load == "n" and not rerun:
+if load == "n" or (load == "y" and rerun):
     header = [
         "Dataset",
         "Classifier",
@@ -464,7 +468,7 @@ for k in range(10):
         if load == "n":
             experiment_cv(n, wrt, X, y, k)
         else:
-            clf, the_200, X_hold, y_hold, selected = experiment_load(n, k, rerun)
+            clf, the_200, X_hold, y_hold, selected = experiment_load(n, wrt, k, rerun)
         # print(loaded)
         # input()
 

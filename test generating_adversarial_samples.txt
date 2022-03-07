@@ -1,0 +1,8 @@
+from adversarial_samples import generating_adversarial_samples
+from reading_datasets import *
+ds, names = to_dataset([0])
+x = ds[0][0][0]
+gen_samples, gen_labels = generating_adversarial_samples(x, [0,1], ds[0][0], ds[0][1], 2)
+len(gen_labels)
+len(gen_labels[gen_labels == 1])
+len(gen_labels[gen_labels == -1])

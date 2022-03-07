@@ -408,6 +408,10 @@ def class_imbalance(y):
         p == number of positive instances
         n == number of negative instances
 
+    The values range from 1 (only positive instances) to\
+        -1 (only negative instances); 0 means that the classes\
+        are balanced.
+
     Parameters:
         y (np.array): array of labels.
     
@@ -420,6 +424,9 @@ def class_imbalance(y):
 
     return (p - n) / (p + n)
 
+# a = np.ones(6)
+# b = np.ones(4) * -1
+# c = np.append(a,b)
 
 def DPPTL(attribute: int, a: float, X: np.ndarray, y: np.array):
     """

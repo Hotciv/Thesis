@@ -350,11 +350,12 @@ def experiment_load(
             _, y_hold = y_train[train_index], y_train[test_index]
         else:
             clf = []
-            ACCs = np.zeros(kf.get_n_splits())
-            TPRs = np.zeros(kf.get_n_splits())
-            F1s = np.zeros(kf.get_n_splits())
-            loss = np.zeros(kf.get_n_splits())
-            predicted_time = []
+            splits = kf.get_n_splits()
+            ACCs = np.zeros(splits)
+            TPRs = np.zeros(splits)
+            F1s = np.zeros(splits)
+            loss = np.zeros(splits)
+            predicted_time = np.zeros(splits)
             j = 0
             start_time = time()
             for train_index, test_index in kf.split(X_train, y_train):
@@ -412,6 +413,7 @@ def send_noise(
     """
     Gets 
     """
+
     # feature selection and generating adversarial samples
     for f in range(5):
         for c in range(3):
@@ -422,6 +424,8 @@ def send_noise(
                 # calculating bias metrics
                 y_aux = np.append(y, gen_labels)
                 ci = class_imbalance(y_aux)
+                # dp = np.nan
+                er = np.nan
             else:
                 for x in the_200:
                     selFeatures = feature_selection(x, f, k)
@@ -431,6 +435,7 @@ def send_noise(
                     # calculating bias metrics
                     y_aux = np.append(y, gen_labels)
                     ci = class_imbalance(y_aux)
+                    er = empirical_robustness(clf, x, gen_samples)
 
 
     # for instance in X_test:
@@ -439,13 +444,6 @@ def send_noise(
     #         foolers.append(pred)
 
     # print(len(foolers)/200)
-
-    # print(score, ACCs)
-    # input()
-    # clf.fit(X_train, y_train)
-    # score = clf.score(X_test, y_test)
-    # print(str(start_time - time()) + " score " + str(score))
-    pass
 
 
 if load == "n" or (load == "y" and rerun):
@@ -487,9 +485,9 @@ for k in range(10):
             try:
                 while True:
                     clf, the_200, X_hold, y_hold, selected = loaded.__next__()
-                    # if not rerun:
-                    #     send_noise(clf, the_200, X, y, selected, k)
-            except:
+                    if not rerun:
+                        send_noise(clf, the_200, X, y, selected, k)
+            except StopIteration:
                 print("Loaded all")
         # print(loaded)
         # input()

@@ -262,7 +262,7 @@ def experiment_cv(
 
 
 def experiment_load(
-    n: int, wrt: writer, k=11, all_models=False, just_SVMs=False, selection="10x random200"
+    n: int, wrt=None, k=11, all_models=False, just_SVMs=False, selection="10x random200"
 ):
     """
     Load experiments from cross validation and returns model, the selected 200 samples, 
@@ -354,6 +354,7 @@ def experiment_load(
             TPRs = np.zeros(kf.get_n_splits())
             F1s = np.zeros(kf.get_n_splits())
             loss = np.zeros(kf.get_n_splits())
+            predicted_time = []
             j = 0
             start_time = time()
             for train_index, test_index in kf.split(X_train, y_train):
@@ -366,7 +367,8 @@ def experiment_load(
                 start_time = time()
 
                 y_pred = clf[j].predict(X_hold)
-                print(clf_name, time() - start_time, j, "predicted")
+                predicted_time[j] = time() - start_time
+                print(clf_name, predicted_time[j], j, "predicted")
                 start_time = time()
                 neg = y_pred == -1
                 pos = y_pred == 1
@@ -389,11 +391,12 @@ def experiment_load(
                     TPRs.std(),
                     F1s.mean(),
                     F1s.std(),
+                    predicted_time.mean(),
                     loss,
                 ],
-            )  # TODO: reconstruct csv file with proper clf_name
+            )
 
-        return clf, the_200, X_hold, y_hold, selected
+        yield clf, the_200, X_hold, y_hold, selected
 
 
 def send_noise(
@@ -415,11 +418,19 @@ def send_noise(
             if f == 0:
                 gen_labels = generating_labels(the_200, c)
                 y_pred = clf.predict(the_200)
+
+                # calculating bias metrics
+                y_aux = np.append(y, gen_labels)
+                ci = class_imbalance(y_aux)
             else:
                 for x in the_200:
                     selFeatures = feature_selection(x, f, k)
                     gen_samples, gen_labels = generating_adversarial_samples(x, selFeatures, X, y, c)
                     y_pred = clf.predict(gen_samples)
+
+                    # calculating bias metrics
+                    y_aux = np.append(y, gen_labels)
+                    ci = class_imbalance(y_aux)
 
 
     # for instance in X_test:
@@ -468,12 +479,21 @@ for k in range(10):
         if load == "n":
             experiment_cv(n, wrt, X, y, k)
         else:
-            clf, the_200, X_hold, y_hold, selected = experiment_load(n, wrt, k, rerun)
+            # clf, the_200, X_hold, y_hold, selected = experiment_load(n, wrt, k, rerun)
+            if rerun:
+                loaded = experiment_load(n, wrt, k, rerun)
+            else:
+                loaded = experiment_load(n, k=k, all_models=rerun)
+            try:
+                while True:
+                    clf, the_200, X_hold, y_hold, selected = loaded.__next__()
+                    # if not rerun:
+                    #     send_noise(clf, the_200, X, y, selected, k)
+            except:
+                print("Loaded all")
         # print(loaded)
         # input()
 
-        if not rerun:
-            send_noise(clf, the_200, X, y, selected, k)
 
 if load == "n":
     f.close()

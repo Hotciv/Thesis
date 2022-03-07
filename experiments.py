@@ -142,7 +142,7 @@ def experiment_cv(
     """
     if selection == "10x random200":
         # removing 200 random phishing samples
-        X_train, X_test, y_train, y_test, selected = dataset_split(X, y, 200, 1, k)
+        X_train, _, y_train, _, _ = dataset_split(X, y, 200, 1, k)
 
     # settings
     if n == 1:

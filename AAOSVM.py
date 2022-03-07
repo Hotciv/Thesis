@@ -283,6 +283,35 @@ class AAOSVM(SMOModel):
         # print('kernel', self.X @ x_test.T)
         return (self.alphas * self.y) @ (self.X @ x_test.T) - self.b
 
+    def predict(self, x_test: np.ndarray, show_loss=False):
+        """
+        Prediction function.
+
+        Parameters:
+            x_test (np.ndarray): instances to be predicted.
+            show_loss (bool): option to return the possible loss.
+
+        Returns:
+            y_pred (np.array): predicted labels of x_test.
+            loss (int): number of instances not exactly predicted.\
+                (only if show_loss == True)
+        """
+        y_pred = self.decision_function(self, x_test)
+
+        neg = y_pred == -1
+        pos = y_pred == 1
+        bin = neg | pos
+
+        loss = len(y_pred[~bin])
+
+        y_pred[y_pred < 0] = -1
+        y_pred[y_pred >= 0] = 1
+        
+        if show_loss:
+            return y_pred, loss
+        else:
+            return y_pred
+
     def take_step(self, i1, i2):
 
         # Skip if chosen alphas are the same

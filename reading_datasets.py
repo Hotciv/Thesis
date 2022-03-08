@@ -105,7 +105,7 @@ def to_dataset(df_numbers=[0, 1, 2, 3, 4]):
 
     Returns:
         datasets (list): a list of "numpy datasets" (described above).
-        name (str): a str to be inserted into the filename.
+        sel_names (list): a list of dataset names to be inserted into the filename.
     """
 
     # DataFrames -> datasets
@@ -119,12 +119,11 @@ def to_dataset(df_numbers=[0, 1, 2, 3, 4]):
 
     # name
     names = ["ds1", "ds2", "ds3", "ds4", "ds5"]
-    name = ''
+    sel_names = []
     for i in df_numbers:
-        name = name + names[i] + ', '
-    name = name[:-2]
+        sel_names.append(names[i])
 
-    return datasets, name
+    return datasets, sel_names
 
 
 def get_mock_datasets():

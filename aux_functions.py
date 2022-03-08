@@ -507,7 +507,7 @@ def empirical_robustness(
     y = classifier.predict(x)
     y_pred = classifier.predict(adv_x)
 
-    idxs = np.argmax(y_pred, axis=1) != np.argmax(y, axis=1)
+    idxs = np.argmax(y_pred) != np.argmax(y)
     if np.sum(idxs) == 0.0:
         return 0.0
 

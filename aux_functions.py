@@ -245,7 +245,7 @@ def cross_validate(
 
             # Saving scores
             h = open(
-                "AAOSVM_scores" + aux + "_{}.csv".format(random_state), "w", newline=""
+                results[r] + "AAOSVM_scores" + aux + "_{}.csv".format(random_state), "w", newline=""
             )
             wrt_s = writer(h)
             header = [

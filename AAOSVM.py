@@ -32,6 +32,7 @@ class AAOSVM(SMOModel):
         s=0.6,
         kernel_type="linear",
         k=3,  # should be 2, 3, or 4...
+        update=False
     ):
         # Variables related to SVM with SMO
         super().__init__(X, y, C, alphas, b, errors, kernel_type)
@@ -60,6 +61,7 @@ class AAOSVM(SMOModel):
         self.p = np.array([1 / k for i in range(k)])  # vector of probabilities of types
         self.k = k
         self.T = 2  # maximum number of iterations for each train() optimization
+        self.update = update
 
     def reset(self, X, y):
         # Set model parameters and initial values
@@ -501,20 +503,23 @@ class AAOSVM(SMOModel):
             # Train model
             self.train()
 
-            # # Update scores
-            # for j, err in enumerate(self.errors):
-            #     # Decreased the error and Malicious sample
-            #     if abs(err) < abs(prev_errors[j]) and Sy[j] == 1:
-            #         self.Em -= self.Em * np.tanh(err)
-            #     # Decreased the error and Regular sample
-            #     elif abs(err) < abs(prev_errors[j]) and Sy[j] == -1:
-            #         self.Er -= self.Er * np.tanh(err)
-            #     # Increased the error and Malicious sample
-            #     elif abs(err) > abs(prev_errors[j]) and Sy[j] == 1:
-            #         self.Ym -= self.Ym * np.tanh(err)
-            #     # Increased the error and Regular sample
-            #     elif abs(err) > abs(prev_errors[j]) and Sy[j] == -1:
-            #         self.Yr -= self.Yr * np.tanh(err)
+            if self.update:
+                # Update scores
+                for j, err in enumerate(self.errors):
+                    # Decreased the error and Malicious sample
+                    if abs(err) < abs(prev_errors[j]) and Sy[j] == 1:
+                        self.Em -= self.Em * np.tanh(err)
+                    # Decreased the error and Regular sample
+                    elif abs(err) < abs(prev_errors[j]) and Sy[j] == -1:
+                        self.Er -= self.Er * np.tanh(err)
+                    # Increased the error and Malicious sample
+                    elif abs(err) > abs(prev_errors[j]) and Sy[j] == 1:
+                        self.Ym += self.Ym * np.tanh(err)
+                    # Increased the error and Regular sample
+                    elif abs(err) > abs(prev_errors[j]) and Sy[j] == -1:
+                        self.Yr += self.Yr * np.tanh(err)
+
+                    # for fixing the '0' problem: if error != 0: reset cost/utility to some value
 
         # Increasing the size of the parameters of the model
         if self.mem > self.m:

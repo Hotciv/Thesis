@@ -37,7 +37,41 @@ from adversarial_samples import generating_adversarial_samples, generating_label
 
 np.random.seed(0)
 
-datasets, name = to_dataset()
+print("Which datasets do you wish to use? [all]")
+print("0 -> ds1")
+print("1 -> ds2")
+print("2 -> ds3")
+print("3 -> ds4")
+print("4 -> ds5")
+print("\tUsage examples:")
+print("\t\t'123' will use ds2, ds3, and ds4")
+print("\t\t'13' will use ds2 and ds4")
+print("\t\tpressing 'enter' without typing anything will use all")
+df_numbers = list(input() or "01234")
+valid = False
+while not valid:
+    valid = True
+    for df in df_numbers:
+        if df != '0' and df != '1' and df != '2' and df != '3' and df != '4':
+            print("Please select a valid input!\n")
+            print("Which datasets do you wish to use? [all]")
+            print("0 -> ds1")
+            print("1 -> ds2")
+            print("2 -> ds3")
+            print("3 -> ds4")
+            print("4 -> ds5")
+            df_numbers = list(input() or "01234")
+            valid = False
+
+
+df_numbers = [int(x) for x in df_numbers]
+datasets, sel_names = to_dataset(df_numbers)
+
+# assembly of the 'name'
+name = ''
+for i in df_numbers:
+    name = name + sel_names[i] + ', '
+name = name[:-2]
 
 # input -> experiment number
 n = int(input("What is the experiment? [0-4]\n"))
@@ -235,7 +269,7 @@ def experiment_cv(
             clf_type,
             clf_name,
             random_state=k,
-            aux="_ds{}".format(ds_cnt + 1),  # TODO: indicate normalization
+            aux="_" + sel_names[ds_cnt],  # TODO: indicate normalization
             reset=reset,
         )
         finish = time() - start_time
@@ -246,7 +280,7 @@ def experiment_cv(
         # header  # to peek at definition
         wrt.writerow(
             [
-                ds_cnt,
+                sel_names[ds_cnt],
                 clf_name,
                 ACCs.mean(),
                 ACCs.std(),
@@ -335,7 +369,7 @@ def experiment_load(
         f = open(
             results[r]
             + clf_name
-            + "_ds{}".format(ds_cnt + 1)
+            + "_" + sel_names[ds_cnt]
             + "_{}_{}.pkl".format(clf_type, k),
             "rb",
         )
@@ -384,7 +418,7 @@ def experiment_load(
 
             wrt.writerow(
                 [
-                    ds_cnt,
+                    sel_names[ds_cnt],
                     clf_name,
                     ACCs.mean(),
                     ACCs.std(),
@@ -414,6 +448,8 @@ def send_noise(
     Gets 
     """
 
+    ci = []
+    er = []
     # feature selection and generating adversarial samples
     for f in range(5):
         for c in range(3):
@@ -423,9 +459,9 @@ def send_noise(
 
                 # calculating bias metrics
                 y_aux = np.append(y, gen_labels)
-                ci = class_imbalance(y_aux)
+                ci.append(class_imbalance(y_aux))
                 # dp = np.nan
-                er = np.nan
+                er.append(np.nan)
             else:
                 for x in the_200:
                     selFeatures = feature_selection(x, f, k)
@@ -434,8 +470,14 @@ def send_noise(
 
                     # calculating bias metrics
                     y_aux = np.append(y, gen_labels)
-                    ci = class_imbalance(y_aux)
-                    er = empirical_robustness(clf, x, gen_samples)
+                    ci.append(class_imbalance(y_aux))
+                    er.append(empirical_robustness(clf, x.reshape(1, -1), gen_samples))
+                print(f, c, gen_labels.shape)
+
+    ci = np.array(ci)
+    er = np.array(er)
+    print(ci, len(ci), ci.mean(), ci.std())
+    print(er, len(er), er.mean(), er.std())
 
 
     # for instance in X_test:
@@ -472,7 +514,7 @@ for k in range(10):
 
         X, y = ds
 
-        print("\n\nGoing through DS" + str(ds_cnt + 1) + " " + str(k + 1) + " time")
+        print("\n\nGoing through " + sel_names[ds_cnt] + " " + str(k + 1) + " time")
 
         if load == "n":
             experiment_cv(n, wrt, X, y, k)

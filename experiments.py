@@ -17,7 +17,7 @@ from sklearn.ensemble import GradientBoostingClassifier
 
 from sklearn.linear_model import SGDOneClassSVM
 
-import AAOSVM
+from AAOSVM import *
 
 from adversarial_samples import generating_adversarial_samples, generating_labels
 
@@ -126,6 +126,8 @@ def filename_build(n: int, selection="10x random200"):
         fn = "OSVM, "
     elif n == 3:
         fn = "AAOSVM, "
+    elif n == 4:
+        fn = "AAOSVM_ch_scores, "
 
     return results[r] + fn + name + " " + selection + norm + rr + ".csv"
 
@@ -219,7 +221,7 @@ def experiment_cv(
         classifiers = [SGDOneClassSVM(random_state=42)]
         clf_type = "OSVM"
 
-    elif n == 3:
+    elif n == 3 or n == 4:
         names = ["AAOSVM"]
 
         # AAOSVM intitalization
@@ -237,7 +239,10 @@ def experiment_cv(
         Sy = np.append([Sy], [y_train[1]], 0)
 
         # Initialize model
-        model = AAOSVM(Sx, Sy, C, initial_alphas, initial_b, np.zeros(m))
+        if n == 3:
+            model = AAOSVM(Sx, Sy, C, initial_alphas, initial_b, np.zeros(m))
+        else:
+            model = AAOSVM(Sx, Sy, C, initial_alphas, initial_b, np.zeros(m), update=True)
 
         # Initialize error cache
         initial_error = model.decision_function(model.X) - model.y
@@ -259,6 +264,8 @@ def experiment_cv(
         # getting initial parameters to reset classifier in the cross validation
         if n == 1 or n == 2:
             reset = clf.get_params()
+        else:
+            reset = None
 
         # timed cross validation
         start_time = time()
@@ -360,7 +367,7 @@ def experiment_load(
         names = ["inc"]
         clf_type = "OSVM"
 
-    elif n == 3:
+    elif n == 3 or n == 4:
         names = ["AAOSVM"]
         clf_type = "AAOSVM"
     # /settings
@@ -454,6 +461,10 @@ def send_noise(
 
     ci = []
     er = []
+    dp = []
+    dist = []
+
+    pred = clf.predict(X)
     # feature selection and generating adversarial samples
     for f in range(3):
         for c in range(3):
@@ -464,18 +475,25 @@ def send_noise(
                 # calculating bias metrics
                 y_aux = np.append(y, gen_labels)
                 ci.append(class_imbalance(y_aux))
-                # dp = np.nan
                 er.append(np.nan)
+                dp.append(np.nan)
+                dist.append([0, 0])
             else:
                 for x in the_200:
-                    selFeatures = feature_selection(x, f, k)
-                    gen_samples, gen_labels = generating_adversarial_samples(x, selFeatures, X, y, c)
+                    sel_features = feature_selection(x, f, k)
+                    gen_samples, gen_labels = generating_adversarial_samples(x, sel_features, X, y, c)
                     y_pred = clf.predict(gen_samples)
 
                     # calculating bias metrics
                     y_aux = np.append(y, gen_labels)
+                    X_aux = np.append(X, gen_samples)
+                    pred_aux = np.append(pred, y_pred)
                     ci.append(class_imbalance(y_aux))
                     er.append(empirical_robustness(clf, x.reshape(1, -1), gen_samples))
+                    dp_aux = []
+                    for feat in sel_features:
+                        dp_aux.append(DPPTL(feat, gen_samples[:,feat][0], X_aux, pred_aux))
+                    dp.append(dp_aux)
                 print(f, c, gen_labels.shape)
 
     ci = np.array(ci)

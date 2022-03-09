@@ -269,8 +269,9 @@ def experiment_cv(
             clf_type,
             clf_name,
             random_state=k,
-            aux="_" + sel_names[ds_cnt],  # TODO: indicate normalization
+            aux="_" + sel_names[ds_cnt],
             reset=reset,
+            normalization=normalization,
         )
         finish = time() - start_time
 
@@ -281,6 +282,7 @@ def experiment_cv(
         wrt.writerow(
             [
                 sel_names[ds_cnt],
+                k,
                 clf_name,
                 ACCs.mean(),
                 ACCs.std(),
@@ -416,9 +418,11 @@ def experiment_load(
 
                 j += 1
 
+            # header  # to peek at def
             wrt.writerow(
                 [
                     sel_names[ds_cnt],
+                    k,
                     clf_name,
                     ACCs.mean(),
                     ACCs.std(),
@@ -491,6 +495,7 @@ def send_noise(
 if load == "n" or (load == "y" and rerun):
     header = [
         "Dataset",
+        "Run",
         "Classifier",
         "ACC",
         "ACC std",

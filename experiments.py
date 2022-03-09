@@ -451,7 +451,7 @@ def send_noise(
     ci = []
     er = []
     # feature selection and generating adversarial samples
-    for f in range(5):
+    for f in range(3):
         for c in range(3):
             if f == 0:
                 gen_labels = generating_labels(the_200, c)

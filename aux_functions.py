@@ -8,8 +8,9 @@ from random import randrange, seed
 from csv import writer
 import numpy as np
 import pickle
-from typing import Any, Dict, List, Optional, Union, TYPE_CHECKING
+from typing import Union
 from time import asctime
+from glob import glob
 
 # from numpy.lib.function_base import average
 
@@ -140,6 +141,7 @@ def cross_validate(
     random_state=42,
     aux="",
     reset=None,
+    normalization="n",
 ):
     """
     Cross validation to be used across all classifiers.
@@ -156,6 +158,7 @@ def cross_validate(
         random_state (int): initial random state for auditatorial purposes.
         aux (str): extra parameter to help specify the filename.
         reset (dict): dictionary of initial parameters of the classifier to reset it.
+        normalization (str): ('y'/'n') is the dataset normalized?
 
     Returns:
         ACCs (np.array): list of accuracy scores from the cross validation.
@@ -171,7 +174,15 @@ def cross_validate(
 
     kf = KFold(n_splits=cv, random_state=42, shuffle=True)
 
-    f = open(clf_name + aux + "_{}_{}.pkl".format(type, random_state), "wb")
+    results = glob("Results, new/*/")
+    if normalization == "y":
+        # norm = ", normalized"
+        r = 1
+    else:
+        # norm = ""
+        r = 0
+
+    f = open(results[r] + clf_name + aux + "_{}_{}.pkl".format(type, random_state), "wb")
 
     if type == "inc":
         for train_index, test_index in kf.split(X, y):

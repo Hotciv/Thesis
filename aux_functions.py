@@ -142,6 +142,7 @@ def cross_validate(
     aux="",
     reset=None,
     normalization="n",
+    update=False,
 ):
     """
     Cross validation to be used across all classifiers.
@@ -262,7 +263,7 @@ def cross_validate(
             y_partial, y_hold = y[train_index], y[test_index]
 
             # resetting the classifier
-            clf = clf.reset(X_partial, y_partial)
+            clf = clf.reset(X_partial, y_partial, update)
 
             # creating a slidding window
             Sx = clf.X
@@ -469,7 +470,17 @@ def DPPTL(attribute: int, a: float, X: np.ndarray, y: np.array):
     index_pa = p[:, attribute] == a
     index_na = X[:, attribute] == a
 
-    return p[index_pa] / X[index_na] - p[~index_pa] / X[~index_na]
+    pia = len(p[index_pa])
+    xia = 1
+    if pia > 0:
+        xia = len(X[index_na])
+
+    npia = len(p[~index_pa])
+    nxia = 1
+    if npia > 0:
+        nxia = len(X[~index_na])
+
+    return pia / xia - npia / nxia
 
 
 # def demographic_parity(attribute, a, X, y):

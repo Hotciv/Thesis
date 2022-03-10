@@ -52,7 +52,7 @@ valid = False
 while not valid:
     valid = True
     for df in df_numbers:
-        if df != '0' and df != '1' and df != '2' and df != '3' and df != '4':
+        if df != "0" and df != "1" and df != "2" and df != "3" and df != "4":
             print("Please select a valid input!\n")
             print("Which datasets do you wish to use? [all]")
             print("0 -> ds1")
@@ -68,15 +68,23 @@ df_numbers = [int(x) for x in df_numbers]
 datasets, sel_names = to_dataset(df_numbers)
 
 # assembly of the 'name'
-name = ''
-for i in df_numbers:
-    name = name + sel_names[i] + ', '
+name = ""
+for s in sel_names:
+    name = name + s + ", "
 name = name[:-2]
 
 # input -> experiment number
 n = int(input("What is the experiment? [0-4]\n"))
 while n < 0 and n > 4:
     n = int(input("What is the experiment? [0-4]\n"))
+
+kn = input("Repeat experiments 10x? ([y]/n)\n") or "y"
+while kn != "y" and kn != "n":
+    kn = input("Repeat experiments 10x? ([y]/n)\n") or "y"
+if kn == 'y':
+    kn = 10
+else:
+    kn = 1
 
 # input -> normalize datasets?
 normalization = input("Use normalized dataset? (y/n)\n")
@@ -187,6 +195,7 @@ def experiment_cv(
         X_train, _, y_train, _, _ = dataset_split(X, y, 200, 1, k)
 
     # settings
+    upd = False
     if n == 1:
         names = [
             "Nearest Neighbors (KNN)",
@@ -239,10 +248,9 @@ def experiment_cv(
         Sy = np.append([Sy], [y_train[1]], 0)
 
         # Initialize model
-        if n == 3:
-            model = AAOSVM(Sx, Sy, C, initial_alphas, initial_b, np.zeros(m))
-        else:
-            model = AAOSVM(Sx, Sy, C, initial_alphas, initial_b, np.zeros(m), update=True)
+        if n == 4:
+            upd = True
+        model = AAOSVM(Sx, Sy, C, initial_alphas, initial_b, np.zeros(m), update=upd)
 
         # Initialize error cache
         initial_error = model.decision_function(model.X) - model.y
@@ -279,6 +287,7 @@ def experiment_cv(
             aux="_" + sel_names[ds_cnt],
             reset=reset,
             normalization=normalization,
+            update=upd,
         )
         finish = time() - start_time
 
@@ -378,7 +387,8 @@ def experiment_load(
         f = open(
             results[r]
             + clf_name
-            + "_" + sel_names[ds_cnt]
+            + "_"
+            + sel_names[ds_cnt]
             + "_{}_{}.pkl".format(clf_type, k),
             "rb",
         )
@@ -481,18 +491,22 @@ def send_noise(
             else:
                 for x in the_200:
                     sel_features = feature_selection(x, f, k)
-                    gen_samples, gen_labels = generating_adversarial_samples(x, sel_features, X, y, c)
+                    gen_samples, gen_labels = generating_adversarial_samples(
+                        x, sel_features, X, y, c
+                    )
                     y_pred = clf.predict(gen_samples)
 
                     # calculating bias metrics
                     y_aux = np.append(y, gen_labels)
-                    X_aux = np.append(X, gen_samples)
+                    X_aux = np.append(X, gen_samples, axis=0)
                     pred_aux = np.append(pred, y_pred)
                     ci.append(class_imbalance(y_aux))
                     er.append(empirical_robustness(clf, x.reshape(1, -1), gen_samples))
                     dp_aux = []
                     for feat in sel_features:
-                        dp_aux.append(DPPTL(feat, gen_samples[:,feat][0], X_aux, pred_aux))
+                        dp_aux.append(
+                            DPPTL(feat, gen_samples[:, feat][0], X_aux, pred_aux)
+                        )
                     dp.append(dp_aux)
                 print(f, c, gen_labels.shape)
 
@@ -500,7 +514,6 @@ def send_noise(
     er = np.array(er)
     print(ci, len(ci), ci.mean(), ci.std())
     print(er, len(er), er.mean(), er.std())
-
 
     # for instance in X_test:
     #     pred = clf.predict(samples)
@@ -530,7 +543,7 @@ if load == "n" or (load == "y" and rerun):
     wrt.writerow(header)
 
 # repeating the experiment 10x on different splits
-for k in range(10):
+for k in range(kn):
 
     # iterate over datasets
     for ds_cnt, ds in enumerate(datasets):

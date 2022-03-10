@@ -63,7 +63,7 @@ class AAOSVM(SMOModel):
         self.T = 2  # maximum number of iterations for each train() optimization
         self.update = update
 
-    def reset(self, X, y):
+    def reset(self, X, y, update=False):
         # Set model parameters and initial values
         C = 100.0
         # C = 1000.0  # for SVM_w_SMO comparison
@@ -81,7 +81,7 @@ class AAOSVM(SMOModel):
         Sy = np.append([Sy], [y[1]], 0)
 
         # Initialize model
-        model = AAOSVM(Sx, Sy, C, initial_alphas, initial_b, np.zeros(m))
+        model = AAOSVM(Sx, Sy, C, initial_alphas, initial_b, np.zeros(m), update=update)
 
         # Initialize error cache
         model.errors = model.decision_function(model.X) - model.y

@@ -160,6 +160,7 @@ def cross_validate(
         aux (str): extra parameter to help specify the filename.
         reset (dict): dictionary of initial parameters of the classifier to reset it.
         normalization (str): ('y'/'n') is the dataset normalized?
+        update (bool): parameter for the AAOSVM. Is it changing the scores?
 
     Returns:
         ACCs (np.array): list of accuracy scores from the cross validation.
@@ -183,7 +184,14 @@ def cross_validate(
         # norm = ""
         r = 0
 
-    f = open(results[r] + clf_name + aux + "_{}_{}.pkl".format(type, random_state), "wb")
+    if update:
+        upd = "_ch_scr"
+    else:
+        upd = ""
+
+    f = open(
+        results[r] + clf_name + aux + "_{}_{}".format(type, random_state) + upd + ".pkl", "wb"
+    )
 
     if type == "inc":
         for train_index, test_index in kf.split(X, y):
@@ -244,19 +252,22 @@ def cross_validate(
     elif type == "AAOSVM":
         for train_index, test_index in kf.split(X, y):
 
-            # Saving scores
-            h = open(
-                results[r] + "AAOSVM_scores" + aux + "_{}.csv".format(random_state), "w", newline=""
-            )
-            wrt_s = writer(h)
-            header = [
-                "Utility of Malicious sample",
-                "Utility of Regular sample",
-                "Cost of Malicious sample",
-                "Cost of Regular sample",
-            ]
-            wrt_s.writerow(header)
-            # /Saving scores
+            if update:
+                # Saving scores
+                h = open(
+                    results[r] + "AAOSVM_scores" + aux + "_{}_{}.csv".format(random_state, j),
+                    "w",
+                    newline="",
+                )
+                wrt_s = writer(h)
+                header = [
+                    "Utility of Malicious sample",
+                    "Utility of Regular sample",
+                    "Cost of Malicious sample",
+                    "Cost of Regular sample",
+                ]
+                wrt_s.writerow(header)
+                # /Saving scores
 
             # splitting the data
             X_partial, X_hold = X[train_index], X[test_index]
@@ -276,18 +287,20 @@ def cross_validate(
                 # training on one sample at a time
                 Sx, Sy = clf.partial_fit(X_partial, Sx, Sy, x, Y, i)
 
-                # Saving scores
-                wrt_s.writerow(
-                    [clf.Em, clf.Er, clf.Ym, clf.Yr,]
-                )
+                if update:
+                    # Saving scores
+                    wrt_s.writerow(
+                        [clf.Em, clf.Er, clf.Ym, clf.Yr,]
+                    )
 
                 # showing progress at the rate of 1%
                 if i % (sz // 100) == 0:
                     print("reached final {}".format(i), asctime())
 
-            y_pred = clf.decision_function(X_hold)
-            y_pred[y_pred < 0] = -1
-            y_pred[y_pred >= 0] = 1
+            if update:
+                h.close()
+
+            y_pred, loss[j] = clf.predict(X_hold, True)
             neg = y_pred == -1
             pos = y_pred == 1
             bin = neg | pos
@@ -296,13 +309,12 @@ def cross_validate(
             pickle.dump(clf, f)
 
             print(len(y_pred[neg]) + len(y_pred[pos]))
-            print(len(y_pred[~bin]))
+            print(loss[j])
             print("y_pred", j)
 
             ACCs[j] = accuracy_score(y_hold[bin], y_pred[bin])
             TPRs[j] = recall_score(y_hold[bin], y_pred[bin])
             F1s[j] = f1_score(y_hold[bin], y_pred[bin])
-            loss[j] = len(y_pred[~bin])
 
             j += 1
 
@@ -436,9 +448,11 @@ def class_imbalance(y):
 
     return (p - n) / (p + n)
 
+
 # a = np.ones(6)
 # b = np.ones(4) * -1
 # c = np.append(a,b)
+
 
 def DPPTL(attribute: int, a: float, X: np.ndarray, y: np.array):
     """

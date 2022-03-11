@@ -308,7 +308,7 @@ class AAOSVM(SMOModel):
             loss (int): number of instances not exactly predicted.\
                 (only if show_loss == True)
         """
-        y_pred = self.decision_function(self, x_test)
+        y_pred = self.decision_function(x_test)
 
         neg = y_pred == -1
         pos = y_pred == 1
@@ -496,6 +496,8 @@ class AAOSVM(SMOModel):
         return self
 
     def partial_fit(self, X, Sx, Sy, x, y, i):
+        # Flag to indicate training
+        trained = False
 
         # Update parameters before anything else
         self.X = Sx
@@ -504,6 +506,8 @@ class AAOSVM(SMOModel):
         # if the instance is considered phishing
         # if y * (self.w @ x + self.b) < self.slack:
         if y * (self.w @ x + self.b) * self.Psi < self.slack:
+            # Set flag
+            trained = True
 
             # Initialize error cache  TODO: why is this here?
             self.errors = self.decision_function(self.X) - self.y
@@ -566,5 +570,5 @@ class AAOSVM(SMOModel):
         Sx = np.append(Sx, [x], 0)
         Sy = np.append(Sy, [y], 0)
 
-        return Sx, Sy
+        return Sx, Sy, trained
 

@@ -267,6 +267,11 @@ def cross_validate(
                     "Cost of Regular sample",
                 ]
                 wrt_s.writerow(header)
+
+                g = open(
+                    results[r] + "indexes - " + aux + "_{}_{}.pkl".format(random_state, j),
+                    "wb"
+                )
                 # /Saving scores
 
             # splitting the data
@@ -285,13 +290,15 @@ def cross_validate(
                 Y = y_partial[i]
 
                 # training on one sample at a time
-                Sx, Sy = clf.partial_fit(X_partial, Sx, Sy, x, Y, i)
+                Sx, Sy, trained = clf.partial_fit(X_partial, Sx, Sy, x, Y, i)
 
                 if update:
                     # Saving scores
                     wrt_s.writerow(
                         [clf.Em, clf.Er, clf.Ym, clf.Yr,]
                     )
+                    if trained:
+                        pickle.dump((i, np.where(clf.alphas > 0)[0]), g)
 
                 # showing progress at the rate of 1%
                 if i % (sz // 100) == 0:
@@ -299,6 +306,7 @@ def cross_validate(
 
             if update:
                 h.close()
+                g.close()
 
             y_pred, loss[j] = clf.predict(X_hold, True)
             neg = y_pred == -1
@@ -317,6 +325,9 @@ def cross_validate(
             F1s[j] = f1_score(y_hold[bin], y_pred[bin])
 
             j += 1
+
+            if update:
+                break
 
     elif type == "OSVM":
         for train_index, test_index in kf.split(X, y):

@@ -111,7 +111,7 @@ if load == "y":
         rerun = True
 
 
-def filename_build(n: int, selection="10x random200"):
+def filename_build(n: int, selection="x random200"):
     """
     Function to create an automated filename for the experiment
     """
@@ -137,7 +137,7 @@ def filename_build(n: int, selection="10x random200"):
     elif n == 4:
         fn = "AAOSVM_ch_scores, "
 
-    return results[r] + fn + name + " " + selection + norm + rr + ".csv"
+    return results[r] + fn + name + " " + str(kn) + selection + norm + rr + ".csv"
 
 
 ##############################################

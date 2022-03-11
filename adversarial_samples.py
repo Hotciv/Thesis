@@ -77,9 +77,13 @@ def generating_labels(gen_samples: np.ndarray, criteria: int, y=1)->np.array:
     if criteria == 0:
         gen_labels *= -1
     elif criteria == 2:
-        km = KMeans(2, random_state=42).fit(gen_samples)
-        gen_labels =  np.array(km.labels_)
-        gen_labels[gen_labels == 0] = -1
+        if len(gen_labels) > 1:
+            km = KMeans(2, random_state=42).fit(gen_samples)
+            gen_labels =  np.array(km.labels_)
+            gen_labels[gen_labels == 0] = -1
+        else:
+            labels = [1, -1]
+            gen_labels[0] = np.random.choice(labels, 1)
 
     return gen_labels
 

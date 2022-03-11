@@ -4,10 +4,13 @@
     Assuming every slide of the window will update X, y, b, w, slack, 
     and maybe alphas and errors
 """
-from matplotlib.pyplot import contour
-from numpy.core.defchararray import count
+# from matplotlib.pyplot import contour
+# from numpy.core.defchararray import count
 from sklearn.cluster import KMeans
 from SVM_w_SMO import *
+# from warnings import filterwarnings
+
+# filterwarnings("error")
 
 
 class AAOSVM(SMOModel):
@@ -25,10 +28,10 @@ class AAOSVM(SMOModel):
         errors,
         m=100,
         Gp=250,
-        Em=1,
-        Er=1,
-        Ym=1,
-        Yr=1,
+        Em=10,
+        Er=10,
+        Ym=10,
+        Yr=10,
         s=0.6,
         kernel_type="linear",
         k=3,  # should be 2, 3, or 4...
@@ -241,10 +244,17 @@ class AAOSVM(SMOModel):
         """
         Helper function from Psi(x)
         """
+        # try:
+        scores_u = (self.Em + self.Ym)
+        scores_d = (self.Er + self.Yr)
+        if scores_u == 0 or scores_d == 0:
+            return 0
         mu_M = sum([self.mu(1, i, x) for i in range(self.k)])
         mu_R = sum([self.mu(-1, i, x) for i in range(self.k)])
         aux = mu_M / mu_R
-        return aux * (self.Em + self.Ym) / (self.Er + self.Yr)
+        return aux * scores_u / scores_d
+        # except RuntimeWarning:
+        #     return 0
 
     def update_psi(self, x):
         """

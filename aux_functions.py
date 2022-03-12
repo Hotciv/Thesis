@@ -24,23 +24,26 @@ from datetime import datetime
 
 def get_indexes(fn: str):
     """
-    Gets the indexes from the index pickle file.
+    Gets the indexes from the index or LinSVM pickle file.
 
     Parameters:
-        fn (str): filename of the index pickle file,\
-            directory included.
+        fn (str): filename of file, directory included.
     """
     # for cv in glob(fn):
-    cv = glob(fn)
+    cv = glob(fn)[0]
     with open(cv, "rb") as f:
-        final_indexes = None
-        try:
-            while True:
-                final_indexes = pickle.load(f)
-        except EOFError:
-            print("Indexes locked and loaded")
-        # print(final_indexes)
-        return final_indexes[0] + final_indexes[1]
+        if fn.find("indexes") != -1:
+            final_indexes = None
+            try:
+                while True:
+                    final_indexes = pickle.load(f)
+            except EOFError:
+                print("Indexes locked and loaded")
+            # print(final_indexes)
+            return final_indexes[0] + final_indexes[1]
+        else:
+            clf = pickle.load(f)
+            return clf.support_
 
 
 def expander(

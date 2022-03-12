@@ -22,19 +22,25 @@ from datetime import datetime
 
 # get_node_ip_address = lambda: '127.0.0.1'
 
-# def get_indexes(fn: str):
-#     if fn.find("indexes") != -1:
-#         for cv in glob(fn):
-#             with open(cv, "rb") as f:
-#                 final_indexes = None
-#                 try:
-#                     while True:
-#                         final_indexes = pickle.load(f)
-#                 except EOFError:
-#                     print("Indexes locked and loaded")
-#                 # print(final_indexes)
-#                 # print(final_indexes[0] + final_indexes[1])
-#     elif
+def get_indexes(fn: str):
+    """
+    Gets the indexes from the index pickle file.
+
+    Parameters:
+        fn (str): filename of the index pickle file,\
+            directory included.
+    """
+    # for cv in glob(fn):
+    cv = glob(fn)
+    with open(cv, "rb") as f:
+        final_indexes = None
+        try:
+            while True:
+                final_indexes = pickle.load(f)
+        except EOFError:
+            print("Indexes locked and loaded")
+        # print(final_indexes)
+        return final_indexes[0] + final_indexes[1]
 
 
 def expander(

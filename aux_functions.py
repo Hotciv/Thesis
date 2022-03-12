@@ -9,9 +9,9 @@ from csv import writer
 import numpy as np
 import pickle
 from typing import Union
-from time import asctime
 from glob import glob
 from adversarial_samples import cost
+from datetime import datetime
 
 # from numpy.lib.function_base import average
 
@@ -369,6 +369,16 @@ def cross_validate(
 
     elif type == "AAOSVM":
         for train_index, test_index in kf.split(X, y):
+            now = datetime.now()
+            psi = open(
+                results[r]
+                + "psi_values - "
+                + aux
+                + "_{}_{}_".format(random_state, j)
+                + upd
+                + "_{}.pkl".format(now.strftime("%Y%m%d %H%M%S")),
+                "wb",
+            )
 
             if update:
                 # Saving scores
@@ -376,7 +386,7 @@ def cross_validate(
                     results[r]
                     + "AAOSVM_scores"
                     + aux
-                    + "_{}_{}.csv".format(random_state, j),
+                    + "_{}_{}_{}.csv".format(random_state, j, now.strftime("%Y%m%d %H%M%S")),
                     "w",
                     newline="",
                 )
@@ -393,7 +403,7 @@ def cross_validate(
                     results[r]
                     + "indexes - "
                     + aux
-                    + "_{}_{}.pkl".format(random_state, j),
+                    + "_{}_{}_{}.pkl".format(random_state, j, now.strftime("%Y%m%d %H%M%S")),
                     "wb",
                 )
                 # /Saving scores
@@ -423,14 +433,17 @@ def cross_validate(
                     )
                     if trained:
                         pickle.dump((i, np.where(clf.alphas > 0)[0]), g)
+                
+                pickle.dump(clf.Psi, psi)
 
                 # showing progress at the rate of 1%
                 if i % (sz // 100) == 0:
-                    print("reached final {}".format(i), asctime())
+                    print("reached final {}".format(i), now.strftime("%Y%m%d %H%M%S"))
 
             if update:
                 h.close()
                 g.close()
+            psi.close()
 
             y_pred = clf.predict(X_hold)
             neg = y_pred == -1

@@ -78,6 +78,12 @@ n = int(input("What is the experiment? [0-4]\n"))
 while n < 0 and n > 4:
     n = int(input("What is the experiment? [0-4]\n"))
 
+# input -> choice of support vectors
+if n == 4:
+    op = input("Which support vectors do you wish to use? ((b)atch/(a)aosvm)\n")
+    while op != "a" and op != "b":
+        op = input("Which support vectors do you wish to use? ((b)atch/(a)aosvm)\n")
+
 kn = input("Repeat experiments 10x? ([y]/n)\n") or "y"
 while kn != "y" and kn != "n":
     kn = input("Repeat experiments 10x? ([y]/n)\n") or "y"
@@ -104,6 +110,7 @@ while load != "y" and load != "n":
 
 rerun = False
 if load == "y":
+    # input -> rebuild csv file?
     rebuild = input("Rebuild csv file from trained models? (y/n)\n")
     while rebuild != "y" and rebuild != "n":
         rebuild = input("Rebuild csv file from trained models? (y/n)\n")
@@ -475,18 +482,15 @@ def send_noise(
         k (int): iteration number; used as initial random\
             state for auditatorial purposes.
     """
-    # if n == 4:
-    #     op = input("Which support vectors do you wish to use? ((b)atch/(a)aosvm)\n")
-    #     while op != "a" and op != "b":
-    #         op = input("Which support vectors do you wish to use? ((b)atch/(a)aosvm)\n")
-    #     if op == "a":
-    #         fn = ""
-    #         # support_indexes = get_indexes()
-    #     elif op == "b":
-    #         support_indexes = clf.support_
-    #         y_ = y[support_indexes]
+    if n == 4:
+        if op == "a":
+            fn = ""
+            # support_indexes = get_indexes()
+        elif op == "b":
+            support_indexes = clf.support_
+            y_ = y[support_indexes]
 
-    #     _, the_200, _, _, _ = dataset_split(X, y, 200, support_indexes)
+        _, the_200, _, _, _ = dataset_split(X, y, 200, support_indexes)
 
     ci = []
     er = []

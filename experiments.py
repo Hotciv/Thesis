@@ -456,18 +456,37 @@ def experiment_load(
 
 
 def send_noise(
-    # n: int,
-    # features: int,
     clf: Union[object, list],
     the_200: np.ndarray,
     X: np.ndarray,
     y: np.array,
-    selected: Union[list, np.array],
+    # selected: Union[list, np.array],
     k: int,
 ):
     """
-    Gets 
+    Gets 200 random samples or 200 samples based of support vectors\
+        and use them to compute bias and other metrics.
+
+    Parameters:
+        clf (object): classifier to go against the AST.
+        the_200 (np.ndarray): 
+        X (np.ndarray): dataset to be used.
+        y (np.array): labels of the dataset to be used.
+        k (int): iteration number; used as initial random\
+            state for auditatorial purposes.
     """
+    # if n == 4:
+    #     op = input("Which support vectors do you wish to use? ((b)atch/(a)aosvm)\n")
+    #     while op != "a" and op != "b":
+    #         op = input("Which support vectors do you wish to use? ((b)atch/(a)aosvm)\n")
+    #     if op == "a":
+    #         fn = ""
+    #         # support_indexes = get_indexes()
+    #     elif op == "b":
+    #         support_indexes = clf.support_
+    #         y_ = y[support_indexes]
+
+    #     _, the_200, _, _, _ = dataset_split(X, y, 200, support_indexes)
 
     ci = []
     er = []

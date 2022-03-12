@@ -41,7 +41,7 @@ def expander(
     X: np.ndarray,
     y: np.array,
     split: int,
-    type: Union(list, np.array),
+    type,
     fn: str,
     random_state=42,
     func="knn",
@@ -148,7 +148,7 @@ def dataset_split(
     X: np.ndarray,
     y: np.array,
     split: int,
-    type: Union(int, list, np.array),
+    type,
     fn="",
     random_state=42,
 ):

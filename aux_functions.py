@@ -23,6 +23,18 @@ from adversarial_samples import cost
 # get_node_ip_address = lambda: '127.0.0.1'
 
 # def get_indexes(fn: str):
+#     if fn.find("indexes") != -1:
+#         for cv in glob(fn):
+#             with open(cv, "rb") as f:
+#                 final_indexes = None
+#                 try:
+#                     while True:
+#                         final_indexes = pickle.load(f)
+#                 except EOFError:
+#                     print("Indexes locked and loaded")
+#                 # print(final_indexes)
+#                 # print(final_indexes[0] + final_indexes[1])
+#     elif
 
 
 def expander(
@@ -51,54 +63,59 @@ def expander(
             'ranom' will increase the size using randomly selected samples
     """
     if func == "knn":
-        for cv in glob(fn):
-            with open(cv, "rb") as f:
-                final_indexes = None
-                try:
-                    while True:
-                        final_indexes = pickle.load(f)
-                except EOFError:
-                    print("Indexes locked and loaded")
-                # print(final_indexes)
-                # print(final_indexes[0] + final_indexes[1])
-                # print(y[final_indexes[0] + final_indexes[1]])
-                # print(len(y_[y_ == 1]))
-                # print(X_[y_ == 1])
-                y_ = y[final_indexes[0] + final_indexes[1]]
-                X_ = X[final_indexes[0] + final_indexes[1]]
-                sz = len(X_[y_ == 1])
-                selected = set()
-                for j, sample in enumerate(X[y == 1]):
-                    for k, sample_ in enumerate(X_[y_ == 1]):
-                        c = cost(sample, sample_)
-                        if c == 0 and len(selected) < sz:
-                            # print(j, k, c, len(selected))
-                            selected.add(j)
-                            break
-                        if len(selected) == sz:
-                            break
-                    if len(selected) == sz:
-                        break
-                # print(selected)
-                # input()
+        if fn.find("indexes") != -1:
+            for cv in glob(fn):
+                with open(cv, "rb") as f:
+                    final_indexes = None
+                    try:
+                        while True:
+                            final_indexes = pickle.load(f)
+                    except EOFError:
+                        print("Indexes locked and loaded")
+                    final_indexes = final_indexes[0] + final_indexes[1]
+                    # print(final_indexes)
+                    # print(final_indexes[0] + final_indexes[1])
+                    # print(y[final_indexes[0] + final_indexes[1]])
+                    # print(len(y_[y_ == 1]))
+                    # print(X_[y_ == 1])
+        else:
+            final_indexes = type
 
-                rad = 1
-                dist = 2
-                while len(selected) < 200:
-                    for j, sample in enumerate(X[y == 1]):
-                        for k, sample_ in enumerate(X_[y_ == 1]):
-                            c = cost(sample, sample_)
-                            if c > 0 and c <= rad and len(selected) < 200:
-                                # print(j, k, rad, c, len(selected))
-                                selected.add(j)
-                                break
-                            if len(selected) == 200:
-                                break
-                        if len(selected) == 200:
-                            break
-                    rad = np.sqrt(dist)
-                    dist += 1
-                # print(selected)
+        y_ = y[final_indexes]
+        X_ = X[final_indexes]
+        sz = len(X_[y_ == 1])
+        selected = set()
+        for j, sample in enumerate(X[y == 1]):
+            for k, sample_ in enumerate(X_[y_ == 1]):
+                c = cost(sample, sample_)
+                if c == 0 and len(selected) < sz:
+                    # print(j, k, c, len(selected))
+                    selected.add(j)
+                    break
+                if len(selected) == sz:
+                    break
+            if len(selected) == sz:
+                break
+        # print(selected)
+        # input()
+
+        rad = 1
+        dist = 2
+        while len(selected) < 200:
+            for j, sample in enumerate(X[y == 1]):
+                for k, sample_ in enumerate(X_[y_ == 1]):
+                    c = cost(sample, sample_)
+                    if c > 0 and c <= rad and len(selected) < 200:
+                        # print(j, k, rad, c, len(selected))
+                        selected.add(j)
+                        break
+                    if len(selected) == 200:
+                        break
+                if len(selected) == 200:
+                    break
+            rad = np.sqrt(dist)
+            dist += 1
+        # print(selected)
 
     if func == "random":
         # split -= len(type)
@@ -415,7 +432,7 @@ def cross_validate(
                 h.close()
                 g.close()
 
-            y_pred, loss[j] = clf.predict(X_hold, True)
+            y_pred = clf.predict(X_hold)
             neg = y_pred == -1
             pos = y_pred == 1
             bin = neg | pos
@@ -430,6 +447,7 @@ def cross_validate(
             ACCs[j] = accuracy_score(y_hold[bin], y_pred[bin])
             TPRs[j] = recall_score(y_hold[bin], y_pred[bin])
             F1s[j] = f1_score(y_hold[bin], y_pred[bin])
+            loss[j] = len(y_pred[~bin])
 
             j += 1
 

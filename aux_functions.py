@@ -51,7 +51,6 @@ def expander(
     y: np.array,
     split: int,
     type,
-    fn: str,
     random_state=42,
     func="knn",
 ):
@@ -66,61 +65,29 @@ def expander(
             test and to increase the lenght of the list of selected samples.
         split (int): number of samples to be used as test.
         type Union(list, np.array): list/np.array to select 'split' samples.
-        fn (str): complete filename, with directory included.
         random_state [42]: initial random state for auditatorial purposes.
         func [knn]: 'knn' will use the proximity of support vectors to increase the size,
             'ranom' will increase the size using randomly selected samples
     """
     if func == "knn":
-        if fn.find("indexes") != -1:
-            for cv in glob(fn):
-                with open(cv, "rb") as f:
-                    final_indexes = None
-                    try:
-                        while True:
-                            final_indexes = pickle.load(f)
-                    except EOFError:
-                        print("Indexes locked and loaded")
-                    final_indexes = final_indexes[0] + final_indexes[1]
-                    # print(final_indexes)
-                    # print(final_indexes[0] + final_indexes[1])
-                    # print(y[final_indexes[0] + final_indexes[1]])
-                    # print(len(y_[y_ == 1]))
-                    # print(X_[y_ == 1])
-        else:
-            final_indexes = type
-
-        y_ = y[final_indexes]
-        X_ = X[final_indexes]
-        sz = len(X_[y_ == 1])
-        selected = set()
-        for j, sample in enumerate(X[y == 1]):
-            for k, sample_ in enumerate(X_[y_ == 1]):
-                c = cost(sample, sample_)
-                if c == 0 and len(selected) < sz:
-                    # print(j, k, c, len(selected))
-                    selected.add(j)
-                    break
-                if len(selected) == sz:
-                    break
-            if len(selected) == sz:
-                break
-        # print(selected)
-        # input()
+        y_ = y[type]
+        X_ = X[type]
+        selected = set(type)
 
         rad = 1
         dist = 2
-        while len(selected) < 200:
+        while len(selected) < split:
             for j, sample in enumerate(X[y == 1]):
-                for k, sample_ in enumerate(X_[y_ == 1]):
+                # for k, sample_ in enumerate(X_[y_ == 1]):
+                for sample_ in X_[y_ == 1]:
                     c = cost(sample, sample_)
-                    if c > 0 and c <= rad and len(selected) < 200:
+                    if c > 0 and c <= rad and len(selected) < split:
                         # print(j, k, rad, c, len(selected))
                         selected.add(j)
                         break
-                    if len(selected) == 200:
+                    if len(selected) == split:
                         break
-                if len(selected) == 200:
+                if len(selected) == split:
                     break
             rad = np.sqrt(dist)
             dist += 1
@@ -158,7 +125,6 @@ def dataset_split(
     y: np.array,
     split: int,
     type,
-    fn="",
     random_state=42,
 ):
     """
@@ -173,7 +139,6 @@ def dataset_split(
         type 
             (int): class to remove random 'split' samples (phishing or legitimate).
             (list/np.array): list/np.array to select 'split' samples.
-        fn (str): filename to be passed on to the 'expander' function.
         random_state (int): initial random state for auditatorial purposes.
 
         Returns:
@@ -216,7 +181,7 @@ def dataset_split(
     elif isinstance(type, list) or isinstance(type, np.ndarray):
         if split > len(type):
             X_train, X_test, y_train, y_test, selected = expander(
-                X, y, "knn", fn, split, random_state
+                X, y, split, type
             )
 
         elif len(type) == split:

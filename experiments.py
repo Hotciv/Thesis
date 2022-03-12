@@ -19,7 +19,7 @@ from sklearn.linear_model import SGDOneClassSVM
 
 from AAOSVM import *
 
-from adversarial_samples import generating_adversarial_samples, generating_labels
+from adversarial_samples import generating_adversarial_samples, generating_labels, cost
 
 # # for helping the experiment 0?
 # from pyspark.sql import SparkSession # instantiate spark session
@@ -253,7 +253,7 @@ def experiment_cv(
         model = AAOSVM(Sx, Sy, C, initial_alphas, initial_b, np.zeros(m), update=upd)
 
         # Initialize error cache
-        initial_error = model.decision_function(model.X) - model.y
+        initial_error = model.predict(model.X) - model.y
         model.errors = initial_error
 
         # Initialize weights
@@ -473,6 +473,7 @@ def send_noise(
     er = []
     dp = []
     dist = []
+    bypass = []
 
     pred = clf.predict(X)
     # feature selection and generating adversarial samples
@@ -487,7 +488,12 @@ def send_noise(
                 ci.append(class_imbalance(y_aux))
                 er.append(np.nan)
                 dp.append(np.nan)
-                dist.append([0, 0])
+
+                # recording distances
+                dist.append(np.nan)
+
+                # number of instances that gets classified as regular
+                bypass.append(len(y_pred[y_pred == -1]))
             else:
                 for x in the_200:
                     sel_features = feature_selection(x, f, k)
@@ -508,6 +514,8 @@ def send_noise(
                             DPPTL(feat, gen_samples[:, feat][0], X_aux, pred_aux)
                         )
                     dp.append(dp_aux)
+                    for gen_s in gen_samples:
+                        dist.append(cost(x, gen_s))
                 print(f, c, gen_labels.shape)
 
     ci = np.array(ci)

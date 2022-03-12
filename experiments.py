@@ -78,11 +78,7 @@ n = int(input("What is the experiment? [0-4]\n"))
 while n < 0 and n > 4:
     n = int(input("What is the experiment? [0-4]\n"))
 
-# input -> choice of support vectors
-if n == 4:
-    op = input("Which support vectors do you wish to use? ((b)atch/(a)aosvm)\n")
-    while op != "a" and op != "b":
-        op = input("Which support vectors do you wish to use? ((b)atch/(a)aosvm)\n")
+
 
 kn = input("Repeat experiments 10x? ([y]/n)\n") or "y"
 while kn != "y" and kn != "n":
@@ -116,6 +112,14 @@ if load == "y":
         rebuild = input("Rebuild csv file from trained models? (y/n)\n")
     if rebuild == "y":
         rerun = True
+        
+    # input -> choice of support vectors
+    if n == 4 and not rerun:
+        op = input("Which support vectors do you wish to use? ((b)atch/(a)aosvm)\n")
+        while op != "a" and op != "b":
+            op = input("Which support vectors do you wish to use? ((b)atch/(a)aosvm)\n")
+        # TODO: remove this
+        normalization = "t"
 
 
 def filename_build(n: int, selection="x random200"):
@@ -351,8 +355,10 @@ def experiment_load(
     results = glob("Results, new/*/")
     if normalization == "y":
         r = 1
-    else:
+    elif normalization == "n":
         r = 0
+    else:
+        r = 2
 
     if selection == "10x random200":
         # removing 200 random phishing samples
@@ -486,20 +492,24 @@ def send_noise(
             build purposes.
     """
     if n == 4:
+        results = glob("Results, new/*/")
+        if normalization == "y":
+            r = 1
+        elif normalization == "n":
+            r = 0
+        else:
+            r = 2
+
         if op == "a":
-            results = glob("Results, new/*/")
-            if normalization == "y":
-                r = 1
-            else:
-                r = 0
-            fn = glob(results[r] + "indexes - _" + sel_names[ds_cnt] + "_0_0_*.pkl")[0]
+            fn = glob(results[r] + "indexes - _" + sel_names[ds_cnt] + "_0_0*.pkl")[0]
             support_indexes = get_indexes(fn)
         elif op == "b":
-            support_indexes = clf.support_
+            fn = glob(results[r] + "Linear SVM_" + sel_names[ds_cnt] + "_std_0.pkl")[0]
+            support_indexes = get_indexes(fn)
             
         y_ = y[support_indexes]
 
-        _, the_200, _, _, _ = dataset_split(X, y, 200, support_indexes)
+        _, the_200, _, _, _ = dataset_split(X, y, 200, support_indexes[y_ == 1])
 
     ci = []
     er = []

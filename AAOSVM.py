@@ -87,7 +87,7 @@ class AAOSVM(SMOModel):
         model = AAOSVM(Sx, Sy, C, initial_alphas, initial_b, np.zeros(m), update=update)
 
         # Initialize error cache
-        model.errors = model.decision_function(model.X) - model.y
+        model.errors = model.predict(model.X) - model.y
 
         model.w = np.zeros(len(X[0]))
 
@@ -143,11 +143,11 @@ class AAOSVM(SMOModel):
             if y == -1:
                 # incorrect classification
                 if h == 1:
-                    return -self.Yr * self.decision_function(np.ones(len(x)) - x)
+                    return -self.Yr * self.predict(np.ones(len(x)) - x)
 
                 # correct classification
                 else:
-                    return self.Er * self.decision_function(np.ones(len(x)) - x)
+                    return self.Er * self.predict(np.ones(len(x)) - x)
 
         # Generalized formulas
         else:
@@ -158,21 +158,21 @@ class AAOSVM(SMOModel):
 
                 # incorrect classification
                 if h == 1:
-                    return -self.Yr * self.decision_function(aux)
+                    return -self.Yr * self.predict(aux)
 
                 # correct classification
                 else:
-                    return self.Er * self.decision_function(aux)
+                    return self.Er * self.predict(aux)
 
         # t = M
         if y == 1:
             # incorrect classification
             if h == -1:
-                return -self.Ym * self.decision_function(x)
+                return -self.Ym * self.predict(x)
 
             # correct classification
             else:
-                return self.Em * self.decision_function(x)
+                return self.Em * self.predict(x)
 
     def update_probabilities(self, X):
         """
@@ -295,7 +295,7 @@ class AAOSVM(SMOModel):
         # print('kernel', self.X @ x_test.T)
         return (self.alphas * self.y) @ (self.X @ x_test.T) - self.b
 
-    def predict(self, x_test: np.ndarray, show_loss=False):
+    def predict(self, x_test: np.ndarray):
         """
         Prediction function.
 
@@ -310,19 +310,7 @@ class AAOSVM(SMOModel):
         """
         y_pred = self.decision_function(x_test)
 
-        neg = y_pred == -1
-        pos = y_pred == 1
-        bin = neg | pos
-
-        loss = len(y_pred[~bin])
-
-        y_pred[y_pred < 0] = -1
-        y_pred[y_pred >= 0] = 1
-        
-        if show_loss:
-            return y_pred, loss
-        else:
-            return y_pred
+        return np.sign(y_pred)
 
     def take_step(self, i1, i2):
 
@@ -510,7 +498,7 @@ class AAOSVM(SMOModel):
             trained = True
 
             # Initialize error cache  TODO: why is this here?
-            self.errors = self.decision_function(self.X) - self.y
+            self.errors = self.predict(self.X) - self.y
 
             prev_errors = self.errors.copy()
 

@@ -11,6 +11,7 @@ import pickle
 from typing import Union
 from time import asctime
 from glob import glob
+from adversarial_samples import cost
 
 # from numpy.lib.function_base import average
 
@@ -21,11 +22,103 @@ from glob import glob
 
 # get_node_ip_address = lambda: '127.0.0.1'
 
+# def get_indexes(fn: str):
 
-def dataset_split(X: np.ndarray, y: np.ndarray, split: int, type, random_state=42):
+def expander(X: np.ndarray, y: np.array, split: int, type: Union(list, np.array), fn: str, random_state=42, func="knn"):
+    """
+    Expands 'type' or the list given by loading 'fn' until the lenght of the list of selected samples == 'split'
+
+    Parameters:
+        X (np.ndarray): dataset to be split into train and test and to increase the lenght of the list of selected samples.
+        y (np.array): labels of the dataset to be split into train and test and to increase the lenght of the list of selected samples.
+        split (int): number of samples to be used as test.
+        type Union(list, np.array): list/np.array to select 'split' samples.
+        fn (str): complete filename, with directory included.
+        random_state [42]: initial random state for auditatorial purposes.
+        func [knn]: 'knn' will use the proximity of support vectors to increase the size,
+            'ranom' will increase the size using randomly selected samples
+    """
+    if func == "knn":
+        for cv in glob(fn):
+            with open(cv, "rb") as f:
+                final_indexes = None
+                try:
+                    while True:
+                        final_indexes = pickle.load(f)
+                except EOFError:
+                    print("Indexes locked and loaded")
+                # print(final_indexes)
+                # print(final_indexes[0] + final_indexes[1])
+                # print(y[final_indexes[0] + final_indexes[1]])
+                # print(len(y_[y_ == 1]))
+                # print(X_[y_ == 1])
+                y_ = y[final_indexes[0] + final_indexes[1]]
+                X_ = X[final_indexes[0] + final_indexes[1]]
+                sz = len(X_[y_ == 1])
+                selected = set()
+                for j, sample in enumerate(X[y == 1]):
+                    for k, sample_ in enumerate(X_[y_ == 1]):
+                        c = cost(sample, sample_)
+                        if c == 0 and len(selected) < sz:
+                            # print(j, k, c, len(selected))
+                            selected.add(j)
+                            break
+                        if len(selected) == sz:
+                            break
+                    if len(selected) == sz:
+                            break
+                # print(selected)
+                # input()
+
+                rad = 1
+                dist = 2
+                while len(selected) < 200:
+                    for j, sample in enumerate(X[y == 1]):
+                        for k, sample_ in enumerate(X_[y_ == 1]):
+                            c = cost(sample, sample_)
+                            if c > 0 and c <= rad and len(selected) < 200:
+                                # print(j, k, rad, c, len(selected))
+                                selected.add(j)
+                                break
+                            if len(selected) == 200:
+                                break
+                        if len(selected) == 200:
+                                break
+                    rad = np.sqrt(dist)
+                    dist += 1
+                # print(selected)
+
+    if func == "random":
+        # split -= len(type)
+        t = y[type[0]]
+
+        selected = set(type)
+
+        rng = np.random.default_rng(random_state)
+        sz_y = len(y)
+        sz_s = 0
+        while sz_s < split:
+            aux = rng.integers(low=0, high=sz_y)
+            if y[aux] == t:
+                selected.add(aux)
+                sz_s = len(selected)
+
+    selected = list(selected)
+
+    X_test, y_test = X[selected], y[selected]
+    X_train = np.delete(X, selected, 0)
+    y_train = np.delete(y, selected)
+    # X_train, X_test, y_train, y_test = train_test_split(
+    #     X[y == y[type[0]]], y[y == y[type[0]]], test_size=split, random_state=random_state
+    # )
+
+    return X_train, X_test, y_train, y_test, selected
+
+def dataset_split(X: np.ndarray, y: np.array, split: int, type: Union(int, list, np.array), fn="", random_state=42):
     """
     Split the dataset in training and testing according to\
     a number of samples, or a percentage of dataset to be reserved for testing
+    Note: it assumes all the instances of type are from a single class!
 
     Parameters:
         X (np.ndarray): dataset to be split into train and test.
@@ -34,6 +127,7 @@ def dataset_split(X: np.ndarray, y: np.ndarray, split: int, type, random_state=4
         type 
             (int): class to remove random 'split' samples (phishing or legitimate).
             (list/np.array): list/np.array to select 'split' samples.
+        fn (str): filename to be passed on to the 'expander' function.
         random_state (int): initial random state for auditatorial purposes.
 
         Returns:
@@ -75,28 +169,7 @@ def dataset_split(X: np.ndarray, y: np.ndarray, split: int, type, random_state=4
     # it is not checking if list is made from a single class
     elif isinstance(type, list) or isinstance(type, np.ndarray):
         if split > len(type):
-            # split -= len(type)
-            t = y[type[0]]
-
-            selected = set(type)
-
-            rng = np.random.default_rng(random_state)
-            sz_y = len(y)
-            sz_s = 0
-            while sz_s < split:
-                aux = rng.integers(low=0, high=sz_y)
-                if y[aux] == t:
-                    selected.add(aux)
-                    sz_s = len(selected)
-
-            selected = list(selected)
-
-            X_test, y_test = X[selected], y[selected]
-            X_train = np.delete(X, selected, 0)
-            y_train = np.delete(y, selected)
-            # X_train, X_test, y_train, y_test = train_test_split(
-            #     X[y == y[type[0]]], y[y == y[type[0]]], test_size=split, random_state=random_state
-            # )
+            X_train, X_test, y_train, y_test, selected = expander(X, y, "knn", fn, split, random_state)
 
         elif len(type) == split:
             X_test, y_test = X[type], y[type]

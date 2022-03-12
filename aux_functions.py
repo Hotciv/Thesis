@@ -438,7 +438,7 @@ def cross_validate(
 
                 # showing progress at the rate of 1%
                 if i % (sz // 100) == 0:
-                    print("reached final {}".format(i), now.strftime("%Y%m%d %H%M%S"))
+                    print("reached final {}".format(i), datetime.now().strftime("%Y%m%d %H%M%S"))
 
             if update:
                 h.close()

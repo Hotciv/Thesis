@@ -469,6 +469,7 @@ def send_noise(
     y: np.array,
     # selected: Union[list, np.array],
     k: int,
+    ds_cnt: int,
 ):
     """
     Gets 200 random samples or 200 samples based of support vectors\
@@ -481,14 +482,22 @@ def send_noise(
         y (np.array): labels of the dataset to be used.
         k (int): iteration number; used as initial random\
             state for auditatorial purposes.
+        ds_cnt (int): number of current dataset, for filename\
+            build purposes.
     """
     if n == 4:
         if op == "a":
-            fn = ""
-            # support_indexes = get_indexes()
+            results = glob("Results, new/*/")
+            if normalization == "y":
+                r = 1
+            else:
+                r = 0
+            fn = glob(results[r] + "indexes - _" + sel_names[ds_cnt] + "_0_0_*.pkl")[0]
+            support_indexes = get_indexes(fn)
         elif op == "b":
             support_indexes = clf.support_
-            y_ = y[support_indexes]
+            
+        y_ = y[support_indexes]
 
         _, the_200, _, _, _ = dataset_split(X, y, 200, support_indexes)
 

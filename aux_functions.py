@@ -24,13 +24,25 @@ from adversarial_samples import cost
 
 # def get_indexes(fn: str):
 
-def expander(X: np.ndarray, y: np.array, split: int, type: Union(list, np.array), fn: str, random_state=42, func="knn"):
+
+def expander(
+    X: np.ndarray,
+    y: np.array,
+    split: int,
+    type: Union(list, np.array),
+    fn: str,
+    random_state=42,
+    func="knn",
+):
     """
-    Expands 'type' or the list given by loading 'fn' until the lenght of the list of selected samples == 'split'
+    Expands 'type' or the list given by loading 'fn' until\
+        the lenght of the list of selected samples == 'split'
 
     Parameters:
-        X (np.ndarray): dataset to be split into train and test and to increase the lenght of the list of selected samples.
-        y (np.array): labels of the dataset to be split into train and test and to increase the lenght of the list of selected samples.
+        X (np.ndarray): dataset to be split into train and test and\
+            to increase the lenght of the list of selected samples.
+        y (np.array): labels of the dataset to be split into train and\
+            test and to increase the lenght of the list of selected samples.
         split (int): number of samples to be used as test.
         type Union(list, np.array): list/np.array to select 'split' samples.
         fn (str): complete filename, with directory included.
@@ -66,7 +78,7 @@ def expander(X: np.ndarray, y: np.array, split: int, type: Union(list, np.array)
                         if len(selected) == sz:
                             break
                     if len(selected) == sz:
-                            break
+                        break
                 # print(selected)
                 # input()
 
@@ -83,7 +95,7 @@ def expander(X: np.ndarray, y: np.array, split: int, type: Union(list, np.array)
                             if len(selected) == 200:
                                 break
                         if len(selected) == 200:
-                                break
+                            break
                     rad = np.sqrt(dist)
                     dist += 1
                 # print(selected)
@@ -114,7 +126,15 @@ def expander(X: np.ndarray, y: np.array, split: int, type: Union(list, np.array)
 
     return X_train, X_test, y_train, y_test, selected
 
-def dataset_split(X: np.ndarray, y: np.array, split: int, type: Union(int, list, np.array), fn="", random_state=42):
+
+def dataset_split(
+    X: np.ndarray,
+    y: np.array,
+    split: int,
+    type: Union(int, list, np.array),
+    fn="",
+    random_state=42,
+):
     """
     Split the dataset in training and testing according to\
     a number of samples, or a percentage of dataset to be reserved for testing
@@ -169,7 +189,9 @@ def dataset_split(X: np.ndarray, y: np.array, split: int, type: Union(int, list,
     # it is not checking if list is made from a single class
     elif isinstance(type, list) or isinstance(type, np.ndarray):
         if split > len(type):
-            X_train, X_test, y_train, y_test, selected = expander(X, y, "knn", fn, split, random_state)
+            X_train, X_test, y_train, y_test, selected = expander(
+                X, y, "knn", fn, split, random_state
+            )
 
         elif len(type) == split:
             X_test, y_test = X[type], y[type]
@@ -263,7 +285,13 @@ def cross_validate(
         upd = ""
 
     f = open(
-        results[r] + clf_name + aux + "_{}_{}".format(type, random_state) + upd + ".pkl", "wb"
+        results[r]
+        + clf_name
+        + aux
+        + "_{}_{}".format(type, random_state)
+        + upd
+        + ".pkl",
+        "wb",
     )
 
     if type == "inc":
@@ -328,7 +356,10 @@ def cross_validate(
             if update:
                 # Saving scores
                 h = open(
-                    results[r] + "AAOSVM_scores" + aux + "_{}_{}.csv".format(random_state, j),
+                    results[r]
+                    + "AAOSVM_scores"
+                    + aux
+                    + "_{}_{}.csv".format(random_state, j),
                     "w",
                     newline="",
                 )
@@ -342,8 +373,11 @@ def cross_validate(
                 wrt_s.writerow(header)
 
                 g = open(
-                    results[r] + "indexes - " + aux + "_{}_{}.pkl".format(random_state, j),
-                    "wb"
+                    results[r]
+                    + "indexes - "
+                    + aux
+                    + "_{}_{}.pkl".format(random_state, j),
+                    "wb",
                 )
                 # /Saving scores
 

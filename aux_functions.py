@@ -647,6 +647,7 @@ def empirical_robustness(
     Compute the Empirical Robustness of a classifier object over the sample 'x' for a given adversarial crafting\
     method 'attack'. This is equivalent to computing the minimal perturbation that the attacker must introduce for a\
     successful attack.
+        Note: only useful for image...
     | Paper link: https://arxiv.org/abs/1511.04599
     | Adapted from https://github.com/Trusted-AI/adversarial-robustness-toolbox/blob/main/art/metrics/metrics.py
 
@@ -658,15 +659,11 @@ def empirical_robustness(
     Returns:
         (Union[float, np.ndarray]): The average empirical robustness computed on 'x'.
     """
-    # crafter = get_crafter(classifier, attack_name, attack_params)
-    # crafter.set_params(**{"minimal": True})
-    # adv_x = crafter.generate(x)
-
     # Predict the labels for adversarial examples
     y = classifier.predict(x)
     y_pred = classifier.predict(adv_x)
 
-    idxs = np.argmax(y_pred) != np.argmax(y)
+    idxs = np.argmax(y_pred, axis=1) != np.argmax(y, axis=1)
     if np.sum(idxs) == 0.0:
         return 0.0
 

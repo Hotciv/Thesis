@@ -35,6 +35,7 @@ class AAOSVM(SMOModel):
         s=0.6,
         kernel_type="linear",
         k=3,  # should be 2, 3, or 4...
+        max_optimization = 2,
         update=False
     ):
         # Variables related to SVM with SMO
@@ -63,7 +64,7 @@ class AAOSVM(SMOModel):
         self.clusters = None  # clusters of websites
         self.p = np.array([1 / k for i in range(k)])  # vector of probabilities of types
         self.k = k
-        self.T = 2  # maximum number of iterations for each train() optimization
+        self.T = max_optimization  # maximum number of iterations for each train() optimization
         self.update = update
 
     def reset(self, X, y, update=False):

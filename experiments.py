@@ -79,11 +79,10 @@ while n < 0 and n > 4:
     n = int(input("What is the experiment? [0-4]\n"))
 
 
-
 kn = input("Repeat experiments 10x? ([y]/n)\n") or "y"
 while kn != "y" and kn != "n":
     kn = input("Repeat experiments 10x? ([y]/n)\n") or "y"
-if kn == 'y':
+if kn == "y":
     kn = 10
 else:
     kn = 1
@@ -112,14 +111,14 @@ if load == "y":
         rebuild = input("Rebuild csv file from trained models? (y/n)\n")
     if rebuild == "y":
         rerun = True
-        
+
     # input -> choice of support vectors
     if n == 4 and not rerun:
         op = input("Which support vectors do you wish to use? ((b)atch/(a)aosvm)\n")
         while op != "a" and op != "b":
             op = input("Which support vectors do you wish to use? ((b)atch/(a)aosvm)\n")
         # TODO: remove this
-        normalization = "t"
+        # normalization = "t"
 
 
 def filename_build(n: int, selection="x random200"):
@@ -465,11 +464,12 @@ def experiment_load(
                 ],
             )
 
-        yield clf, the_200, X_hold, y_hold, selected
+        yield clf, the_200, X_hold, y_hold, selected, clf_name
 
 
 def send_noise(
     clf: Union[object, list],
+    clf_name: str,
     the_200: np.ndarray,
     X: np.ndarray,
     y: np.array,
@@ -483,6 +483,7 @@ def send_noise(
 
     Parameters:
         clf (object): classifier to go against the AST.
+        clf_name (str): name of the classifier.
         the_200 (np.ndarray): 
         X (np.ndarray): dataset to be used.
         y (np.array): labels of the dataset to be used.
@@ -491,31 +492,72 @@ def send_noise(
         ds_cnt (int): number of current dataset, for filename\
             build purposes.
     """
-    if n == 4:
-        results = glob("Results, new/*/")
-        if normalization == "y":
-            r = 1
-        elif normalization == "n":
-            r = 0
-        else:
-            r = 2
+    results = glob("Results, new/*/")
+    if normalization == "y":
+        r = 1
+    elif normalization == "n":
+        r = 0
+    else:
+        r = 2
 
+    if n == 4:
         if op == "a":
             fn = glob(results[r] + "indexes - _" + sel_names[ds_cnt] + "_0_0*.pkl")[0]
             support_indexes = get_indexes(fn)
         elif op == "b":
             fn = glob(results[r] + "Linear SVM_" + sel_names[ds_cnt] + "_std_0.pkl")[0]
             support_indexes = get_indexes(fn)
-            
+
         y_ = y[support_indexes]
 
         _, the_200, _, _, _ = dataset_split(X, y, 200, support_indexes[y_ == 1])
 
-    ci = []
-    er = []
-    dp = []
+    # g = open(
+    #     results[r]
+    #     + clf_name
+    #     + " metrics - "
+    #     + sel_names[ds_cnt]
+    #     + "_{}_{}.pkl".format(k, datetime.now().strftime("%Y%m%d %H%M%S")),
+    #     "wb",
+    # )
+
+    header = [
+        "Number of manipulated features",
+        "Criteria for generating labels",
+        "Class Imbalance",
+        "DPPTL mean [0]",
+        "DPPTL mean [1]",
+        "DPPTL std [0]",
+        "DPPTL std [1]",
+        "Distance from original sample (average)",
+        "Distance from original sample (std)",
+        "Percentage of FP",
+    ]
+
+    if n == 3:
+        fn_partial = "AAOSVM, "
+    elif n == 4:
+        fn_partial = "AAOSVM_ch_scores "
+        if op == "a":
+            fn_partial = fn_partial + "with self sup_vect, "
+        elif op == "b":
+            fn_partial = fn_partial + "with batch sup_vect, "
+
+    fn = (
+        results[r]
+        # + clf_name
+        + fn_partial
+        + " metrics - "
+        + sel_names[ds_cnt]
+        + "_{}_{}.csv".format(k, datetime.now().strftime("%Y%m%d %H%M%S"))
+    )
+
+    # saving the results on a csv file
+    g = open(fn, "w", newline="")
+    wrt_mtrc = writer(g)
+    wrt_mtrc.writerow(header)
+
     dist = []
-    bypass = []
 
     pred = clf.predict(X)
     # feature selection and generating adversarial samples
@@ -527,16 +569,23 @@ def send_noise(
 
                 # calculating bias metrics
                 y_aux = np.append(y, gen_labels)
-                ci.append(class_imbalance(y_aux))
-                er.append(np.nan)
-                dp.append(np.nan)
+                ci = class_imbalance(y_aux)
+                dp = np.nan
 
                 # recording distances
-                dist.append(np.nan)
+                dist = np.nan
 
                 # number of instances that gets classified as regular
-                bypass.append(len(y_pred[y_pred == -1]))
+                bypass = len(y_pred[y_pred == -1]) / len(y_pred)
+
+                wrt_mtrc.writerow(
+                    (f, c, ci, dp, np.nan, np.nan, np.nan, dist, np.nan, bypass)
+                )
+                # pickle.dump((ci, er, dp, dist, bypass), g)
             else:
+                bypass = 0
+                dist = []
+                dp = set()
                 for x in the_200:
                     sel_features = feature_selection(x, f, k)
                     gen_samples, gen_labels = generating_adversarial_samples(
@@ -548,29 +597,78 @@ def send_noise(
                     y_aux = np.append(y, gen_labels)
                     X_aux = np.append(X, gen_samples, axis=0)
                     pred_aux = np.append(pred, y_pred)
-                    ci.append(class_imbalance(y_aux))
-                    er.append(empirical_robustness(clf, x.reshape(1, -1), gen_samples))
-                    dp_aux = []
+                    ci = class_imbalance(y_aux)
+                    d_aux = set()
                     for feat in sel_features:
-                        dp_aux.append(
-                            DPPTL(feat, gen_samples[:, feat][0], X_aux, pred_aux)
+                        d_aux.add(DPPTL(feat, gen_samples[:, feat][0], X_aux, pred_aux))
+                    dp.add(tuple(d_aux))
+
+                    # does any instance pass as legitimate?
+                    if np.any(y_pred == -1):
+                        bypass += 1
+
+                        # recording distances
+                        d_aux = []
+                        for gen_s in gen_samples:
+                            cst = cost(x, gen_s)
+                            if cst != 0:
+                                d_aux.append(cst)
+                        dist.append(min(d_aux))
+
+                    else:
+                        dist.append(np.nan)
+
+                dist = np.array(dist)
+                dist = dist[~np.isnan(dist)]
+                dp = np.array(list(dp))
+                if len(dp) == 1:
+                    wrt_mtrc.writerow(
+                        (
+                            f,
+                            c,
+                            ci,
+                            dp[0],
+                            np.nan,
+                            np.nan,
+                            np.nan,
+                            dist.mean(),
+                            dist.std(),
+                            bypass / 200,
                         )
-                    dp.append(dp_aux)
-                    for gen_s in gen_samples:
-                        dist.append(cost(x, gen_s))
+                    )
+                elif f == 1:
+                    wrt_mtrc.writerow(
+                        (
+                            f,
+                            c,
+                            ci,
+                            dp.mean(axis=0)[0],
+                            np.nan,
+                            dp.std(axis=0)[0],
+                            np.nan,
+                            dist.mean(),
+                            dist.std(),
+                            bypass / 200,
+                        )
+                    )
+                else:
+                    wrt_mtrc.writerow(
+                        (
+                            f,
+                            c,
+                            ci,
+                            dp.mean(axis=0)[0],
+                            dp.mean(axis=0)[1],
+                            dp.std(axis=0)[0],
+                            dp.std(axis=0)[1],
+                            dist.mean(),
+                            dist.std(),
+                            bypass / 200,
+                        )
+                    )
+                    # pickle.dump((ci, er, dp, dist, bypass), g)
                 print(f, c, gen_labels.shape)
-
-    ci = np.array(ci)
-    er = np.array(er)
-    print(ci, len(ci), ci.mean(), ci.std())
-    print(er, len(er), er.mean(), er.std())
-
-    # for instance in X_test:
-    #     pred = clf.predict(samples)
-    #     if ((pred + y) == 0).any():
-    #         foolers.append(pred)
-
-    # print(len(foolers)/200)
+    g.close
 
 
 if load == "n" or (load == "y" and rerun):
@@ -612,9 +710,9 @@ for k in range(kn):
                 loaded = experiment_load(n, k=k, all_models=rerun)
             try:
                 while True:
-                    clf, the_200, X_hold, y_hold, selected = loaded.__next__()
+                    clf, the_200, X_hold, y_hold, selected, clf_name = loaded.__next__()
                     if not rerun:
-                        send_noise(clf, the_200, X, y, selected, k)
+                        send_noise(clf, clf_name, the_200, X, y, k, ds_cnt)
             except StopIteration:
                 print("Loaded all")
         # print(loaded)

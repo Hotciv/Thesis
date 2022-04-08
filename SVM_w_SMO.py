@@ -3,49 +3,64 @@
 
     Exploring the implementation of Jon Charest at
     https://jonchar.net/notebooks/SVM/#Dual-form
+
+    of the
+    J. Platt, “Sequential Minimal Optimization: A Fast Algorithm for Training Support Vector Machines,” 1998. 
+    [Online]. Available:
+    https://www.microsoft.com/en-us/research/publication/sequential-minimal-optimization-a-fast-algorithm-for-training-support-vector-machines/
 """
 
 import numpy as np
 
-# from gambit import LogitQRE
-
 import matplotlib.pyplot as plt
 
-# %matplotlib inline
-# # This line is only needed if you have a HiDPI display
-# %config InlineBackend.figure_format = 'retina'
-
-# from sklearn.datasets import make_blobs, make_circles
-# from sklearn.preprocessing import StandardScaler
-
-
 class SMOModel:
-    """Container object for the model used for sequential minimal optimization."""
+    """
+    Container object for the model used for sequential minimal optimization.
+    
+    Parameters:
+        X (np.ndarray): training data matrix
+        y (np.array): class label vector (-1 or 1) for the data
+        C (int): regularization parameter
+        alphas (np.array): lagrange multiplier vector
+        b (int): scalar bias term
+        errors (np.array): error cache
+        kernel_type (str): kernel function type ("linear" or "gaussian")
+        tol (float): set error tolerance
+        eps (float): set alpha tolerance
+    """
 
     def __init__(
         self, X, y, C, alphas, b, errors, kernel_type="linear", tol=0.01, eps=0.01
     ):
-        self.X = X  # training data matrix
-        self.y = y  # class label vector (-1 or 1) for the data
-        self.C = C  # regularization parameter
+        self.X = X
+        self.y = y
+        self.C = C
         self.kernels = {  # kernel types
             "linear": self.linear_kernel,
             "gaussian": self.gaussian_kernel,
         }
         self.kernel = self.kernels[kernel_type]  # kernel function
-        self.alphas = alphas  # lagrange multiplier vector
-        self.b = b  # scalar bias term
-        self.errors = errors  # error cache
+        self.alphas = alphas
+        self.b = b
+        self.errors = errors
         self._obj = []  # record of objective function value
         self.m = len(self.X)  # store size of training set
 
         # Set tolerances
-        self.tol = tol  # error tolerance
-        self.eps = eps  # alpha tolerance
+        self.tol = tol
+        self.eps = eps
 
     def linear_kernel(self, x, y, b=1):
-        """Returns the linear combination of arrays `x` and `y` with
-        the optional bias term `b` (set to 1 by default)."""
+        """
+        Returns the linear combination of arrays 'x' and 'y' with
+        the optional bias term 'b' (set to 1 by default).
+            
+        Parameters:
+            x (np.array): an instance
+            y (np.array): an instance
+            b (int): optional bias term
+        """
 
         # Note the @ operator for matrix multiplication
         if b == 1:
@@ -56,8 +71,15 @@ class SMOModel:
             return x @ y.T + self.b
 
     def gaussian_kernel(self, x, y, sigma=1):
-        """Returns the gaussian similarity of arrays `x` and `y` with
-        kernel width parameter `sigma` (set to 1 by default)."""
+        """
+        Returns the gaussian similarity of arrays 'x' and 'y' with
+        kernel width parameter 'sigma' (set to 1 by default).
+        
+        Parameters:
+            x (np.array): an instance
+            y (np.array): an instance
+            sigma (int): optional kernel width parameter
+        """
 
         if np.ndim(x) == 1 and np.ndim(y) == 1:
             result = np.exp(-((np.linalg.norm(x - y, 2)) ** 2) / (2 * sigma ** 2))
@@ -75,11 +97,12 @@ class SMOModel:
     # Objective function to optimize
     # Note: it is in reverse, according to the paper
     def objective_function(self, alphas):
-        """Returns the SVM objective function based in the input model defined by:
-        `alphas`: vector of Lagrange multipliers
-        `target`: vector of class labels (-1 or 1) for training data
-        `kernel`: kernel function
-        `X_train`: training data for model."""
+        """
+        Returns the SVM objective function.
+        
+        Parameters:
+            alphas (np.array): vector of Lagrange multipliers
+        """
 
         return np.sum(alphas) - 0.5 * np.sum(
             (self.y[:, None] * self.y[None, :])
@@ -89,7 +112,7 @@ class SMOModel:
 
     # Decision function (AKA constraint(s))
     def decision_function(self, x_test):
-        """Applies the SVM decision function to the input feature vectors in `x_test`."""
+        """Applies the SVM decision function to the input feature vectors in 'x_test'."""
 
         return (self.alphas * self.y) @ self.kernel(self.X, x_test) - self.b
 
@@ -153,6 +176,13 @@ class SMOModel:
         return grid, ax
 
     def take_step(self, i1, i2):
+        """
+        Optimizes a pair of instances, if possible.
+
+        Parameters:
+            i1 (np.array): an instance to be optimized.
+            i2 (np.array): another instance to be optimized.
+        """
 
         # Skip if chosen alphas are the same
         if i1 == i2:
@@ -255,7 +285,6 @@ class SMOModel:
         self.alphas[i2] = a2
 
         # Update error cache
-        # Note: do not know where the following is from
         # Error cache for optimized alphas is set to 0 if they're unbound
         for index, alph in zip([i1, i2], [a1, a2]):
             if 0.0 < alph < self.C:
@@ -278,6 +307,20 @@ class SMOModel:
         return 1, self
 
     def examine_example(self, i2):
+        """ 
+        Determines a second instance to pair with a given\
+            instance using max difference in error and loop\
+                over non-zero and non-C alphas, and all alphas.
+
+        Parameters:
+            i2 (np.array): an instance to be examined,\
+                along with another one, chosen by the function.
+
+        Returns:
+            1: if the selected pair of instances were optimized
+            or
+            0: if the selected pair of instances were NOT optimized
+        """
 
         y2 = self.y[i2]
         alph2 = self.alphas[i2]
@@ -289,7 +332,6 @@ class SMOModel:
 
             if len(self.alphas[(self.alphas != 0) & (self.alphas != self.C)]) > 1:
                 # Use 2nd choice heuristic is choose max difference in error
-                # Note: do not fully understand this
                 if self.errors[i2] > 0:
                     i1 = np.argmin(self.errors)
                 elif self.errors[i2] <= 0:
@@ -307,7 +349,7 @@ class SMOModel:
                 if step_result:
                     return 1, self
 
-            # loop through all alphas, starting at a random point
+            # Loop through all alphas, starting at a random point
             for i1 in np.roll(np.arange(self.m), np.random.choice(np.arange(self.m))):
                 step_result, self = self.take_step(i1, i2)
                 if step_result:
@@ -316,16 +358,16 @@ class SMOModel:
         return 0, self
 
     def train(self):
+        """ The function called to train the SVM. \
+            Takes no parameters and returns a trained model. """
 
         numChanged = 0
         examineAll = 1
 
-        # print('While')
         while (numChanged > 0) or (examineAll):
             numChanged = 0
             if examineAll:
-                # print('For 1')
-                # loop over all training examples
+                # Loop over all training examples
                 for i in range(self.alphas.shape[0]):
                     examine_result, self = self.examine_example(i)
                     numChanged += examine_result
@@ -333,8 +375,7 @@ class SMOModel:
                         obj_result = self.objective_function(self.alphas)
                         self._obj.append(obj_result)
             else:
-                # print('For 2')
-                # loop over examples where alphas are not already at their limits
+                # Loop over examples where alphas are not already at their limits
                 for i in np.where((self.alphas != 0) & (self.alphas != self.C))[0]:
                     examine_result, self = self.examine_example(i)
                     numChanged += examine_result
@@ -345,10 +386,13 @@ class SMOModel:
                 examineAll = 0
             elif numChanged == 0:
                 examineAll = 1
-        # import sys
-        # sys.exit(-1)
+
         return self
 
+
+# # imports to use the examples
+# from sklearn.datasets import make_blobs, make_circles
+# from sklearn.preprocessing import StandardScaler
 
 # ################################################################
 # ############## Using the linear kernel; example ################

@@ -1,3 +1,14 @@
+"""
+    Author: Victor Barboza
+
+    Implementation of the algorithm described by
+    H. Shirazi, C. Anderson, B. Bezawada, I. Ray, and C. Anderson, 
+    “Adversarial Sampling Attacks Against Phishing Detection,” pp. 83-101, 2019,
+    doi: 10.1007/978-3-030-22479-0_5.
+
+    And adding a function to generate labels for the generated samples.
+"""
+
 from sklearn.cluster import KMeans
 from itertools import product
 import numpy as np

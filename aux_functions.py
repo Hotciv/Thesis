@@ -20,6 +20,7 @@ from datetime import datetime
 
 # get_node_ip_address = lambda: '127.0.0.1'
 
+
 def get_indexes(fn: str):
     """
     Gets the indexes from the index or LinSVM pickle file.
@@ -45,12 +46,7 @@ def get_indexes(fn: str):
 
 
 def expander(
-    X: np.ndarray,
-    y: np.array,
-    split: int,
-    type,
-    random_state=42,
-    func="knn",
+    X: np.ndarray, y: np.array, split: int, type, random_state=42, func="knn",
 ):
     """
     Expands 'type' or the list given by loading 'fn' until\
@@ -119,11 +115,7 @@ def expander(
 
 
 def dataset_split(
-    X: np.ndarray,
-    y: np.array,
-    split: int,
-    type,
-    random_state=42,
+    X: np.ndarray, y: np.array, split: int, type, random_state=42,
 ):
     """
     Split the dataset in training and testing according to\
@@ -178,9 +170,7 @@ def dataset_split(
     # it is not checking if list is made from a single class
     elif isinstance(type, list) or isinstance(type, np.ndarray):
         if split > len(type):
-            X_train, X_test, y_train, y_test, selected = expander(
-                X, y, split, type
-            )
+            X_train, X_test, y_train, y_test, selected = expander(X, y, split, type)
 
         elif len(type) == split:
             X_test, y_test = X[type], y[type]
@@ -198,6 +188,7 @@ def dataset_split(
             y_train = np.delete(y, selected)
 
     return X_train, X_test, y_train, y_test, selected
+
 
 def cross_validate(
     clf,
@@ -342,7 +333,9 @@ def cross_validate(
                     results[r]
                     + "AAOSVM_scores"
                     + aux
-                    + "_{}_{}_{}.csv".format(random_state, j, now.strftime("%Y%m%d %H%M%S")),
+                    + "_{}_{}_{}.csv".format(
+                        random_state, j, now.strftime("%Y%m%d %H%M%S")
+                    ),
                     "w",
                     newline="",
                 )
@@ -359,7 +352,9 @@ def cross_validate(
                     results[r]
                     + "indexes - "
                     + aux
-                    + "_{}_{}_{}.pkl".format(random_state, j, now.strftime("%Y%m%d %H%M%S")),
+                    + "_{}_{}_{}.pkl".format(
+                        random_state, j, now.strftime("%Y%m%d %H%M%S")
+                    ),
                     "wb",
                 )
                 # /Saving scores
@@ -389,12 +384,15 @@ def cross_validate(
                     )
                     if trained:
                         pickle.dump((i, np.where(clf.alphas > 0)[0]), g)
-                
+
                 pickle.dump(clf.Psi, psi)
 
                 # showing progress at the rate of 1%
                 if i % (sz // 100) == 0:
-                    print("reached final {}".format(i), datetime.now().strftime("%Y%m%d %H%M%S"))
+                    print(
+                        "reached final {}".format(i),
+                        datetime.now().strftime("%Y%m%d %H%M%S"),
+                    )
 
             if update:
                 h.close()
@@ -636,6 +634,8 @@ def empirical_robustness(
         perts_norm
         / np.linalg.norm(x[idxs].reshape(np.sum(idxs), -1), ord=norm_type, axis=1)
     )
+
+
 # /Bias metrics
 
 # def plot_columns(X, y=None):

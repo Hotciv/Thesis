@@ -541,6 +541,26 @@ class AAOSVM(SMOModel):
         return self
 
     def partial_fit(self, X, Sx, Sy, x, y, i):
+        """
+        Trains the SVM on the instances of the slidding window,\
+            updates the scores, slides the window, and updates psi().
+
+        Parameters:
+            X (np.ndarray): the whole training dataset
+            Sx (np.ndarray): the instances in the window
+            Sy (np.array): the labels of the instances in the window
+            x (np.array): current instance
+            y (int): current label of the current instance
+            i (int): index of the current instance, relative to\
+                the training dataset
+
+        Returns:
+            Sx (np.ndarray): the instances in the window
+            Sy (np.array): the labels of the instances in the window
+            trained (boolean): flag that indicates if the current\
+                instance led to the model being trained
+        """
+
         # Flag to indicate training
         trained = False
 

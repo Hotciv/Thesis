@@ -30,11 +30,6 @@ from adversarial_samples import generating_adversarial_samples, generating_label
 ##########--- general settings---#########
 ##########################################
 
-# Loading datasets
-# X - list of list of features
-# y - list of classes
-# dataframes = [ds1_sub, ds2, ds3, ds4]
-
 np.random.seed(0)
 
 print("Which datasets do you wish to use? [all]")
@@ -123,7 +118,7 @@ if load == "y":
 
 def filename_build(n: int, selection="x random200"):
     """
-    Function to create an automated filename for the experiment
+    Function to create an automated filename for the experiments
     """
     results = glob("Results, new/*/")
     if normalization == "y":
@@ -473,7 +468,6 @@ def send_noise(
     the_200: np.ndarray,
     X: np.ndarray,
     y: np.array,
-    # selected: Union[list, np.array],
     k: int,
     ds_cnt: int,
 ):
@@ -511,15 +505,6 @@ def send_noise(
         y_ = y[support_indexes]
 
         _, the_200, _, _, _ = dataset_split(X, y, 200, support_indexes[y_ == 1])
-
-    # g = open(
-    #     results[r]
-    #     + clf_name
-    #     + " metrics - "
-    #     + sel_names[ds_cnt]
-    #     + "_{}_{}.pkl".format(k, datetime.now().strftime("%Y%m%d %H%M%S")),
-    #     "wb",
-    # )
 
     header = [
         "Number of manipulated features",
@@ -581,7 +566,6 @@ def send_noise(
                 wrt_mtrc.writerow(
                     (f, c, ci, dp, np.nan, np.nan, np.nan, dist, np.nan, bypass)
                 )
-                # pickle.dump((ci, er, dp, dist, bypass), g)
             else:
                 bypass = 0
                 dist = []
@@ -666,11 +650,10 @@ def send_noise(
                             bypass / 200,
                         )
                     )
-                    # pickle.dump((ci, er, dp, dist, bypass), g)
                 print(f, c, gen_labels.shape)
     g.close
 
-
+# Creating a csv writter to save the results
 if load == "n" or (load == "y" and rerun):
     header = [
         "Dataset",
@@ -703,7 +686,6 @@ for k in range(kn):
         if load == "n":
             experiment_cv(n, wrt, X, y, k)
         else:
-            # clf, the_200, X_hold, y_hold, selected = experiment_load(n, wrt, k, rerun)
             if rerun:
                 loaded = experiment_load(n, wrt, k, rerun)
             else:
@@ -715,8 +697,6 @@ for k in range(kn):
                         send_noise(clf, clf_name, the_200, X, y, k, ds_cnt)
             except StopIteration:
                 print("Loaded all")
-        # print(loaded)
-        # input()
 
 
 if load == "n":

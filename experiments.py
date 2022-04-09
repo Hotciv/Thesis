@@ -120,7 +120,7 @@ def filename_build(n: int, selection="x random200"):
     """
     Function to create an automated filename for the experiments
     """
-    results = glob("Results, new/*/")
+    results = glob(results_dir + "/*/")
     if normalization == "y":
         norm = ", normalized"
         r = 1
@@ -346,7 +346,7 @@ def experiment_load(
         y_test (np.array): split of the labels of the dataset to test.
         selected (list/np.array): indexes of the test split.
     """
-    results = glob("Results, new/*/")
+    results = glob(results_dir + "/*/")
     if normalization == "y":
         r = 1
     elif normalization == "n":
@@ -486,7 +486,7 @@ def send_noise(
         ds_cnt (int): number of current dataset, for filename\
             build purposes.
     """
-    results = glob("Results, new/*/")
+    results = glob(results_dir + "/*/")
     if normalization == "y":
         r = 1
     elif normalization == "n":

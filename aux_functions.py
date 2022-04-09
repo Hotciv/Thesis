@@ -21,6 +21,9 @@ from datetime import datetime
 # get_node_ip_address = lambda: '127.0.0.1'
 
 
+results_dir = "New Folder"
+
+
 def get_indexes(fn: str):
     """
     Gets the indexes from the index or LinSVM pickle file.
@@ -235,7 +238,7 @@ def cross_validate(
 
     kf = KFold(n_splits=cv, random_state=42, shuffle=True)
 
-    results = glob("Results, new/*/")
+    results = glob(results_dir + "/*/")
     if normalization == "y":
         # norm = ", normalized"
         r = 1

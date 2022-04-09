@@ -1,21 +1,38 @@
 """
     Author: Victor Barboza
 
-    Assuming every slide of the window will update X, y, b, w, slack, 
-    and maybe alphas and errors
+    Implementation of a AAOSVM based on the implementation description from
+    N. Figueroa, G. L'Huillier, and R. Weber, 
+    “Adversarial classification using signaling games with an application to phishing detection,”
+    Data Mining and Knowledge Discovery, vol. 31, no. 1, pp. 92-133, 2017, 
+    doi: 10.1007/s10618-016-0459-9.
 """
-# from matplotlib.pyplot import contour
-# from numpy.core.defchararray import count
+
 from sklearn.cluster import KMeans
 from SVM_w_SMO import *
-# from warnings import filterwarnings
-
-# filterwarnings("error")
-
 
 class AAOSVM(SMOModel):
     """
-        Reproduction of the Adversary-Aware Online SVM
+    Container object for the model used for the Adversary-Aware Online SVM.
+
+    Parameters:
+        X (np.ndarray): training data matrix
+        y (np.array): class label vector (-1 or 1) for the data
+        C (int): regularization parameter
+        alphas (np.array): lagrange multiplier vector
+        b (int): scalar bias term
+        errors (np.array): error cache
+        m (int): size of the sliding window
+        Gp (int): period (or after a number of instances) in which the psi will be updated
+        Em (int): utility score of a malicious sample; reward for classifying malicious sample correctly
+        Er (int): utility score of a regular sample; reward for classifying regular sample correctly
+        Ym (int): cost score of a malicious sample; punishment for misclassifying malicious sample
+        Yr (int): cost score of a regular sample; punishment for misclassifying regular sample
+        s (float): threshold for the training criteria
+        kernel_type (str): kernel function type ("linear" or "gaussian")
+        k (int): number of clusters
+        max_optimization (int): maximum number of times that the slidding window will try to optimize
+        update (boolean): defines if the scores will be kept constant or updated with every training
     """
 
     def __init__(
@@ -34,7 +51,7 @@ class AAOSVM(SMOModel):
         Yr=10,
         s=0.6,
         kernel_type="linear",
-        k=3,  # should be 2, 3, or 4...
+        k=3,
         max_optimization = 2,
         update=False
     ):
@@ -45,17 +62,19 @@ class AAOSVM(SMOModel):
         # else:
         self.w = np.zeros(1)  # weight vector
 
-        # Variable(s) related to "relaxing" the SVM
+        # Variable related to "relaxing" the SVM
         # self.slack = np.ones((len(X[0]),)) * s        # slack vector
         self.slack = s  # slack variable
 
-        # Game theory variables
-        self.mem = m  # memory parameter
-        self.Gp = Gp  # period to approximate sequential equilibrium strategies
-        self.Em = Em  # reward for classifying malicious correctly
-        self.Er = Er  # reward for classifying regular correctly
-        self.Ym = Ym  # punishment for misclassifying malicious
-        self.Yr = Yr  # punishment for misclassifying regular
+        # "Periodic" variables
+        self.mem = m
+        self.Gp = Gp
+        
+        # Scoring variables
+        self.Em = Em
+        self.Er = Er
+        self.Ym = Ym
+        self.Yr = Yr
 
         # Helper variables
         self.Psi = 0  # last Psi value
@@ -68,12 +87,20 @@ class AAOSVM(SMOModel):
         self.update = update
 
     def reset(self, X, y, update=False):
+        """
+        Function to reset the AAOSVM to initial values.
+
+        Parameters:
+            X (np.ndarray): dataset instances to initialize model
+            y (np.array): dataset labels to initialize model
+            update (boolean): parameter to initialize model
+
+        Returns:
+            An untrained AAOSVM model with initial values
+        """
+
         # Set model parameters and initial values
         C = 100.0
-        # C = 1000.0  # for SVM_w_SMO comparison
-        # C = 1.0  # for SVM_w_SMO comparison
-        # m = len(ds[1])  # for SVM_w_SMO comparison
-
         m = 2
         initial_alphas = np.zeros(m)
         initial_b = 0.0
@@ -96,7 +123,7 @@ class AAOSVM(SMOModel):
 
     def get_clusters(self):
         """
-        Gets clusters in X using an clustering algorithm
+        Gets clusters in X using an clustering algorithm (KMeans).
         """
         self.clusters = KMeans(n_clusters=self.k, random_state=42).fit(
             self.X
@@ -110,19 +137,6 @@ class AAOSVM(SMOModel):
         for i in range(self.k):
             self.clusters.Z[i] = sum(self.clusters.labels_ == i)
 
-        # for i, l in enumerate(self.clusters.labels_):
-        #         # number of instances in a cluster that have label y
-        #         if self.y[i] == y:
-        #             count += 1
-        #     # number of instances that have label 'M'
-        #     if self.y[i] == 1:
-        #         self.clusters.M += 1
-        #     # number of instances that have label 'R'
-        #     if self.y[i] == -1:
-        #         self.clusters.R += 1
-        # if not ((self.clusters.labels_ == 1) == (self.y == 1)).all():
-        #     input('Yay!')
-
     def distance(self, a, b):
         """
         Euclidean distance between two np.arrays
@@ -130,13 +144,25 @@ class AAOSVM(SMOModel):
         return np.linalg.norm(a - b)
 
     def get_type(self, x):
+        """
+        Deprecated cluster prediction of a sample.
+        """
         types = [self.distance(x, c) for c in self.clusters.cluster_centers_]
         return np.argmin(types)
 
     def utility(self, y, x, h, binary=True):
         """
-        Classifier Utility
-        Uc(y, x, C(x))
+        Calculates the "Classifier Utility"
+        
+        Parameters:
+            y (int): true label of sample
+            x (np.array): sample
+            h (int): predicted label of sample
+            binary (boolean): type of features in the sample\
+                (binary or not)
+        
+        Returns:
+            Uc(y, x, C(x))
         """
         # Original formulas
         if binary:
@@ -177,8 +203,14 @@ class AAOSVM(SMOModel):
 
     def update_probabilities(self, X):
         """
-        Calculates the probability of a type
-        The only part of game theory that uses the whole 
+        Calculates the probability of a type in the whole dataset,\
+            i.e., the probability of a sample be part of a cluster.
+
+        It calculates for every type and stores the result in a\
+            probability vector of size 'k'.
+
+        Parameters:
+            X (np.ndarray): the whole training dataset.
         """
         self.p = np.zeros(self.k)
 
@@ -192,25 +224,34 @@ class AAOSVM(SMOModel):
 
     def phi(self, y, z):
         """
-        Probability that an instance is from a cluster and has type y
-        phi(x|(y, z))
+        Probability that, given a cluster, an instance has label y
+        phi(y | z)
+
+        Parameters:
+            y (int): label to be looked at
+            z (int): number of the cluster being looked at
         """
         count = 0
-        # print(self.clusters.predict(np.reshape(x, (1, -1))))
         for i, l in enumerate(self.clusters.labels_):
             # number of instances in a cluster that have label y
             if l == z and self.y[i] == y:
                 count += 1
 
-        # print(count, y)
-        # print(count/self.clusters.Z[z])
         return count / self.clusters.Z[z]
 
     def mu(self, y, z, x):
         """
         A belief, a probability distribution.
-        u((y, z)|x)
-        Represents the probability that given a message, we are dealing with a certain type of message
+        mu((y, z)|x)
+        Represents the probability that given an instance, we are dealing with a certain type of instance
+
+        Parameters:
+            y (int): label to be looked at
+            z (int): number of the cluster being looked at
+            x (np.array): instance being looked at
+
+        Returns:
+            mu((y, z)|x) (float)
         """
         count_R = 0
         count_M = 0
@@ -244,8 +285,13 @@ class AAOSVM(SMOModel):
     def psi(self, x):
         """
         Helper function from Psi(x)
+
+        Parameters:
+            x (np.array): instance to be examined
+
+        Returns:
+            psi(x) (float)
         """
-        # try:
         scores_u = (self.Em + self.Ym)
         scores_d = (self.Er + self.Yr)
         if scores_u == 0 or scores_d == 0:
@@ -254,18 +300,25 @@ class AAOSVM(SMOModel):
         mu_R = sum([self.mu(-1, i, x) for i in range(self.k)])
         aux = mu_M / mu_R
         return aux * scores_u / scores_d
-        # except RuntimeWarning:
-        #     return 0
 
     def update_psi(self, x):
         """
-        Function that incorporates prior knowledge into the SVM
+        Function that incorporates prior knowledge into the AAOSVM training criteria
+
+        Parameters:
+            x (np.array): an instance to be examined
         """
         self.Psi = (1 + self.psi(x)) / (sum(self.w) + 2 * self.b)
 
     def update_weights(self, i1, i2, a1, a2):
         """
-        Update the value of a couple of weights?
+        Update the value of weights based on two optimized instances and their respective alpha values
+
+        Parameters:
+            i1 (np.array): an optimized instance
+            i2 (np.array): another optimized instance
+            a1 (float): the alpha value for 'i1'
+            a2 (float): the alpha value for 'i2'
         """
         self.w = (
             self.w
@@ -275,11 +328,12 @@ class AAOSVM(SMOModel):
 
     # Objective function to optimize
     def objective_function(self, alphas):
-        """Returns the SVM objective function based in the input model defined by:
-        `alphas`: vector of Lagrange multipliers
-        `target`: vector of class labels (-1 or 1) for training data
-        `kernel`: kernel function
-        `X_train`: training data for model."""
+        """
+        Returns the AAOSVM objective function.
+        
+        Parameters:
+            alphas (np.array): vector of Lagrange multipliers
+        """
 
         return 0.5 * np.sum(
             (self.y[:, None] * self.y[None, :])
@@ -289,11 +343,7 @@ class AAOSVM(SMOModel):
 
     # Decision function (AKA constraint(s))
     def decision_function(self, x_test):
-        """Applies the SVM decision function to the input feature vectors in `x_test`."""
-        # print('alphas', self.alphas)
-        # print('y', self.y)
-        # print('b', self.b)
-        # print('kernel', self.X @ x_test.T)
+        """Applies the SVM decision function to the input feature vectors in 'x_test'."""
         return (self.alphas * self.y) @ (self.X @ x_test.T) - self.b
 
     def predict(self, x_test: np.ndarray):
@@ -302,18 +352,22 @@ class AAOSVM(SMOModel):
 
         Parameters:
             x_test (np.ndarray): instances to be predicted.
-            show_loss (bool): option to return the possible loss.
 
         Returns:
-            y_pred (np.array): predicted labels of x_test.
-            loss (int): number of instances not exactly predicted.\
-                (only if show_loss == True)
+            sign(y_pred) (np.array): predicted labels of x_test.
         """
         y_pred = self.decision_function(x_test)
 
         return np.sign(y_pred)
 
     def take_step(self, i1, i2):
+        """
+        Optimizes a pair of instances, if possible.
+
+        Parameters:
+            i1 (np.array): an instance to be optimized.
+            i2 (np.array): another instance to be optimized.
+        """
 
         # Skip if chosen alphas are the same
         if i1 == i2:
@@ -426,7 +480,6 @@ class AAOSVM(SMOModel):
         self.alphas[i2] = a2
 
         # Update error cache
-        # Note: do not know where the following is from
         # Error cache for optimized alphas is set to 0 if they're unbound
         for index, alph in zip([i1, i2], [a1, a2]):
             if 0.0 < alph < self.C:
@@ -449,16 +502,21 @@ class AAOSVM(SMOModel):
         return 1, self
 
     def train(self):
+        """ 
+        The function called to train the SVM. \
+            Takes no parameters and returns a trained model.
+        
+        It stops the training after done optimizing or has reached\
+            the maximum number of optimizations.
+        """
 
         numChanged = 0
         examineAll = 1
         t = 0
 
-        # print('While')
         while t < self.T and ((numChanged > 0) or (examineAll)):
             numChanged = 0
             if examineAll:
-                # print('For 1')
                 # loop over all training examples
                 for i in range(self.alphas.shape[0]):
                     examine_result, self = self.examine_example(i)
@@ -467,7 +525,6 @@ class AAOSVM(SMOModel):
                         obj_result = self.objective_function(self.alphas)
                         self._obj.append(obj_result)
             else:
-                # print('For 2')
                 # loop over examples where alphas are not already at their limits
                 for i in np.where((self.alphas != 0) & (self.alphas != self.C))[0]:
                     examine_result, self = self.examine_example(i)
@@ -498,7 +555,7 @@ class AAOSVM(SMOModel):
             # Set flag
             trained = True
 
-            # Initialize error cache  TODO: why is this here?
+            # Initialize error cache
             self.errors = self.predict(self.X) - self.y
 
             prev_errors = self.errors.copy()
@@ -522,14 +579,11 @@ class AAOSVM(SMOModel):
                     elif abs(err) > abs(prev_errors[j]) and Sy[j] == -1:
                         self.Yr += self.Yr * np.tanh(err)
 
-                    # for fixing the '0' problem: if error != 0: reset cost/utility to some value
-
         # Increasing the size of the parameters of the model
         if self.mem > self.m:
             self.m += 1
             self.alphas = np.append(self.alphas, [0], 0)
             self.errors = np.append(self.errors, [0], 0)
-            # print(len(Sx), len(Sy), len(self.alphas), len(self.errors))
 
         # if reached the limit of the window
         # i.e. window is full and now will move
@@ -537,23 +591,11 @@ class AAOSVM(SMOModel):
             Sx = Sx[1:]
             Sy = Sy[1:]
 
+        # Update psi() every Gp periods
         if i % self.Gp == 0:
-            # k = 3  # should be 2, 3, or 4...
-            # self.update_probabilities(k)
-            # print(self.p)
-            # input()
             self.get_clusters()
             self.update_probabilities(X)
-            # self.phi(-1, 0)
-            # self.phi(-1, 1)
-            # self.phi(1, 1)
-            # self.phi(-1, 2)
-            # print(self.psi(x))
-            # print(self.Psi)
             self.update_psi(x)
-            # print(self.Psi)
-            # print(self.p)
-            # input()
 
         # Adding instance to the window
         Sx = np.append(Sx, [x], 0)

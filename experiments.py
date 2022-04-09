@@ -69,9 +69,9 @@ for s in sel_names:
 name = name[:-2]
 
 # input -> experiment number
-n = int(input("What is the experiment? [0-4]\n"))
-while n < 0 and n > 4:
-    n = int(input("What is the experiment? [0-4]\n"))
+n = int(input("What is the experiment? [1-4]\n"))
+while n < 1 and n > 4:
+    n = int(input("What is the experiment? [1-4]\n"))
 
 
 kn = input("Repeat experiments 10x? ([y]/n)\n") or "y"

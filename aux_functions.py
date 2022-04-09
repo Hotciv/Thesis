@@ -1,9 +1,7 @@
 from sklearn.metrics import accuracy_score, f1_score, recall_score
 
-# from sklearn.model_selection import train_test_split
 from sklearn.model_selection import KFold
 
-# import matplotlib.pyplot as plt
 from random import randrange, seed
 from csv import writer
 import numpy as np
@@ -67,7 +65,7 @@ def expander(
         type Union(list, np.array): list/np.array to select 'split' samples.
         random_state [42]: initial random state for auditatorial purposes.
         func [knn]: 'knn' will use the proximity of support vectors to increase the size,
-            'ranom' will increase the size using randomly selected samples
+            'random' will increase the size using randomly selected samples
     """
     if func == "knn":
         y_ = y[type]
@@ -200,22 +198,6 @@ def dataset_split(
             y_train = np.delete(y, selected)
 
     return X_train, X_test, y_train, y_test, selected
-
-
-# def dataset_splits(X: np.ndarray, y: np.ndarray, split, type, random_state=42):
-#     """
-
-#     """
-#     # saving the results on a csv file
-#     f = open("standard_splits.csv", "w", newline="")
-#     wrt = writer(f)
-#     header = ["Split", "Indexes"]
-#     wrt.writerow(header)
-
-#     for i in range(10):
-#         X_train, X_test, y_train, y_test, selected = dataset_split(X, y, split, type, i)
-#         wrt.writerow([i] + selected)
-
 
 def cross_validate(
     clf,
@@ -542,7 +524,7 @@ def feature_selection(x, f=None, random_state=42):
 # print(selFeatures)
 # # /Feature selection testing
 
-# # Bias metrics
+# Bias metrics
 def class_imbalance(y):
     """
     Measures the class imbalance using the formula
@@ -570,11 +552,6 @@ def class_imbalance(y):
     n = -sum(y[y == -1])
 
     return (p - n) / (p + n)
-
-
-# a = np.ones(6)
-# b = np.ones(4) * -1
-# c = np.append(a,b)
 
 
 def DPPTL(attribute: int, a: float, X: np.ndarray, y: np.array):
@@ -620,26 +597,6 @@ def DPPTL(attribute: int, a: float, X: np.ndarray, y: np.array):
     return pia / xia - npia / nxia
 
 
-# def demographic_parity(attribute, a, X, y):
-#     '''
-#     attribute -> an attribute to be looked at
-#     a -> value of the attribute to be looked at
-#     X -> dataset
-#     y -> predicted labels
-#     '''
-#     pass
-
-
-# def equality_of_opportunity(attribute, a, X, y):
-#     """
-#     attribute -> an attribute to be looked at
-#     a -> value of the attribute to be looked at
-#     X -> dataset
-#     y -> predicted labels
-#     """
-#     pass
-
-
 def empirical_robustness(
     classifier, x: np.array, adv_x: np.ndarray,
 ) -> Union[float, np.ndarray]:
@@ -679,9 +636,7 @@ def empirical_robustness(
         perts_norm
         / np.linalg.norm(x[idxs].reshape(np.sum(idxs), -1), ord=norm_type, axis=1)
     )
-
-
-# # /Bias metrics
+# /Bias metrics
 
 # def plot_columns(X, y=None):
 #     sz = len(data)

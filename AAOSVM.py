@@ -11,6 +11,7 @@
 from sklearn.cluster import KMeans
 from SVM_w_SMO import *
 
+
 class AAOSVM(SMOModel):
     """
     Container object for the model used for the Adversary-Aware Online SVM.
@@ -52,8 +53,8 @@ class AAOSVM(SMOModel):
         s=0.6,
         kernel_type="linear",
         k=3,
-        max_optimization = 2,
-        update=False
+        max_optimization=2,
+        update=False,
     ):
         # Variables related to SVM with SMO
         super().__init__(X, y, C, alphas, b, errors, kernel_type)
@@ -69,7 +70,7 @@ class AAOSVM(SMOModel):
         # "Periodic" variables
         self.mem = m
         self.Gp = Gp
-        
+
         # Scoring variables
         self.Em = Em
         self.Er = Er
@@ -125,9 +126,7 @@ class AAOSVM(SMOModel):
         """
         Gets clusters in X using an clustering algorithm (KMeans).
         """
-        self.clusters = KMeans(n_clusters=self.k, random_state=42).fit(
-            self.X
-        )
+        self.clusters = KMeans(n_clusters=self.k, random_state=42).fit(self.X)
 
         self.clusters.R = sum(self.y == -1)
         self.clusters.M = sum(self.y == 1)
@@ -292,8 +291,8 @@ class AAOSVM(SMOModel):
         Returns:
             psi(x) (float)
         """
-        scores_u = (self.Em + self.Ym)
-        scores_d = (self.Er + self.Yr)
+        scores_u = self.Em + self.Ym
+        scores_d = self.Er + self.Yr
         if scores_u == 0 or scores_d == 0:
             return 0
         mu_M = sum([self.mu(1, i, x) for i in range(self.k)])
